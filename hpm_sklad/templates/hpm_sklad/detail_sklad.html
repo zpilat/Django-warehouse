@@ -1,0 +1,65 @@
+{% extends "hpm_sklad/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block right_content %}
+    <header>
+        <nav class="navbar">
+            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>
+            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>            
+            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání</a>
+        </nav>
+    </header>
+    <h3 class="text-center">Detaily skladové položky</h3>
+    
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Detaily:</th>
+                </tr>
+            </thead>          
+            <tbody>
+                {% for field in detail_item_fields %}
+                    <tr>
+                        <th>{{ field.verbose_name }}</th>
+                        <td>{{ object|get_attribute:field.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Příznaky:</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for field in info_fields %}
+                    <tr>
+                        <th>{{ field.verbose_name }}</th>
+                        <td>{{ object|get_attribute:field.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Zařízení:</th>
+                </tr>
+            </thead>        
+            <tbody>
+                <tr>
+                    {% for field in equipment_fields_true %}
+                        <td>{{ field.verbose_name }}</td>
+                    {% endfor %}                
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block script %}{% endblock %}

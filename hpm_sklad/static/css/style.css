@@ -1,0 +1,127 @@
+th, td {
+    padding: 4px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 13px;
+    font: arial;
+}
+
+container-sklad th:nth-child(3), container-sklad td:nth-child(3) {
+    width: 500px; 
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #ffffff; /* bílá pro liché sloupce */
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #f2f2f2; /* šedá pro sudé sloupce */
+}
+
+thead th {
+    background-color: #A9A9A9;
+}
+
+main_menu {
+    border: 4px solid #ddd; 
+    background-color: #f9f9f9;  
+}
+
+.pagination {
+    background-color: #A9A9A9;
+    padding: 4px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+}
+
+.app {
+    display: flex;
+    flex-direction: row;  /* Zajistí, že sloupce budou vodorovně vedle sebe */
+    width: 100%;          /* Zajistí, že flex kontejner zaujme celou šířku */
+}
+
+.left-column {
+    padding-right: 20px;
+}
+
+
+.nav-item, .button-link {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 2px;
+    background-color: #007BFF;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 13px;
+}
+
+.nav-item:hover, .button-link:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+}
+
+.selected-row {
+    background-color: #A9A9A9 !important; 
+    font-weight: bold;
+    color: white;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-column {
+    flex: 0 0 40%; 
+    padding: 5px;
+    font-size: 14px;
+}
+
+.row {
+    display: flex;
+}
+
+.btn-primary {
+    width: 150px;
+    margin-top: 15px;
+    margin-left: 5px;
+}
+
+.current {
+    font-weight: bold;
+}
+
+.navbar {
+    display: flex;
+    justify-content: flex-start; /* Položky budou u sebe vlevo */
+    gap: 10px; /* Nastav mezery mezi položkami, můžeš upravit hodnotu dle potřeby */
+    margin-bottom: 5px;
+}
+
+/* Styl pro navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Vertikální zarovnání na střed */
+    padding: 10px;
+    gap: 10px; 
+    margin-bottom: 5px;
+    background-color: #f8f9fa; /* Barva pozadí */
+    border-bottom: 1px solid #ddd; /* Spodní ohraničení */
+}
+
+/* Levá část navbaru */
+.navbar-left {
+    flex-grow: 1;
+}
+
+/* Pravá část navbaru */
+.navbar-right {
+    flex-grow: 0;
+    margin-left: auto; /* Tlačí pravou část na pravou stranu */
+}

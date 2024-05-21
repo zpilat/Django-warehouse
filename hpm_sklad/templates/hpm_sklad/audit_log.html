@@ -1,0 +1,51 @@
+{% extends "hpm_sklad/base.html" %}
+{% load static %}
+
+{% block head %}
+    {{ block.super }}  <!-- Dědí veškerý obsah z původního bloku head v base.html -->
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="navbar-left">
+        {% include "hpm_sklad/navbar.html" %}
+    </div>
+    <div class="navbar-right">
+        {% include "hpm_sklad/login.html" %}
+    </div>
+</nav>
+{% endblock %}
+
+
+{% block left_content %}
+<h3 class="text-center">Auditovací log</h3>
+    <div class="container-log">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Typ operace</th>
+                    <th>Skladová položka</th>                       
+                    <th>Množství</th>                
+                    <th>Datum pohybu</th>
+                    <th>Čas operace</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in object_list %}
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.get_movement_type_display }}</td>
+                    <td>{{ item.spare_part }}</td>                   
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.datum_operace | date:"d.m.Y" }}</td>
+                    <td>{{ item.created_at | date:"d.m.Y H:i" }}</td>
+                 </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>    
+    {% include "hpm_sklad/pagination.html" %}
+{% endblock %}
+
+{% block script %}{% endblock %}
+

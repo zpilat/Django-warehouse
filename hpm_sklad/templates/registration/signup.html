@@ -1,0 +1,14 @@
+<!-- registration/register.html -->
+{% extends "hpm_sklad/base.html" %}
+{% block title %}Registrace{% endblock %}
+{% block left_content %}
+<h2>Registrace</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Zaregistrovat se</button>
+</form>
+<p>Máte již účet? <a class="nav-item" href="{% url 'login' %}">Přihlaste se</a></p>
+{% endblock %}
+{% block right_content %}
+{% endblock %}

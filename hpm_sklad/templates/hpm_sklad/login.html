@@ -1,0 +1,6 @@
+{% if user.is_authenticated %}
+    <a class="button nav-item" href="{% url 'logout' %}">Odhlásit se</a>
+{% else %}
+    <a class="button nav-item" href="{% url 'login' %}">Přihlásit se</a>
+    <a class="button nav-item" href="{% url 'signup' %}">Registrace</a>
+{% endif %}

@@ -1,0 +1,18 @@
+<!-- registration/login.html -->
+{% extends "hpm_sklad/base.html" %}
+{% block title %}Přihlášení{% endblock %}
+{% block left_content %}
+<div class="login-form">
+<h2>Přihlášení:</h2>
+  <form class="login" method="post">
+      <div>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Login"/>
+      </div>
+  </form>
+</div>
+<p>Nemáte účet? <a class="nav-item" href="{% url 'signup' %}">Registrujte se</a></p>
+{% endblock %}
+{% block right_content %}
+{% endblock %}
