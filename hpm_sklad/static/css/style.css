@@ -42,9 +42,12 @@ main_menu {
 }
 
 .left-column {
-    padding-right: 20px;
+    flex: 83;              
 }
 
+.right-column {
+    flex: 17;              
+}
 
 .nav-item, .button-link {
     display: inline-block;
@@ -67,7 +70,6 @@ main_menu {
 
 .selected-row {
     background-color: #A9A9A9 !important; 
-    font-weight: bold;
     color: white;
 }
 
@@ -77,9 +79,9 @@ main_menu {
 }
 
 .form-column {
-    flex: 0 0 40%; 
+    flex: 1 1 30%; 
     padding: 5px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .row {
@@ -94,13 +96,6 @@ main_menu {
 
 .current {
     font-weight: bold;
-}
-
-.navbar {
-    display: flex;
-    justify-content: flex-start; /* Položky budou u sebe vlevo */
-    gap: 10px; /* Nastav mezery mezi položkami, můžeš upravit hodnotu dle potřeby */
-    margin-bottom: 5px;
 }
 
 /* Styl pro navbar */
