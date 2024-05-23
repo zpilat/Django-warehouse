@@ -114,7 +114,7 @@ class AuditLogCreateForm(forms.ModelForm):
     
     class Meta:
         model = AuditLog
-        fields = ['spare_part', 'movement_type', 'quantity', 'datum_operace']
+        fields = ['evidencni_cislo', 'nazev_dilu', 'zmena_mnozstvi', 'datum_zmeny']
 
     def __init__(self, *args, **kwargs):
         super(AuditLogCreateForm, self).__init__(*args, **kwargs)

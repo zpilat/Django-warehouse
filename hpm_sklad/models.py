@@ -59,18 +59,67 @@ class Sklad(models.Model):
     def __str__(self):
         return "Evid. č. " + str(self.evidencni_cislo) + ", " + self.nazev_dilu
 
+class Dodavatele(models.Model):
+    LANGUAGE_CHOICES = [
+        ('CZ', 'Český'),
+        ('SK', 'Slovenský'),
+        ('DE', 'Německý'),
+        ('EN', 'Anglický')
+    ]
+    dodavatel = models.CharField(max_length=100, verbose_name="Dodavatel")
+    kontakt = models.CharField(null=True, max_length=100, verbose_name="Kontaktní osoba")
+    email = models.EmailField(null=True, max_length=100, verbose_name="E-mail")
+    telefon = models.CharField(null=True, max_length=20, verbose_name="Telefon")
+    jazyk = models.CharField(null=True, max_length=2, choices=LANGUAGE_CHOICES, default='CZ', verbose_name="Jazyk") 
+
+    def __str__(self):
+        return f"{self.dodavatel}"
+
+class Zarizeni(models.Model):
+    zarizeni = models.CharField(max_length=10, verbose_name="Zařízení")
+    nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
+    umisteni = models.CharField(max_length=20, verbose_name="Umístění")
+    typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
+
+
+    def __str__(self):
+        return f"{self.nazev_zarizeni}: {self.umisteni}"
     
 class AuditLog(models.Model):
     MOVEMENT_CHOICES = [
         ('IN', 'Příjem'),
         ('OUT', 'Výdej')
     ]
-    
-    spare_part = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Skladová položka")
-    movement_type = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, verbose_name="Typ operace")
-    quantity = models.PositiveIntegerField(verbose_name="Množství")
-    datum_operace = models.DateField(default=timezone.now, verbose_name="Datum pohybu")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Čas operace")
+
+    JEDNOTKY_CHOICES = [
+        ('ks', 'kus'),
+        ('kg', 'kilogram'),
+        ('par', 'pár'),
+        ('l', 'litr'),
+        ('m', 'metr'),
+        ('baleni', 'balení'),
+    ]
+
+    ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
+    evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE)
+    interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")
+    objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
+    nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu")
+    zmena_mnozstvi = models.PositiveIntegerField(verbose_name="Změna množství")
+    mnozstvi_ks_m_l = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
+    jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
+    typ_operace = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, verbose_name="Typ operace")
+    pouzite_zarizeni = models.CharField(max_length=70, verbose_name="Pro zařízení")
+    umisteni = models.CharField(max_length=25, verbose_name="Umístění")
+    dodavatel = models.CharField(max_length=70, verbose_name="Dodavatel")
+    datum_zmeny = models.DateField(verbose_name="Datum změny")
+    cislo_objednavky = models.CharField(max_length=20, null=True, blank=True, verbose_name="Číslo objednávky")
+    jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
+    celkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="Celkem EUR")
+    cas_vytvoreni = models.DateTimeField(auto_now_add=True, verbose_name="Čas vytvoření")
+    operaci_provedl = models.CharField(max_length=20, verbose_name="Operaci provedl")
+    poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
 
     def __str__(self):
         return f"{self.movement_type}: {self.quantity}x {self.spare_part}"
+
