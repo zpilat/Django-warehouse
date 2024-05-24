@@ -104,7 +104,31 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
             Div(Field(self.Meta.fields[0]), css_class='form-column'), 
             Submit('submit', 'Uložit', css_class="nav-item"),
             )
+
         
+class SkladReceiptUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Sklad
+        fields = [
+            "ucetnictvi", "evidencni_cislo", "interne_cislo", "objednano", "nazev_dilu",
+            "mnozstvi_ks_m_l", "jednotky", "umisteni", "dodavatel", "datum_nakupu",
+            "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
+            ]
+
+    def __init__(self, *args, **kwargs):
+        super(SkladReceiptUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-grid'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Div(
+                *[Field(field) for field in self.Meta.fields],
+                css_class='form-column'
+            )
+        )  
+
+
 class AuditLogCreateForm(forms.ModelForm):
     datum_operace = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date'}),
@@ -114,22 +138,23 @@ class AuditLogCreateForm(forms.ModelForm):
     
     class Meta:
         model = AuditLog
-        fields = ['evidencni_cislo', 'nazev_dilu', 'zmena_mnozstvi', 'datum_zmeny']
+        fields = [
+            "zmena_mnozstvi", "typ_operace", "pouzite_zarizeni", "operaci_provedl",
+            ]
 
     def __init__(self, *args, **kwargs):
         super(AuditLogCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_class = 'form-grid'  # Přiřazení CSS třídy pro grid layout
+        self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
 
-        # Vytvoření layoutu s dvěma sloupci
         self.helper.layout = Layout(
             Div(
                 *[Field(field) for field in self.Meta.fields],
-                css_class='form-column'  # Přiřazení CSS třídy pro levý sloupec
-            ),
-            Submit('submit', 'Uložit', css_class="nav-item"),
-        )    
+                css_class='form-column'
+            )
+        )  
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

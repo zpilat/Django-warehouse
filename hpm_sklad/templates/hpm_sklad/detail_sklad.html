@@ -8,6 +8,7 @@
             <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>
             <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>            
             <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání</a>
+	    <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'create_audit_log' object.evidencni_cislo %}')">Příjem</a>
         </nav>
     </header>
     <h3 class="text-center">Detaily skladové položky</h3>

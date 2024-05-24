@@ -9,10 +9,40 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Sklad, AuditLog
-from .forms import SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, AuditLogCreateForm, CustomUserCreationForm
+from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm,
+                    SkladReceiptUpdateForm, AuditLogCreateForm, CustomUserCreationForm)
 
 def home_view(request):
     return render(request, "hpm_sklad/home.html")
+
+def receipt_form_view(request, pk):
+    sklad_instance = get_object_or_404(Sklad, pk=pk)
+    if request.method == 'POST':
+        sklad_receipt_form = SkladReceiptUpdateForm(request.POST, instance=sklad_instance)
+        auditlog_create_form = AuditLogCreateForm(request.POST)
+        
+        if sklad_receipt_form.is_valid() and auditlog_create_form.is_valid():
+            # Uložit změny do modelu Sklad
+            updated_sklad = sklad_receipt_form.save()
+            
+            # Přenést data ze skladu do formuláře AuditLog
+            auditlog_instance = auditlog_create_form.save(commit=False)
+            auditlog_instance.evidencni_cislo = updated_sklad.evidencni_cislo
+            auditlog_instance.interne_cislo = updated_sklad.interne_cislo
+            auditlog_instance.save()
+            
+            return redirect('audit_log')
+    else:
+        sklad_receipt_form = SkladReceiptUpdateForm(instance=sklad_instance)
+        auditlog_create_form = AuditLogCreateForm()
+
+    context = {
+        'sklad_receipt_form': sklad_receipt_form,
+        'auditlog_create_form': auditlog_create_form,
+        'object': sklad_instance,  # Přidáno do kontextu
+    }
+    return render(request, 'hpm_sklad/create_audit_log.html', context)
+
 
 class SkladListView(LoginRequiredMixin, ListView):
     model = Sklad
@@ -86,12 +116,12 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     template_name = 'hpm_sklad/audit_log.html'
     context_object_name = 'logs'
     
-class AuditLogCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = Sklad
-    form_class = AuditLogCreateForm    
-    template_name = 'hpm_sklad/create_audit_log.html'
-    success_url = reverse_lazy("audit_log")
-    permission_required = 'hpm_sklad.create_sparepart'    
+##class AuditLogCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+##    model = Sklad
+##    form_class = AuditLogCreateForm    
+##    template_name = 'hpm_sklad/create_audit_log.html'
+##    success_url = reverse_lazy("audit_log")
+##    permission_required = 'hpm_sklad.create_sparepart'   
     
 class SignUp(CreateView):
   form_class = CustomUserCreationForm
