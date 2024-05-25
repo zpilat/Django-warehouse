@@ -111,17 +111,12 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         context['detail_item_fields'] = detail_item_fields
         return context
     
+    
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html'
     context_object_name = 'logs'
-    
-##class AuditLogCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-##    model = Sklad
-##    form_class = AuditLogCreateForm    
-##    template_name = 'hpm_sklad/create_audit_log.html'
-##    success_url = reverse_lazy("audit_log")
-##    permission_required = 'hpm_sklad.create_sparepart'   
+ 
     
 class SignUp(CreateView):
   form_class = CustomUserCreationForm

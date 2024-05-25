@@ -31,21 +31,29 @@ main_menu {
     padding: 4px;
     border: 1px solid #ddd;
     text-align: left;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .app {
     display: flex;
     flex-direction: row;  /* Zajistí, že sloupce budou vodorovně vedle sebe */
     width: 100%;          /* Zajistí, že flex kontejner zaujme celou šířku */
+    margin: 0;
+    padding: 0;
 }
 
 .left-column {
-    flex: 83;              
+    flex: 7;            
+    margin:0;
+    padding: 10px;
+    background-color: lightblue;
 }
 
 .right-column {
-    flex: 17;              
+    flex: 3;   
+    margin:0;
+    padding: 10px;   
+    background-color: lightcoral;
 }
 
 .nav-item, .button-link {
@@ -78,7 +86,7 @@ main_menu {
 }
 
 .form-column {
-    flex: 1 1 30%; 
+    flex: 0 0 50%; 
     padding: 5px;
     font-size: 13px;
 }
