@@ -5,18 +5,6 @@
     {{ block.super }}  <!-- Dědí veškerý obsah z původního bloku head v base.html -->
 {% endblock %}
 
-{% block navbar %}
-<nav class="navbar">
-    <div class="navbar-left">
-        {% include "hpm_sklad/navbar.html" %}
-    </div>
-    <div class="navbar-right">
-        {% include "hpm_sklad/login.html" %}
-    </div>
-</nav>
-{% endblock %}
-
-
 {% block left_content %}
 <h3 class="text-center">Auditovací log</h3>
     <div class="container-log">
@@ -46,6 +34,8 @@
     </div>    
     {% include "hpm_sklad/pagination.html" %}
 {% endblock %}
+
+{% block right_content %}{% endblock %}
 
 {% block script %}{% endblock %}
 

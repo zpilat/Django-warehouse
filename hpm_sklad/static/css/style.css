@@ -43,14 +43,14 @@ main_menu {
 }
 
 .left-column {
-    flex: 7;            
+    flex: 75;            
     margin:0;
     padding: 10px;
     background-color: lightblue;
 }
 
 .right-column {
-    flex: 3;   
+    flex: 25;   
     margin:0;
     padding: 10px;   
     background-color: lightcoral;

@@ -1,23 +1,11 @@
-<!-- myapp/templates/myapp/home.html -->
 {% extends "hpm_sklad/base.html" %}
-{% block title %}Domovská stránka{% endblock %}
 
-{% block navbar %}
-<nav class="navbar">
-    <div class="navbar-left">
-        {% include "hpm_sklad/navbar.html" %}
-    </div>
-    <div class="navbar-right">
-        {% include "hpm_sklad/login.html" %}
-    </div>
-</nav>
+{% block head %}
+    {{ block.super }}  <!-- Dědí veškerý obsah z původního bloku head v base.html -->
 {% endblock %}
 
 {% block left_content %}
 <h2>Domovská stránka</h2>
 <p>Vítejte v aplikaci pro správu skladové databáze HPM.</p>
 {% endblock %}
-{% block right_content %}
-{% endblock %}
 
-{% block script %}{% endblock %}

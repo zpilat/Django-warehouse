@@ -1,4 +1,4 @@
-{% extends "hpm_sklad/base.html" %}
+{% extends "hpm_sklad/base_left_right_column.html" %}
 {% load static %}
 
 {% block navbar %}
@@ -59,3 +59,6 @@
     {% include "hpm_sklad/pagination.html" %}
 {% endblock %}
 
+{% block script %}
+    <script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}
