@@ -39,7 +39,7 @@ def receipt_form_view(request, pk):
     context = {
         'sklad_receipt_form': sklad_receipt_form,
         'auditlog_create_form': auditlog_create_form,
-        'object': sklad_instance,  # Přidáno do kontextu
+        'object': sklad_instance,
     }
     return render(request, 'hpm_sklad/create_audit_log.html', context)
 
