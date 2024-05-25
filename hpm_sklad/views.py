@@ -6,6 +6,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Sklad, AuditLog
@@ -15,6 +16,8 @@ from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm,
 def home_view(request):
     return render(request, "hpm_sklad/home.html")
 
+@login_required
+@permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
 def receipt_form_view(request, pk):
     sklad_instance = get_object_or_404(Sklad, pk=pk)
     if request.method == 'POST':
@@ -64,14 +67,14 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     form_class = SkladCreateForm
     template_name = 'hpm_sklad/create_sklad.html'
     success_url = "/sklad/"
-    permission_required = 'hpm_sklad.create_sparepart'
+    permission_required = 'hpm_sklad.add_sklad'
 
 class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Sklad
     form_class = SkladUpdateForm    
     template_name = 'hpm_sklad/update_sklad.html'
     success_url = "/sklad/"
-    permission_required = 'hpm_sklad.update_sparepart'
+    permission_required = 'hpm_sklad.change_sklad'
     
 class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
     model = Sklad
@@ -83,7 +86,7 @@ class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Sklad
     template_name = 'hpm_sklad/delete_sklad.html'
     success_url = "/sklad/"
-    permission_required = 'hpm_sklad.delete_sparepart'
+    permission_required = 'hpm_sklad.delete_sklad'
     
 
 class SkladDetailView(LoginRequiredMixin, DetailView):

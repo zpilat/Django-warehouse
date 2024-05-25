@@ -4,10 +4,16 @@
 <header>
     <nav class="navbar">
         <div class="navbar-left">
-            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>
-            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>            
-            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání</a>
-            <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'create_audit_log' object.evidencni_cislo %}')">Příjem</a>
+                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>    
+            {% if perms.hpm_sklad.change_sklad %}            
+                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>       
+            {% endif %}
+            {% if perms.hpm_sklad.delete_sklad %}  
+                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání</a>            
+            {% endif %}
+            {% if perms.hpm_sklad.add_auditlog %}  
+                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'create_audit_log' object.evidencni_cislo %}')">Příjem</a>
+            {% endif %}
         </div>
     </nav>
 </header>

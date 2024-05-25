@@ -5,7 +5,9 @@
 <nav class="navbar">
     <div class="navbar-left">
         {% include "hpm_sklad/navbar.html" %}
-        <a class="button nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}')">Vytvoř položku</a>
+        {% if perms.hpm_sklad.add_sklad %}
+            <a class="button nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}')">Vytvoř položku</a>
+        {% endif %}
     </div>
     <div class="navbar-right">
         {% include "hpm_sklad/login.html" %}
