@@ -4,7 +4,9 @@
 <header>
     <nav class="navbar">
         <div class="navbar-left">
+            {% if not perms.hpm_sklad.change_sklad %}
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>    
+            {% endif %}
             {% if perms.hpm_sklad.change_sklad %}            
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>       
             {% endif %}
