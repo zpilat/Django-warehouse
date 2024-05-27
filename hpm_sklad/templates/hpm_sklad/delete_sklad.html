@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 <h3>Smazání skladové položky</h3>
-<form method="post" action="{% url 'delete_sklad' object.evidencni_cislo %}" onsubmit="submitForm(event, this)">
+<form method="post" hx-post="{% url 'delete_sklad' object.evidencni_cislo %}" hx-target="#detail" hx-swap="innerHTML">
     {% csrf_token %}
     <p>Opravdu chcete smazat tuto položku?:</p>
     <p>{{ object|truncatechars:40 }}</p>

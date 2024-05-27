@@ -26,6 +26,14 @@ main_menu {
     background-color: #f9f9f9;  
 }
 
+a[hx-get] {
+    cursor: pointer;
+}
+
+tr[hx-get] {
+    cursor: pointer;
+}
+
 .pagination {
     background-color: #A9A9A9;
     padding: 4px;

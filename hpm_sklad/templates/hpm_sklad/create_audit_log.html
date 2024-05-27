@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 <h3>Příjem / výdej zboží</h3>
-<form method="post" action="{% url 'create_audit_log' object.evidencni_cislo %}" onsubmit="submitForm(event, this)">
+<form method="post" hx-post="{% url 'create_audit_log' object.evidencni_cislo %}" hx-target="#detail" hx-swap="innerHTML">
     {% csrf_token %}
     <div class="row">
         <div class="form-column">
