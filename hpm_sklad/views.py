@@ -60,7 +60,28 @@ class SkladListView(LoginRequiredMixin, ListView):
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
         else:
             context['selected_item'] = None
-        return context    
+        return context
+
+    def get_queryset(self):
+        queryset = Sklad.objects.all()
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(nazev_dilu__icontains=query)
+        
+        filters = {
+            'kriticky_dil': self.request.GET.get('kriticky_dil'),
+            'ucetnictvi': self.request.GET.get('ucetnictvi'),
+        }
+
+        for field, value in filters.items():
+            if value == 'on':
+                queryset = queryset.filter(**{field: True})
+
+        radio_filter = self.request.GET.get('radio_filter')
+        if radio_filter:
+            queryset = queryset.filter(**{radio_filter: True})
+
+        return queryset
 
 class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Sklad

@@ -64,6 +64,12 @@ main_menu {
     background-color: #f8d7da; /* Jemná růžová */
 }
 
+
+.search {
+    font-size: 12px;
+    font-family: arial;
+}
+
 .nav-item, .button-link {
     display: inline-block;
     padding: 5px 10px;
@@ -132,4 +138,30 @@ main_menu {
 .navbar-right {
     flex-grow: 0;
     margin-left: auto; /* Tlačí pravou část na pravou stranu */
+}
+
+/* Vyhledávání a checkbuttony */
+.search-form {
+    margin-bottom: 20px;
+}
+
+.search-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    
 }
