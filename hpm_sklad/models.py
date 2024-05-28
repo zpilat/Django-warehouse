@@ -14,7 +14,7 @@ class Sklad(models.Model):
         ('baleni', 'balení'),
     ]
 
-    evidencni_cislo = models.IntegerField(primary_key=True, verbose_name="Evidenční číslo")
+    evidencni_cislo = models.AutoField(primary_key=True, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")  
     objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
     nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu")

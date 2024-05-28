@@ -36,6 +36,10 @@ main_menu {
     text-align: left;
 }
 
+.show-pointer {
+    cursor: pointer;
+}
+
 .app {
     display: flex;
     flex-direction: row;  /* Zajistí, že sloupce budou vodorovně vedle sebe */

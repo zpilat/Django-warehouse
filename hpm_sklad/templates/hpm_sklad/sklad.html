@@ -36,7 +36,7 @@
                     <th>Poznámka</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="show-pointer">
                 {% for item in object_list %}
                 <tr data-evidencni-cislo="{{ item.evidencni_cislo }}" data-detail-url="{% url 'detail_sklad' item.evidencni_cislo %}" onclick="loadDetail('{% url 'detail_sklad' item.evidencni_cislo %}', '{{ item.evidencni_cislo }}')"
                 {% if item.evidencni_cislo == selected_item.evidencni_cislo %} class="selected-row"{% endif %}>

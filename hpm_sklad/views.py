@@ -68,12 +68,15 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     template_name = 'hpm_sklad/create_sklad.html'
     success_url = "/sklad/"
     permission_required = 'hpm_sklad.add_sklad'
+	
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
 
 class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Sklad
     form_class = SkladUpdateForm    
     template_name = 'hpm_sklad/update_sklad.html'
-    success_url = "/sklad/"
     permission_required = 'hpm_sklad.change_sklad'
     
 class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
