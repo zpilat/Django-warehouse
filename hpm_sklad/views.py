@@ -52,40 +52,31 @@ class SkladListView(LoginRequiredMixin, ListView):
     template_name = 'hpm_sklad/sklad.html'
     paginate_by = 20
     ordering = ['evidencni_cislo']
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        selected_ev_cislo = self.request.GET.get('selected', None)
-        
-        if selected_ev_cislo:
-            context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
-        else:
-            context['selected_item'] = None       
-        return context
 
     def get_queryset(self):
         queryset = Sklad.objects.all()
         query = self.request.GET.get('q')
+        
         if query:
             queryset = queryset.filter(nazev_dilu__icontains=query)
         
         filters = {
             'kriticky_dil': self.request.GET.get('kriticky_dil'),
             'ucetnictvi': self.request.GET.get('ucetnictvi'),
-            'pod_minimem': self.request.GET.get('pod_minimem'),
         }
         
         for field, value in filters.items():
             if value == 'on':
-                if field == 'pod_minimem':
-                    # Filtrování podle vlastnosti
-                    queryset = [obj for obj in queryset if obj.pod_minimem]
-                else:
-                    queryset = queryset.filter(**{field: True})
+                queryset = queryset.filter(**{field: True})
 
         radio_filter = self.request.GET.get('radio_filter')
         if radio_filter:
             queryset = queryset.filter(**{radio_filter: True})
+
+        # Ruční filtrování pro vlastnost pod_minimem
+        pod_minimem = self.request.GET.get('pod_minimem')
+        if pod_minimem == 'on':
+            queryset = [obj for obj in queryset if obj.pod_minimem]
 
         return queryset
 
