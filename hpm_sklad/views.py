@@ -56,10 +56,11 @@ class SkladListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         selected_ev_cislo = self.request.GET.get('selected', None)
+        
         if selected_ev_cislo:
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
         else:
-            context['selected_item'] = None
+            context['selected_item'] = None       
         return context
 
     def get_queryset(self):
@@ -82,6 +83,7 @@ class SkladListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(**{radio_filter: True})
 
         return queryset
+
 
 class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Sklad
@@ -127,6 +129,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         ]
 
         info_fields = [field for field in Sklad._meta.fields if field.name in ("ucetnictvi", "kriticky_dil")]
+        info_fields.append({'verbose_name': 'Pod minimem', 'name': 'pod_minimem'})
 
         detail_item_fields = [
             field for field in Sklad._meta.fields

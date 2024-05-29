@@ -59,6 +59,12 @@ class Sklad(models.Model):
     def __str__(self):
         return "Evid. č. " + str(self.evidencni_cislo) + ", " + self.nazev_dilu
 
+    @property
+    def pod_minimem(self):
+        pod_minimem_bool = self.mnozstvi_ks_m_l < self.min_mnozstvi_ks
+        return "ANO" if pod_minimem_bool else "NE"
+
+    
 class Dodavatele(models.Model):
     LANGUAGE_CHOICES = [
         ('CZ', 'Český'),
@@ -75,6 +81,7 @@ class Dodavatele(models.Model):
     def __str__(self):
         return f"{self.dodavatel}"
 
+
 class Zarizeni(models.Model):
     zarizeni = models.CharField(max_length=10, verbose_name="Zařízení")
     nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
@@ -84,6 +91,7 @@ class Zarizeni(models.Model):
 
     def __str__(self):
         return f"{self.nazev_zarizeni}: {self.umisteni}"
+
     
 class AuditLog(models.Model):
     MOVEMENT_CHOICES = [
