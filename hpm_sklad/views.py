@@ -72,11 +72,16 @@ class SkladListView(LoginRequiredMixin, ListView):
         filters = {
             'kriticky_dil': self.request.GET.get('kriticky_dil'),
             'ucetnictvi': self.request.GET.get('ucetnictvi'),
+            'pod_minimem': self.request.GET.get('pod_minimem'),
         }
-
+        
         for field, value in filters.items():
             if value == 'on':
-                queryset = queryset.filter(**{field: True})
+                if field == 'pod_minimem':
+                    # Filtrování podle vlastnosti
+                    queryset = [obj for obj in queryset if obj.pod_minimem]
+                else:
+                    queryset = queryset.filter(**{field: True})
 
         radio_filter = self.request.GET.get('radio_filter')
         if radio_filter:

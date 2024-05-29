@@ -20,13 +20,16 @@
     <form method="GET" action="" class="search-form">
         <div class="search-group">
             <input class="search" type="text" name="q" placeholder="Vyhledat název dílu" value="{{ request.GET.q }}">
-            <button class="search nav-item" type="submit">Vyhledat</button>
             <label>
                 <input type="checkbox" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}> Kritický díl
             </label>
             <label>
                 <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
             </label>
+            <label>
+                <input type="checkbox" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}> Pod minimem
+            </label>
+            <button class="search nav-item" type="submit">Filtrovat</button>
         </div>
         <div class="radio-group">
             <label>
@@ -119,7 +122,7 @@
             <tbody class="show-pointer">
                 {% for sklad in object_list %}
                 <tr data-evidencni-cislo="{{ sklad.evidencni_cislo }}" data-detail-url="{% url 'detail_sklad' sklad.evidencni_cislo %}" onclick="loadDetail('{% url 'detail_sklad' sklad.evidencni_cislo %}', '{{ sklad.evidencni_cislo }}')"
-                {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="selected-row"{% endif %} {% if sklad.pod_minimem == "ANO" %} class="pod-minimem-row"{% endif %}>
+                {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="selected-row"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
                     <td>{{ sklad.evidencni_cislo }}</td>
                     <td>{{ sklad.interne_cislo }}</td>
                     <td>{{ sklad.nazev_dilu }}</td>

@@ -110,7 +110,7 @@ class SkladReceiptUpdateForm(forms.ModelForm):
     class Meta:
         model = Sklad
         fields = [
-            "ucetnictvi", "evidencni_cislo", "interne_cislo", "objednano", "nazev_dilu",
+            "evidencni_cislo", "interne_cislo", "ucetnictvi", "objednano", "nazev_dilu",
             "mnozstvi_ks_m_l", "jednotky", "umisteni", "dodavatel", "datum_nakupu",
             "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
             ]

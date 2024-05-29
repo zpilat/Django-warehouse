@@ -51,7 +51,7 @@
                     <th>{{ field.verbose_name }}</th>
                     <td>
                         {% if field.name == 'pod_minimem' %}
-			    {{ object.pod_minimem }}
+			    {{ object.pod_minimem_display }}
                         {% else %}
 			    {{ object|get_attribute:field.name }}
 			{% endif %}

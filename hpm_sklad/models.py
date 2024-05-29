@@ -61,8 +61,10 @@ class Sklad(models.Model):
 
     @property
     def pod_minimem(self):
-        pod_minimem_bool = self.mnozstvi_ks_m_l < self.min_mnozstvi_ks
-        return "ANO" if pod_minimem_bool else "NE"
+        return self.mnozstvi_ks_m_l < self.min_mnozstvi_ks
+
+    def pod_minimem_display(self):
+        return "ANO" if self.pod_minimem else "NE"
 
     
 class Dodavatele(models.Model):
