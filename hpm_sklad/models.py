@@ -4,7 +4,29 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
+
+class Dodavatele(models.Model):
+    LANGUAGE_CHOICES = [
+        ('CZ', 'Český'),
+        ('SK', 'Slovenský'),
+        ('DE', 'Německý'),
+        ('EN', 'Anglický')
+    ]
+    dodavatel = models.CharField(max_length=100, verbose_name="Dodavatel")
+    kontakt = models.CharField(null=True, max_length=100, verbose_name="Kontaktní osoba")
+    email = models.EmailField(null=True, max_length=100, verbose_name="E-mail")
+    telefon = models.CharField(null=True, max_length=20, verbose_name="Telefon")
+    jazyk = models.CharField(null=True, max_length=2, choices=LANGUAGE_CHOICES, default='CZ', verbose_name="Jazyk") 
+
+    def __str__(self):
+        return f"{self.dodavatel}"
+
+
 class Sklad(models.Model):
+
+    class Meta:
+        ordering = ["-evidencni_cislo"]
+
     JEDNOTKY_CHOICES = [
         ('ks', 'kus'),
         ('kg', 'kilogram'),
@@ -13,6 +35,7 @@ class Sklad(models.Model):
         ('m', 'metr'),
         ('baleni', 'balení'),
     ]
+    dodavatel_choices = [(d.dodavatel, d.dodavatel) for d in Dodavatele.objects.all()]
 
     evidencni_cislo = models.AutoField(primary_key=True, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")  
@@ -22,7 +45,7 @@ class Sklad(models.Model):
     mnozstvi_ks_m_l = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
-    dodavatel = models.CharField(max_length=70, null=True, blank=True, verbose_name="Dodavatel")
+    dodavatel = models.CharField(max_length=70, choices=dodavatel_choices, null=True, blank=True, verbose_name="Dodavatel")
     datum_nakupu = models.DateField(null=True, blank=True, verbose_name="Datum nákupu")
     cislo_objednavky = models.CharField(max_length=20, null=True, blank=True, verbose_name="Číslo objednávky")
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
@@ -66,22 +89,7 @@ class Sklad(models.Model):
     def pod_minimem_display(self):
         return "ANO" if self.pod_minimem else "NE"
 
-    
-class Dodavatele(models.Model):
-    LANGUAGE_CHOICES = [
-        ('CZ', 'Český'),
-        ('SK', 'Slovenský'),
-        ('DE', 'Německý'),
-        ('EN', 'Anglický')
-    ]
-    dodavatel = models.CharField(max_length=100, verbose_name="Dodavatel")
-    kontakt = models.CharField(null=True, max_length=100, verbose_name="Kontaktní osoba")
-    email = models.EmailField(null=True, max_length=100, verbose_name="E-mail")
-    telefon = models.CharField(null=True, max_length=20, verbose_name="Telefon")
-    jazyk = models.CharField(null=True, max_length=2, choices=LANGUAGE_CHOICES, default='CZ', verbose_name="Jazyk") 
 
-    def __str__(self):
-        return f"{self.dodavatel}"
 
 
 class Zarizeni(models.Model):
@@ -114,7 +122,7 @@ class AuditLog(models.Model):
     evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE)
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")
     objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
-    nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu")
+    nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu", db_index=True)
     zmena_mnozstvi = models.PositiveIntegerField(verbose_name="Změna množství")
     mnozstvi_ks_m_l = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")

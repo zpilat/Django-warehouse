@@ -7,6 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from .models import Dodavatele, Zarizeni
 
 
 all_sklad_fields = [
@@ -15,7 +16,7 @@ all_sklad_fields = [
     "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
     "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1",
     "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1",
-    "kw2", "kw3", "mikrof"
+    "kw2", "kw3", "mikrof",
     ]
 
 class SkladCreateForm(forms.ModelForm):
@@ -34,10 +35,11 @@ class SkladCreateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'  # Přiřazení CSS třídy pro grid layout
         self.helper.form_method = 'post'
+        
         max_interne_cislo = Sklad.objects.aggregate(models.Max('interne_cislo'))['interne_cislo__max']
         initial_interne_cislo = (max_interne_cislo or 0) + 1
         self.fields['interne_cislo'].initial = initial_interne_cislo
-
+          
         # Vytvoření layoutu s dvěma sloupci
         self.helper.layout = Layout(
             Div(
