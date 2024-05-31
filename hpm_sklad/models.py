@@ -117,6 +117,7 @@ class AuditLog(models.Model):
         ('m', 'metr'),
         ('baleni', 'balení'),
     ]
+    zarizeni_choices = [(z.zarizeni, z.zarizeni) for z in Zarizeni.objects.all()]
 
     ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
     evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE)
@@ -127,7 +128,7 @@ class AuditLog(models.Model):
     mnozstvi_ks_m_l = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
     typ_operace = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, verbose_name="Typ operace")
-    pouzite_zarizeni = models.CharField(max_length=70, verbose_name="Pro zařízení")
+    pouzite_zarizeni = models.CharField(max_length=70, choices=zarizeni_choices, verbose_name="Pro zařízení")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, verbose_name="Dodavatel")
     datum_zmeny = models.DateField(verbose_name="Datum změny")
