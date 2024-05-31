@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -7,7 +7,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from .models import Dodavatele, Zarizeni
 
 
 all_sklad_fields = [
@@ -20,6 +19,8 @@ all_sklad_fields = [
     ]
 
 class SkladCreateForm(forms.ModelForm):
+    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
+
     class Meta:
         model = Sklad
         fields = [
@@ -27,31 +28,30 @@ class SkladCreateForm(forms.ModelForm):
             "poznamka", "ucetnictvi", "kriticky_dil", "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2",
             "dl_xl", "dac", "lac_1", "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w",
             "kw", "kw1", "kw2", "kw3", "mikrof"
-            ]
-
+        ]
 
     def __init__(self, *args, **kwargs):
         super(SkladCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_class = 'form-grid'  # Přiřazení CSS třídy pro grid layout
         self.helper.form_method = 'post'
-        
+        self.helper.form_class = 'form-grid'
+
         max_interne_cislo = Sklad.objects.aggregate(models.Max('interne_cislo'))['interne_cislo__max']
         initial_interne_cislo = (max_interne_cislo or 0) + 1
         self.fields['interne_cislo'].initial = initial_interne_cislo
-          
+
         # Vytvoření layoutu s dvěma sloupci
         self.helper.layout = Layout(
             Div(
                 Div(
                     *[Field(field) for field in self.Meta.fields[:8]],
-                    css_class='form-column'  # Přiřazení CSS třídy pro levý sloupec
+                    css_class='form-column'
                 ),
                 Div(
                     *[Field(field) for field in self.Meta.fields[8:]],
-                    css_class='form-column'  # Přiřazení CSS třídy pro pravý sloupec
+                    css_class='form-column'
                 ),
-                css_class='row'  # Přiřazení CSS třídy pro obalový div sloupců
+                css_class='row'
             ),
             Submit('submit', 'Uložit', css_class="nav-item")
         )

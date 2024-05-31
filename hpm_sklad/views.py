@@ -9,7 +9,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
-from .models import Sklad, AuditLog
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm,
                     SkladReceiptUpdateForm, AuditLogCreateForm, CustomUserCreationForm)
 
@@ -53,6 +53,16 @@ class SkladListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     ordering = ['evidencni_cislo']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_ev_cislo = self.request.GET.get('selected', None)
+
+        if selected_ev_cislo:
+            context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
+        else:
+            context['selected_item'] = None       
+        return context    
+
     def get_queryset(self):
         queryset = Sklad.objects.all()
         query = self.request.GET.get('q')
@@ -85,9 +95,9 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Sklad
     form_class = SkladCreateForm
     template_name = 'hpm_sklad/create_sklad.html'
-    success_url = "/sklad/"
+    success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.add_sklad'
-	
+    
     def form_valid(self, form):
         response = super().form_valid(form)
         return response
