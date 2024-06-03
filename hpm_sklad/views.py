@@ -25,26 +25,20 @@ def receipt_form_view(request, pk):
     if request.method == 'POST':
         sklad_receipt_form = SkladReceiptUpdateForm(request.POST, instance=sklad_instance)
         auditlog_create_form = AuditLogCreateForm(request.POST)
-        print(f"POST data: {request.POST}")
-        print(f"Form 1 valid: {sklad_receipt_form.is_valid()=}")
-        print(f"Form 2 valid: {auditlog_create_form.is_valid()=}")
-        
         if sklad_receipt_form.is_valid() and auditlog_create_form.is_valid():
-            print("Úspěšná validace")
             # Uložit změny do modelu Sklad
             updated_sklad = sklad_receipt_form.save()
-            print("Uložen sklad")
             # Přenést data ze skladu do formuláře AuditLog
             auditlog_instance = auditlog_create_form.save(commit=False)
-            auditlog_instance.evidencni_cislo = updated_sklad.evidencni_cislo
+            auditlog_instance.evidencni_cislo = updated_sklad
             auditlog_instance.interne_cislo = updated_sklad.interne_cislo
+            auditlog_instance.ucetnictvi = updated_sklad.ucetnictvi
             auditlog_instance.operaci_provedl = request.user
             auditlog_instance.datum_nakupu = updated_sklad.datum_nakupu
             auditlog_instance.save()
-            print("Uložen audit_log")            
             
             return redirect('audit_log')
-    else:
+    else: # GET nebo nevalidovaný formulář
         sklad_receipt_form = SkladReceiptUpdateForm(instance=sklad_instance)
         auditlog_create_form = AuditLogCreateForm()
 

@@ -108,7 +108,6 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'  # Přiřazení CSS třídy pro grid layout
         self.helper.form_method = 'post'
 
-        # Vytvoření layoutu s dvěma sloupci
         self.helper.layout = Layout(
             Div(Field(self.Meta.fields[0]), css_class='form-column'), 
             Submit('submit', 'Uložit', css_class="nav-item"),
@@ -116,10 +115,8 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
 
 class SkladReceiptUpdateForm(forms.ModelForm):
-    datum_nakupu = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True,
-    )
+    datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,)
+    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
         
     class Meta:
         model = Sklad
@@ -133,20 +130,18 @@ class SkladReceiptUpdateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
-
         self.helper.layout = Layout(
-            Div(
-                *[Field(field) for field in self.Meta.fields],
-                css_class='form-column'
-            )
-        )  
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
+        )
 
         self.fields['dodavatel'].required = True
         self.fields['cislo_objednavky'].required = True
+        self.fields['datum_nakupu'].required = True
+        self.fields['jednotkova_cena_eur'].required = True
 
     def clean_jednotkova_cena_eur(self):
         jednotkova_cena = self.cleaned_data.get('jednotkova_cena_eur')
-        if jednotkova_cena is None or jednotkova_cena <= 0.0:
+        if jednotkova_cena <= 0.0:
             raise ValidationError('Jednotková cena musí být větší než nula.')
         return jednotkova_cena
 
@@ -169,14 +164,10 @@ class AuditLogCreateForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
-
         self.helper.layout = Layout(
-            Div(
-                *[Field(field) for field in self.Meta.fields],
-                css_class='form-column'
-            )
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
         )
-        
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

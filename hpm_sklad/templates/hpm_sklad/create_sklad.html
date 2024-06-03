@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 <h3>Vytvoření skladové položky</h3>
-<form method="post" action="{% url 'create_sklad' %}" onsubmit="submitForm(event, this)">
+<form method="post" action="{% url 'create_sklad' %}">
     {% csrf_token %}
     {% crispy form %}
 </form>

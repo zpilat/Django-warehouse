@@ -3,15 +3,9 @@
 
 <h3>Příjem / výdej zboží</h3>
 {{ object|truncatechars:70 }} <br><br>
-<form method="post" action="{% url 'create_audit_log' object.evidencni_cislo %}" onsubmit="submitForm(event, this)">
+<form method="post" action="{% url 'create_audit_log' object.pk %}">
     {% csrf_token %}
-    <div class="row">
-        <div class="form-column">
-            {% crispy sklad_receipt_form %}
-        </div>
-        <div class="form-column">
-            {% crispy auditlog_create_form %}
-        </div>
-    </div>
+    {{ sklad_receipt_form|crispy }}
+    {{ auditlog_create_form|crispy }}
     <button type="submit" class="button nav-item">Uložit</button>
 </form>
