@@ -18,6 +18,13 @@ all_sklad_fields = [
     "kw2", "kw3", "mikrof",
     ]
 
+all_auditlog_fields = [
+    "id", "typ_operace", "cas_vytvoreni", "celkova_cena_eur", "cislo_objednavky", "dodavatel",
+    "evidencni_cislo_id", "interne_cislo", "jednotkova_cena_eur", "jednotky", "mnozstvi_ks_m_l",
+    "nazev_dilu", "objednano", "pouzite_zarizeni", "poznamka", "ucetnictvi", "umisteni",
+    "zmena_mnozstvi", "operaci_provedl_id", "datum_nakupu", "datum_vydeje",
+    ]
+
 class SkladCreateForm(forms.ModelForm):
     dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
 
@@ -61,7 +68,7 @@ class SkladUpdateForm(forms.ModelForm):
     class Meta:
         model = Sklad
         fields = [
-            "interne_cislo", "min_mnozstvi_ks", "objednano", "jednotky", "umisteni", 
+            "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", 
             "poznamka", "ucetnictvi", "kriticky_dil", "hsh", "tq8", "tqf_xl1", "tqf_xl2",
             "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1", "lac_2", "ipsen_ene", "hsh_ene",
             "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1", "kw2", "kw3", "mikrof"
@@ -77,11 +84,11 @@ class SkladUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field) for field in self.Meta.fields[:6]],
+                    *[Field(field) for field in self.Meta.fields[:7]],
                     css_class='form-column'  # Přiřazení CSS třídy pro levý sloupec
                 ),
                 Div(
-                    *[Field(field) for field in self.Meta.fields[6:]],
+                    *[Field(field) for field in self.Meta.fields[7:]],
                     css_class='form-column'  # Přiřazení CSS třídy pro pravý sloupec
                 ),
                 css_class='row'  # Přiřazení CSS třídy pro obalový div sloupců
@@ -107,14 +114,18 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
             Submit('submit', 'Uložit', css_class="nav-item"),
             )
 
-        
+
 class SkladReceiptUpdateForm(forms.ModelForm):
+    datum_nakupu = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True,
+    )
+        
     class Meta:
         model = Sklad
         fields = [
-            "evidencni_cislo", "interne_cislo", "ucetnictvi", "objednano", "nazev_dilu",
-            "mnozstvi_ks_m_l", "jednotky", "umisteni", "dodavatel", "datum_nakupu",
-            "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
+            "objednano", "jednotky", "umisteni", "dodavatel", "datum_nakupu",
+            "cislo_objednavky", "jednotkova_cena_eur", "poznamka",
             ]
 
     def __init__(self, *args, **kwargs):
@@ -130,14 +141,23 @@ class SkladReceiptUpdateForm(forms.ModelForm):
             )
         )  
 
+        self.fields['dodavatel'].required = True
+        self.fields['cislo_objednavky'].required = True
+
+    def clean_jednotkova_cena_eur(self):
+        jednotkova_cena = self.cleaned_data.get('jednotkova_cena_eur')
+        if jednotkova_cena is None or jednotkova_cena <= 0.0:
+            raise ValidationError('Jednotková cena musí být větší než nula.')
+        return jednotkova_cena
+
 
 class AuditLogCreateForm(forms.ModelForm):
-    datum_operace = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        initial=timezone.now,
-        required=True
+    pouzite_zarizeni = forms.ModelChoiceField(
+        queryset=Zarizeni.objects.all(),
+        required=True,
+        empty_label="Vyberte zařízení",
     )
-    
+   
     class Meta:
         model = AuditLog
         fields = [
@@ -155,8 +175,8 @@ class AuditLogCreateForm(forms.ModelForm):
                 *[Field(field) for field in self.Meta.fields],
                 css_class='form-column'
             )
-        )  
-
+        )
+        
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

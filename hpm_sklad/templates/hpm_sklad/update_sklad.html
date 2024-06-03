@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 
 <h3>Úprava skladové položky</h3>
-{{ object|truncatechars:40 }} <br><br>
+{{ object|truncatechars:70 }} <br><br>
 <form method="post" action="{% url 'update_sklad' object.evidencni_cislo %}" onsubmit="submitForm(event, this)">
     {% csrf_token %}
     {% crispy form %}

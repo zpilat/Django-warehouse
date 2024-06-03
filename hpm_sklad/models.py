@@ -108,7 +108,7 @@ class Zarizeni(models.Model):
 
 
     def __str__(self):
-        return f"{self.nazev_zarizeni}: {self.umisteni}"
+        return f"{self.zarizeni}: {self.umisteni}"
 
     
 class AuditLog(models.Model):
@@ -142,7 +142,8 @@ class AuditLog(models.Model):
     pouzite_zarizeni = models.CharField(max_length=70, verbose_name="Pro zařízení")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, verbose_name="Dodavatel")
-    datum_zmeny = models.DateField(verbose_name="Datum změny")
+    datum_vydeje = models.DateField(null=True, blank=True, verbose_name="Datum výdeje")
+    datum_nakupu = models.DateField(null=True, blank=True, verbose_name="Datum nákupu")
     cislo_objednavky = models.CharField(max_length=20, null=True, blank=True, verbose_name="Číslo objednávky")
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
     celkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="Celkem EUR")
