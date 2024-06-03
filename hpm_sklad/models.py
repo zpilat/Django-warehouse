@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
 
 
@@ -146,7 +147,7 @@ class AuditLog(models.Model):
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
     celkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="Celkem EUR")
     cas_vytvoreni = models.DateTimeField(auto_now_add=True, verbose_name="Čas vytvoření")
-    operaci_provedl = models.CharField(max_length=20, verbose_name="Operaci provedl")
+    operaci_provedl = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Operaci provedl")
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
 
     def __str__(self):

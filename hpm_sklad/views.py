@@ -32,6 +32,7 @@ def receipt_form_view(request, pk):
             auditlog_instance = auditlog_create_form.save(commit=False)
             auditlog_instance.evidencni_cislo = updated_sklad.evidencni_cislo
             auditlog_instance.interne_cislo = updated_sklad.interne_cislo
+            auditlog_instance.operaci_provedl = request.user
             auditlog_instance.save()
             
             return redirect('audit_log')

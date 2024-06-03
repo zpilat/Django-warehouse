@@ -135,7 +135,7 @@
                     <td>{{ sklad.cislo_objednavky }}</td>
                     <td>{{ sklad.jednotkova_cena_eur }}</td>
                     <td>{{ sklad.celkova_cena_eur }}</td>
-                    <td>{{ sklad.poznamka }}</td>
+                    <td>{{ sklad.poznamka|truncatechars:35 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
