@@ -115,19 +115,19 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
 
 class SkladReceiptForm(forms.ModelForm):
-    datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,)
+    datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,
+                                   label='Datum nákupu')
     dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False,
                                        empty_label="Vyberte dodavatele")
         
     class Meta:
         model = Sklad
-        fields = [
-            "objednano", "umisteni", "dodavatel", "datum_nakupu",
-            "cislo_objednavky", "jednotkova_cena_eur", "poznamka",
-            ]
+        fields = ["objednano", "umisteni", "dodavatel", "datum_nakupu", "cislo_objednavky",
+                  "jednotkova_cena_eur", "poznamka",]
 
     def __init__(self, *args, **kwargs):
         super(SkladReceiptForm, self).__init__(*args, **kwargs)
+        
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
@@ -147,12 +147,25 @@ class SkladReceiptForm(forms.ModelForm):
         return jednotkova_cena
 
 
+class SkladDispatchForm(forms.ModelForm):      
+    class Meta:
+        model = Sklad
+        fields = ["umisteni", "poznamka",]
+
+    def __init__(self, *args, **kwargs):
+        super(SkladDispatchForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-grid'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'),
+            )  
+
+
 class AuditLogReceiptForm(forms.ModelForm): 
     class Meta:
         model = AuditLog
-        fields = [
-            "zmena_mnozstvi",
-            ]
+        fields = ["zmena_mnozstvi",]
 
     def __init__(self, *args, **kwargs):
         super(AuditLogReceiptForm, self).__init__(*args, **kwargs)
@@ -164,11 +177,10 @@ class AuditLogReceiptForm(forms.ModelForm):
             )
 
 class AuditLogDispatchForm(forms.ModelForm):
-    pouzite_zarizeni = forms.ModelChoiceField(
-        queryset=Zarizeni.objects.all(),
-        required=True,
-        empty_label="Vyberte zařízení",
-        )
+    datum_vydeje = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,
+                                   label='Datum výdeje')
+    pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True,
+                                              empty_label="Vyberte zařízení", label="Pro zařízení")
    
     class Meta:
         model = AuditLog
@@ -184,7 +196,7 @@ class AuditLogDispatchForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
             )
-
+        self.fields['datum_vydeje'].required = True
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

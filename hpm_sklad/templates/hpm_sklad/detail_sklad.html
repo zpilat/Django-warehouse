@@ -15,6 +15,7 @@
             {% endif %}
             {% if perms.hpm_sklad.add_auditlog %}  
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'receipt_audit_log' object.evidencni_cislo %}')">Příjem</a>
+                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'dispatch_audit_log' object.evidencni_cislo %}')">Výdej</a>
             {% endif %}
         </div>
     </nav>

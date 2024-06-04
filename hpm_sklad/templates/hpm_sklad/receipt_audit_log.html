@@ -6,6 +6,6 @@
 <form method="post" action="{% url 'receipt_audit_log' object.pk %}">
     {% csrf_token %}
     {{ sklad_movement_form|crispy }}
-    {{ auditlog_create_form|crispy }}
+    {{ auditlog_receipt_form|crispy }}
     <button type="submit" class="button nav-item">Uložit</button>
 </form>

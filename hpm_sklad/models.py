@@ -30,7 +30,7 @@ class Sklad(models.Model):
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, null=True, blank=True, verbose_name="Dodavatel")
-    datum_nakupu = models.DateField(default=timezone.now, null=True, blank=True, verbose_name="Datum nákupu")
+    datum_nakupu = models.DateField(null=True, blank=True, verbose_name="Datum nákupu")
     cislo_objednavky = models.CharField(max_length=20, null=True, blank=True, verbose_name="Číslo objednávky")
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
     celkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="Celkem EUR")
