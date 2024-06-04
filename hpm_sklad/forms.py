@@ -159,8 +159,8 @@ class SkladDispatchForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'),
-            )  
-
+            )
+        
 
 class AuditLogReceiptForm(forms.ModelForm): 
     class Meta:

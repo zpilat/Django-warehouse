@@ -2,6 +2,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from django.core.exceptions import ValidationError
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
@@ -27,7 +28,7 @@ def receipt_form_view(request, pk):
             
             updated_sklad = sklad_movement_form.save(commit=False)
             created_auditlog = auditlog_receipt_form.save(commit=False)
-            
+                
             created_auditlog.jednotkova_cena_eur = updated_sklad.jednotkova_cena_eur
             created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
             updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
@@ -72,35 +73,40 @@ def dispatch_form_view(request, pk):
     if request.method == 'POST':
         sklad_movement_form = SkladDispatchForm(request.POST, instance=sklad_instance)
         auditlog_dispatch_form = AuditLogDispatchForm(request.POST)
+        
         if sklad_movement_form.is_valid() and auditlog_dispatch_form.is_valid():
-            
             updated_sklad = sklad_movement_form.save(commit=False)
             created_auditlog = auditlog_dispatch_form.save(commit=False)
+
+            try:
+                if updated_sklad.mnozstvi < created_auditlog.zmena_mnozstvi:
+                    raise ValidationError('Nelze vydat, není tolik zboží na skladě')
             
-            created_auditlog.jednotkova_cena_eur = updated_sklad.jednotkova_cena_eur
-            created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
-            updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
-            updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
-            updated_sklad.jednotkova_cena_eur = updated_sklad.celkova_cena_eur / updated_sklad.mnozstvi
-            created_auditlog.typ_operace = "VÝDEJ"
-            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
-            created_auditlog.evidencni_cislo = updated_sklad
-            created_auditlog.interne_cislo = updated_sklad.interne_cislo
-            created_auditlog.objednano = updated_sklad.objednano
-            created_auditlog.nazev_dilu = updated_sklad.nazev_dilu
-            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
-            created_auditlog.mnozstvi = updated_sklad.mnozstvi
-            created_auditlog.jednotky = updated_sklad.jednotky
-            created_auditlog.umisteni = updated_sklad.umisteni
-            created_auditlog.dodavatel = updated_sklad.dodavatel
-            created_auditlog.datum_nakupu = updated_sklad.datum_nakupu
-            created_auditlog.cislo_objednavky = updated_sklad.cislo_objednavky
-            created_auditlog.operaci_provedl = request.user
-            created_auditlog.poznamka = updated_sklad.poznamka
+                created_auditlog.jednotkova_cena_eur = sklad_instance.jednotkova_cena_eur
+                created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
+                updated_sklad.mnozstvi = sklad_instance.mnozstvi - created_auditlog.zmena_mnozstvi
+                updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur - created_auditlog.celkova_cena_eur
+                created_auditlog.typ_operace = "VÝDEJ"
+                created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
+                created_auditlog.evidencni_cislo = updated_sklad
+                created_auditlog.interne_cislo = updated_sklad.interne_cislo
+                created_auditlog.objednano = updated_sklad.objednano
+                created_auditlog.nazev_dilu = updated_sklad.nazev_dilu
+                created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
+                created_auditlog.mnozstvi = updated_sklad.mnozstvi
+                created_auditlog.jednotky = updated_sklad.jednotky
+                created_auditlog.umisteni = updated_sklad.umisteni
+                created_auditlog.dodavatel = updated_sklad.dodavatel
+                created_auditlog.cislo_objednavky = updated_sklad.cislo_objednavky
+                created_auditlog.operaci_provedl = request.user
+                created_auditlog.poznamka = updated_sklad.poznamka
+                
+                updated_sklad.save()            
+                created_auditlog.save()
+                return redirect('audit_log')
             
-            updated_sklad.save()            
-            created_auditlog.save()
-            return redirect('audit_log')
+            except ValidationError as e:
+                sklad_movement_form.add_error(None, e)
         
     else: # GET nebo nevalidovaný formulář
         sklad_movement_form = SkladDispatchForm(instance=sklad_instance)
