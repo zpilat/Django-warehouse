@@ -11,7 +11,7 @@ from django.utils import timezone
 
 all_sklad_fields = [
     "evidencni_cislo", "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks",
-    "objednano", "nazev_dilu", "mnozstvi_ks_m_l", "jednotky", "umisteni", "dodavatel",
+    "objednano", "nazev_dilu", "mnozstvi", "jednotky", "umisteni", "dodavatel",
     "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
     "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1",
     "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1",
@@ -19,10 +19,10 @@ all_sklad_fields = [
     ]
 
 all_auditlog_fields = [
-    "id", "typ_operace", "cas_vytvoreni", "celkova_cena_eur", "cislo_objednavky", "dodavatel",
-    "evidencni_cislo_id", "interne_cislo", "jednotkova_cena_eur", "jednotky", "mnozstvi_ks_m_l",
-    "nazev_dilu", "objednano", "pouzite_zarizeni", "poznamka", "ucetnictvi", "umisteni",
-    "zmena_mnozstvi", "operaci_provedl_id", "datum_nakupu", "datum_vydeje",
+    "id", "ucetnictvi", "evidencni_cislo", "interne_cislo", "objednano", "nazev_dilu", "zmena_mnozstvi",  
+    "mnozstvi", "jednotky", "typ_operace", "pouzite_zarizeni", "umisteni", "dodavatel",
+    "datum_vydeje", "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", 
+    "cas_vytvoreni", "operaci_provedl", "poznamka",  
     ]
 
 class SkladCreateForm(forms.ModelForm):
@@ -114,25 +114,26 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
             )
 
 
-class SkladReceiptUpdateForm(forms.ModelForm):
+class SkladReceiptForm(forms.ModelForm):
     datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,)
-    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
+    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False,
+                                       empty_label="Vyberte dodavatele")
         
     class Meta:
         model = Sklad
         fields = [
-            "objednano", "jednotky", "umisteni", "dodavatel", "datum_nakupu",
+            "objednano", "umisteni", "dodavatel", "datum_nakupu",
             "cislo_objednavky", "jednotkova_cena_eur", "poznamka",
             ]
 
     def __init__(self, *args, **kwargs):
-        super(SkladReceiptUpdateForm, self).__init__(*args, **kwargs)
+        super(SkladReceiptForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
-        )
+            )
 
         self.fields['dodavatel'].required = True
         self.fields['cislo_objednavky'].required = True
@@ -146,27 +147,43 @@ class SkladReceiptUpdateForm(forms.ModelForm):
         return jednotkova_cena
 
 
-class AuditLogCreateForm(forms.ModelForm):
-    pouzite_zarizeni = forms.ModelChoiceField(
-        queryset=Zarizeni.objects.all(),
-        required=True,
-        empty_label="Vyberte zařízení",
-    )
-   
+class AuditLogReceiptForm(forms.ModelForm): 
     class Meta:
         model = AuditLog
         fields = [
-            "zmena_mnozstvi", "typ_operace", "pouzite_zarizeni",
+            "zmena_mnozstvi",
             ]
 
     def __init__(self, *args, **kwargs):
-        super(AuditLogCreateForm, self).__init__(*args, **kwargs)
+        super(AuditLogReceiptForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
+            )
+
+class AuditLogDispatchForm(forms.ModelForm):
+    pouzite_zarizeni = forms.ModelChoiceField(
+        queryset=Zarizeni.objects.all(),
+        required=True,
+        empty_label="Vyberte zařízení",
         )
+   
+    class Meta:
+        model = AuditLog
+        fields = [
+            "zmena_mnozstvi", "pouzite_zarizeni", "datum_vydeje", 
+            ]
+
+    def __init__(self, *args, **kwargs):
+        super(AuditLogDispatchForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-grid'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
+            )
 
 
 class CustomUserCreationForm(UserCreationForm):

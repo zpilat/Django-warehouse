@@ -26,7 +26,7 @@ class Sklad(models.Model):
     objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
     nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu")
     min_mnozstvi_ks = models.PositiveIntegerField(default=0, verbose_name="Minimum")
-    mnozstvi_ks_m_l = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
+    mnozstvi = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, null=True, blank=True, verbose_name="Dodavatel")
@@ -68,7 +68,7 @@ class Sklad(models.Model):
 
     @property
     def pod_minimem(self):
-        return self.mnozstvi_ks_m_l < self.min_mnozstvi_ks
+        return self.mnozstvi < self.min_mnozstvi_ks
 
     def pod_minimem_display(self):
         return "ANO" if self.pod_minimem else "NE"
@@ -108,7 +108,7 @@ class Zarizeni(models.Model):
 
 
     def __str__(self):
-        return f"{self.zarizeni}: {self.umisteni}"
+        return f"{self.zarizeni}"
 
     
 class AuditLog(models.Model):
@@ -117,8 +117,8 @@ class AuditLog(models.Model):
         verbose_name_plural = "Auditovací logy"
     
     MOVEMENT_CHOICES = [
-        ('IN', 'Příjem'),
-        ('OUT', 'Výdej')
+        ('PŘÍJEM', 'Příjem'),
+        ('VÝDEJ', 'Výdej')
     ]
 
     JEDNOTKY_CHOICES = [
@@ -136,7 +136,7 @@ class AuditLog(models.Model):
     objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
     nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu", db_index=True)
     zmena_mnozstvi = models.PositiveIntegerField(verbose_name="Změna množství")
-    mnozstvi_ks_m_l = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
+    mnozstvi = models.IntegerField(default=0, validators=[MinValueValidator(0)], verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
     typ_operace = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, verbose_name="Typ operace")
     pouzite_zarizeni = models.CharField(max_length=70, verbose_name="Pro zařízení")

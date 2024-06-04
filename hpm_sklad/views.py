@@ -10,8 +10,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni
-from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm,
-                    SkladReceiptUpdateForm, AuditLogCreateForm, CustomUserCreationForm)
+from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
+                    AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm)
 
 def home_view(request):
     return render(request, "hpm_sklad/home.html")
@@ -20,34 +20,49 @@ def home_view(request):
 @permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
 def receipt_form_view(request, pk):
     sklad_instance = get_object_or_404(Sklad, pk=pk)
-    print(sklad_instance)
-    print(request.method)
     if request.method == 'POST':
-        sklad_receipt_form = SkladReceiptUpdateForm(request.POST, instance=sklad_instance)
-        auditlog_create_form = AuditLogCreateForm(request.POST)
-        if sklad_receipt_form.is_valid() and auditlog_create_form.is_valid():
-            # Uložit změny do modelu Sklad
-            updated_sklad = sklad_receipt_form.save()
-            # Přenést data ze skladu do formuláře AuditLog
-            auditlog_instance = auditlog_create_form.save(commit=False)
-            auditlog_instance.evidencni_cislo = updated_sklad
-            auditlog_instance.interne_cislo = updated_sklad.interne_cislo
-            auditlog_instance.ucetnictvi = updated_sklad.ucetnictvi
-            auditlog_instance.operaci_provedl = request.user
-            auditlog_instance.datum_nakupu = updated_sklad.datum_nakupu
-            auditlog_instance.save()
+        sklad_movement_form = SkladReceiptForm(request.POST, instance=sklad_instance)
+        auditlog_create_form = AuditLogReceiptForm(request.POST)
+        if sklad_movement_form.is_valid() and auditlog_create_form.is_valid():
             
+            updated_sklad = sklad_movement_form.save(commit=False)
+            created_auditlog = auditlog_create_form.save(commit=False)
+            
+            created_auditlog.jednotkova_cena_eur = updated_sklad.jednotkova_cena_eur
+            created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
+            updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
+            updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
+            updated_sklad.jednotkova_cena_eur = updated_sklad.celkova_cena_eur / updated_sklad.mnozstvi
+            created_auditlog.typ_operace = "PŘÍJEM"
+            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
+            created_auditlog.evidencni_cislo = updated_sklad
+            created_auditlog.interne_cislo = updated_sklad.interne_cislo
+            created_auditlog.objednano = updated_sklad.objednano
+            created_auditlog.nazev_dilu = updated_sklad.nazev_dilu
+            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
+            created_auditlog.mnozstvi = updated_sklad.mnozstvi
+            created_auditlog.jednotky = updated_sklad.jednotky
+            created_auditlog.umisteni = updated_sklad.umisteni
+            created_auditlog.dodavatel = updated_sklad.dodavatel
+            created_auditlog.datum_nakupu = updated_sklad.datum_nakupu
+            created_auditlog.cislo_objednavky = updated_sklad.cislo_objednavky
+            created_auditlog.operaci_provedl = request.user
+            created_auditlog.poznamka = updated_sklad.poznamka
+            
+            updated_sklad.save()            
+            created_auditlog.save()
             return redirect('audit_log')
+        
     else: # GET nebo nevalidovaný formulář
-        sklad_receipt_form = SkladReceiptUpdateForm(instance=sklad_instance)
-        auditlog_create_form = AuditLogCreateForm()
+        sklad_movement_form = SkladReceiptForm(instance=sklad_instance)
+        auditlog_create_form = AuditLogReceiptForm()
 
     context = {
-        'sklad_receipt_form': sklad_receipt_form,
+        'sklad_movement_form': sklad_movement_form,
         'auditlog_create_form': auditlog_create_form,
         'object': sklad_instance,
     }
-    return render(request, 'hpm_sklad/create_audit_log.html', context)
+    return render(request, 'hpm_sklad/receipt_audit_log.html', context)
 
 
 class SkladListView(LoginRequiredMixin, ListView):
@@ -154,7 +169,6 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html'
-    context_object_name = 'logs'
  
     
 class SignUp(CreateView):

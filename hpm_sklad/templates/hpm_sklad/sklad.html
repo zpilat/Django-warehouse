@@ -127,14 +127,14 @@
                     <td>{{ sklad.interne_cislo }}</td>
                     <td>{{ sklad.nazev_dilu }}</td>
                     <td>{{ sklad.min_mnozstvi_ks }}</td>
-                    <td>{{ sklad.mnozstvi_ks_m_l }}</td>
+                    <td>{{ sklad.mnozstvi }}</td>
                     <td>{{ sklad.jednotky }}</td>
                     <td>{{ sklad.umisteni }}</td>
                     <td>{{ sklad.dodavatel }}</td>
                     <td>{{ sklad.datum_nakupu|date:"d.m.Y" }}</td>
                     <td>{{ sklad.cislo_objednavky }}</td>
-                    <td>{{ sklad.jednotkova_cena_eur }}</td>
-                    <td>{{ sklad.celkova_cena_eur }}</td>
+                    <td>{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
+                    <td>{{ sklad.celkova_cena_eur|floatformat:2 }}</td>
                     <td>{{ sklad.poznamka|truncatechars:35 }}</td>
                 </tr>
                 {% endfor %}
