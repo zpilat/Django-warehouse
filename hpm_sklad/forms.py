@@ -5,6 +5,8 @@ from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -162,7 +164,9 @@ class SkladDispatchForm(forms.ModelForm):
             )
         
 
-class AuditLogReceiptForm(forms.ModelForm): 
+class AuditLogReceiptForm(forms.ModelForm):
+    zmena_mnozstvi = forms.IntegerField(validators=[MinValueValidator(1)], label='Změna množství')
+    
     class Meta:
         model = AuditLog
         fields = ["zmena_mnozstvi",]
@@ -181,6 +185,7 @@ class AuditLogDispatchForm(forms.ModelForm):
                                    label='Datum výdeje')
     pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True,
                                               empty_label="Vyberte zařízení", label="Pro zařízení")
+    zmena_mnozstvi = forms.ChoiceField(label='Změna množství')
    
     class Meta:
         model = AuditLog
@@ -189,6 +194,7 @@ class AuditLogDispatchForm(forms.ModelForm):
             ]
 
     def __init__(self, *args, **kwargs):
+        max_mnozstvi = kwargs.pop('max_mnozstvi', 1)
         super(AuditLogDispatchForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
@@ -197,6 +203,7 @@ class AuditLogDispatchForm(forms.ModelForm):
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
             )
         self.fields['datum_vydeje'].required = True
+        self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]        
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
