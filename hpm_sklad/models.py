@@ -115,6 +115,7 @@ class AuditLog(models.Model):
 
     class Meta:
         verbose_name_plural = "Auditovací logy"
+        ordering = ["-id"]
     
     MOVEMENT_CHOICES = [
         ('PŘÍJEM', 'Příjem'),

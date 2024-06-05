@@ -1,0 +1,22 @@
+{% load static %}
+{% load custom_filters %}
+
+<h3 class="text-center">Detaily auditovacího logu</h3>
+    
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>Detaily:</th>
+            </tr>
+        </thead>          
+        <tbody>
+            {% for field in detail_item_fields %}
+                <tr>
+                    <th>{{ field.verbose_name }}</th>
+                    <td>{{ object|get_attribute:field.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

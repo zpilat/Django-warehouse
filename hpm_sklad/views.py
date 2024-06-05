@@ -29,10 +29,10 @@ def receipt_form_view(request, pk):
             updated_sklad = sklad_movement_form.save(commit=False)
             created_auditlog = auditlog_receipt_form.save(commit=False)
                 
-            created_auditlog.jednotkova_cena_eur = updated_sklad.jednotkova_cena_eur
-            created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
+            created_auditlog.jednotkova_cena_eur = round(updated_sklad.jednotkova_cena_eur, 2)
+            created_auditlog.celkova_cena_eur = round(created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi, 2)
             updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
-            updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
+            updated_sklad.celkova_cena_eur = round(sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur, 2)
             updated_sklad.jednotkova_cena_eur = round(updated_sklad.celkova_cena_eur / updated_sklad.mnozstvi, 2)
             created_auditlog.typ_operace = "PŘÍJEM"
             created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
@@ -54,7 +54,7 @@ def receipt_form_view(request, pk):
             created_auditlog.save()
             return redirect('audit_log')
         
-    else: # GET nebo nevalidovaný formulář
+    else: # GET 
         sklad_movement_form = SkladReceiptForm(instance=sklad_instance)
         auditlog_receipt_form = AuditLogReceiptForm()
 
@@ -103,7 +103,7 @@ def dispatch_form_view(request, pk):
             created_auditlog.save()
             return redirect('audit_log')
                    
-    else: # GET nebo nevalidovaný formulář
+    else: # GET 
         sklad_movement_form = SkladDispatchForm(instance=sklad_instance)
         auditlog_dispatch_form = AuditLogDispatchForm(max_mnozstvi=sklad_instance.mnozstvi)
 
@@ -119,7 +119,6 @@ class SkladListView(LoginRequiredMixin, ListView):
     model = Sklad
     template_name = 'hpm_sklad/sklad.html'
     paginate_by = 20
-    ordering = ['evidencni_cislo']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -219,6 +218,12 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html'
+    paginate_by = 25
+
+
+class AuditLogDetailView(LoginRequiredMixin, DetailView):
+    model = AuditLog
+    template_name = 'hpm_sklad/detail_audit_log.html'    
  
     
 class SignUp(CreateView):

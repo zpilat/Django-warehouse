@@ -121,22 +121,22 @@
             </thead>
             <tbody class="show-pointer">
                 {% for sklad in object_list %}
-                <tr data-evidencni-cislo="{{ sklad.evidencni_cislo }}" data-detail-url="{% url 'detail_sklad' sklad.evidencni_cislo %}" onclick="loadDetail('{% url 'detail_sklad' sklad.evidencni_cislo %}', '{{ sklad.evidencni_cislo }}')"
-                {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="selected-row"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
-                    <td>{{ sklad.evidencni_cislo }}</td>
-                    <td>{{ sklad.interne_cislo }}</td>
-                    <td>{{ sklad.nazev_dilu }}</td>
-                    <td>{{ sklad.min_mnozstvi_ks }}</td>
-                    <td>{{ sklad.mnozstvi }}</td>
-                    <td>{{ sklad.jednotky }}</td>
-                    <td>{{ sklad.umisteni }}</td>
-                    <td>{{ sklad.dodavatel }}</td>
-                    <td>{{ sklad.datum_nakupu|date:"d.m.Y" }}</td>
-                    <td>{{ sklad.cislo_objednavky }}</td>
-                    <td>{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
-                    <td>{{ sklad.celkova_cena_eur|floatformat:2 }}</td>
-                    <td>{{ sklad.poznamka|truncatechars:35 }}</td>
-                </tr>
+          	    <tr data-evidencni-cislo="{{ sklad.evidencni_cislo }}" data-detail-url="{% url 'detail_sklad' sklad.evidencni_cislo %}" onclick="loadDetail('{% url 'detail_sklad' sklad.evidencni_cislo %}', '{{ sklad.evidencni_cislo }}')"
+          	    {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="selected-row"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
+          	        <td>{{ sklad.evidencni_cislo }}</td>
+                	<td>{{ sklad.interne_cislo }}</td>
+                	<td>{{ sklad.nazev_dilu }}</td>
+                	<td>{{ sklad.min_mnozstvi_ks }}</td>
+             		<td>{{ sklad.mnozstvi }}</td>
+	              	<td>{{ sklad.jednotky }}</td>
+       		        <td>{{ sklad.umisteni }}</td>
+       		        <td>{{ sklad.dodavatel }}</td>
+                  	<td>{{ sklad.datum_nakupu|date:"d.m.Y" }}</td>
+                  	<td>{{ sklad.cislo_objednavky }}</td>
+                  	<td>{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
+                	<td>{{ sklad.celkova_cena_eur|floatformat:2 }}</td>
+                  	<td>{{ sklad.poznamka|truncatechars:35 }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
