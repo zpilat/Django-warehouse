@@ -214,16 +214,49 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         context['detail_item_fields'] = detail_item_fields
         return context
     
-    
+
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html'
     paginate_by = 25
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('selected', None)
+
+        if selected_id:
+            context['selected_item'] = get_object_or_404(AuditLog, id=selected_id)
+        else:
+            context['selected_item'] = None       
+        return context    
+
+    def get_queryset(self):
+        queryset = AuditLog.objects.all()
+        query = self.request.GET.get('q')
+
+        if query:
+            queryset = queryset.filter(nazev_dilu__icontains=query)
+        
+        # Filtrace na základě checkboxu
+        if self.request.GET.get('ucetnictvi') == 'on':
+            queryset = queryset.filter(ucetnictvi=True)
+
+        # Filtrace podle typu operace
+        typ_operace = self.request.GET.get('typ_operace')
+        if typ_operace and typ_operace != 'VŠE':
+            queryset = queryset.filter(typ_operace=typ_operace)
+
+        return queryset
+
 
 class AuditLogDetailView(LoginRequiredMixin, DetailView):
     model = AuditLog
-    template_name = 'hpm_sklad/detail_audit_log.html'    
+    template_name = 'hpm_sklad/detail_audit_log.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['detail_item_fields'] = self.model._meta.get_fields()
+        return context    
  
     
 class SignUp(CreateView):
