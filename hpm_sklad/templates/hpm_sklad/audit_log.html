@@ -1,21 +1,22 @@
 {% extends "hpm_sklad/base_left_right_column.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block head %}
-    {{ block.super }}  <!-- Dědí veškerý obsah z původního bloku head v base.html -->
+    {{ block.super }}
 {% endblock %}
 
 {% block left_content %}
-<h3 class="text-center">Auditovací log</h3>
+    <h3 class="text-center">Auditovací log</h3>
     <form method="GET" action="" class="search-form">
         <div class="search-group">
-            <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
+            <input class="search" type="text" name="query" placeholder="Vyhledat díl / dodavatele" value="{{ request.GET.query }}">
             <label for="typ_operace">Typ operace:</label>
             <select name="typ_operace" class="search" id="typ_operace">
                 <option value="VŠE" {% if request.GET.typ_operace == 'VŠE' or not request.GET.typ_operace %}selected{% endif %}>VŠE</option>
                 <option value="PŘÍJEM" {% if request.GET.typ_operace == 'PŘÍJEM' %}selected{% endif %}>PŘÍJEM</option>
                 <option value="VÝDEJ" {% if request.GET.typ_operace == 'VÝDEJ' %}selected{% endif %}>VÝDEJ</option>
-            </select>  
+            </select>
             <label for="month">Vyberte měsíc:</label>
             <select name="month" id="month" class="search">
                 <option value="VŠE" {% if request.GET.month == 'VŠE' or not request.GET.month %}selected{% endif %}>VŠE</option>
@@ -31,42 +32,44 @@
                 <option value="10" {% if request.GET.month == '10' %}selected{% endif %}>Říjen</option>
                 <option value="11" {% if request.GET.month == '11' %}selected{% endif %}>Listopad</option>
                 <option value="12" {% if request.GET.month == '12' %}selected{% endif %}>Prosinec</option>
-            </select>        
+            </select>
             <label for="year">Vyberte rok:</label>
             <select name="year" id="year" class="search">
                 <option value="VŠE" {% if request.GET.year == 'VŠE' or not request.GET.year %}selected{% endif %}>VŠE</option>
                 {% for year in years %}
                     <option value="{{ year }}" {% if request.GET.year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
                 {% endfor %}
-            </select>     
-            <label>
-                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
-            </label>                 
-            <button class="search nav-item" type="submit">Filtrovat</button>            
+            </select>
+            <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'id' }}">
+            <input type="hidden" name="order" value="{{ request.GET.order|default_if_none:'asc' }}">
+            <button type="submit">Filtrovat</button>
         </div>
     </form>
+
     <div class="container-log">
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
-                    <th>ID</th>
-                    <th>Typ operace</th>
-                    <th>Skladová položka</th>                       
-                    <th>Změna množství</th>                
-                    <th>Jednotky</th>
-                    <th>Datum výdeje</th>
-                    <th>Datum nákupu</th>
-                    <th>Dodavatel</th>
-                    <th>Čas operace</th>
-                    <th>EUR / jedn.</th>
-                    <th>Celkem EUR</th>
-                    <th>Operaci provedl</th>
+                    {% with request.GET.urlencode as querystring %}
+                        <th><a href="?sort=id&order={% if request.GET.sort == 'id' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">ID {% if request.GET.sort == 'id' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=typ_operace&order={% if request.GET.sort == 'typ_operace' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Typ operace {% if request.GET.sort == 'typ_operace' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=evidencni_cislo__nazev_dilu&order={% if request.GET.sort == 'evidencni_cislo__nazev_dilu' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Skladová položka {% if request.GET.sort == 'evidencni_cislo__nazev_dilu' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=zmena_mnozstvi&order={% if request.GET.sort == 'zmena_mnozstvi' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Změna množství {% if request.GET.sort == 'zmena_mnozstvi' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=jednotky&order={% if request.GET.sort == 'jednotky' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Jednotky {% if request.GET.sort == 'jednotky' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=datum_vydeje&order={% if request.GET.sort == 'datum_vydeje' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Datum výdeje {% if request.GET.sort == 'datum_vydeje' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=datum_nakupu&order={% if request.GET.sort == 'datum_nakupu' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Datum nákupu {% if request.GET.sort == 'datum_nakupu' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=dodavatel&order={% if request.GET.sort == 'dodavatel' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Dodavatel {% if request.GET.sort == 'dodavatel' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=cas_vytvoreni&order={% if request.GET.sort == 'cas_vytvoreni' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Čas operace {% if request.GET.sort == 'cas_vytvoreni' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=jednotkova_cena_eur&order={% if request.GET.sort == 'jednotkova_cena_eur' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">EUR / jedn. {% if request.GET.sort == 'jednotkova_cena_eur' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=celkova_cena_eur&order={% if request.GET.sort == 'celkova_cena_eur' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Celkem EUR {% if request.GET.sort == 'celkova_cena_eur' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                        <th><a href="?sort=operaci_provedl&order={% if request.GET.sort == 'operaci_provedl' and request.GET.order == 'asc' %}desc{% else %}asc{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">Operaci provedl {% if request.GET.sort == 'operaci_provedl' %}<i class="fas fa-sort-{{ request.GET.order }}"></i>{% endif %}</a></th>
+                    {% endwith %}
                 </tr>
             </thead>
             <tbody class="show-pointer">
                 {% for item in object_list %}
                     <tr data-id="{{ item.id }}" data-detail-url="{% url 'detail_audit_log' item.id %}" onclick="loadDetail('{% url 'detail_audit_log' item.id %}', '{{ item.id }}')"
-          	    {% if item.id == selected_item.id %} class="selected-row"{% endif %}>  
+                    {% if item.id == selected_item.id %} class="selected-row"{% endif %}>  
                         <td>{{ item.id }}</td>
                         <td>{{ item.typ_operace }}</td>
                         <td>{{ item.evidencni_cislo.nazev_dilu }}</td>                   
@@ -79,15 +82,14 @@
                         <td>{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td>{{ item.celkova_cena_eur|floatformat:2 }}</td>
                         <td>{{ item.operaci_provedl.first_name }} {{ item.operaci_provedl.last_name }}</td>
-                     </tr>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>    
+    </div>  
     {% include "hpm_sklad/pagination.html" %}
 {% endblock %}
 
 {% block script %}
     <script src="{% static 'js/scripts_audit_log.js' %}"></script>
 {% endblock %}
-

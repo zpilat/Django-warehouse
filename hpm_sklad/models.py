@@ -7,7 +7,6 @@ from simple_history.models import HistoricalRecords
 
 
 class Sklad(models.Model):
-
     class Meta:
         ordering = ["-evidencni_cislo"]
         verbose_name_plural = "Skladové položky"
@@ -75,7 +74,6 @@ class Sklad(models.Model):
 
 
 class Dodavatele(models.Model):
-
     class Meta:
         verbose_name_plural = "Dodavatelé"
 
@@ -97,7 +95,6 @@ class Dodavatele(models.Model):
 
 
 class Zarizeni(models.Model):
-
     class Meta:
         verbose_name_plural = "Zařízení"
     
@@ -112,7 +109,6 @@ class Zarizeni(models.Model):
 
     
 class AuditLog(models.Model):
-
     class Meta:
         verbose_name_plural = "Auditovací logy"
         ordering = ["-id"]
@@ -132,7 +128,7 @@ class AuditLog(models.Model):
     ]
     
     ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
-    evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE)
+    evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")
     objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
     nazev_dilu = models.CharField(max_length=100, verbose_name="Název dílu", db_index=True)

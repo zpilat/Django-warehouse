@@ -11,3 +11,14 @@ def get_attribute(value, arg):
     return result
 
 
+@register.filter
+def url_remove_param(querystring, params):
+    params = params.split(',')
+    new_querystring = '&'.join(
+        f"{key}={value}"
+        for part in querystring.split('&')
+        if '=' in part and (key := part.split('=')[0]) not in params and (value := part.split('=')[1])
+    )
+    return new_querystring
+
+

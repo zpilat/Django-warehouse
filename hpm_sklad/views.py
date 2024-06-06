@@ -232,38 +232,47 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         else:
             context['selected_item'] = None
 
-        # Generování seznamu let pro výběr
         current_year = datetime.datetime.now().year
         context['years'] = range(current_year, 2022, -1)
-        
+
+        context.update({
+            'sort': self.request.GET.get('sort', 'id'),
+            'order': self.request.GET.get('order', 'asc'),
+            'query': self.request.GET.get('query', ''),
+            'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
+            'month': self.request.GET.get('month', 'VŠE'),
+            'year': self.request.GET.get('year', 'VŠE')
+        })
+
         return context    
 
     def get_queryset(self):
         queryset = AuditLog.objects.all()
+        query = self.request.GET.get('query', '')
 
-        # Filtrace na základě vyhledávání
-        query = self.request.GET.get('query')        
         if query:
-            queryset = queryset.filter(nazev_dilu__icontains=query)
+            queryset = queryset.filter(
+                Q(evidencni_cislo__nazev_dilu__icontains=query) | Q(dodavatel__icontains(query))
+            )
         
-        # Filtrace na základě checkboxu
-        if self.request.GET.get('ucetnictvi') == 'on':
-            queryset = queryset.filter(ucetnictvi=True)
+        typ_operace = self.request.GET.get('typ_operace', 'VŠE')
+        if typ_operace != 'VŠE':
+            queryset = queryset.filter(typ_operace=typ_operace)
 
-        # Filtrace na základě období
-        month = self.request.GET.get('month')
-        year = self.request.GET.get('year')
+        month = self.request.GET.get('month', 'VŠE')
+        year = self.request.GET.get('year', 'VŠE')
 
-        if (month and month != 'VŠE') and (year and year != 'VŠE'):
+        if month != 'VŠE' and year != 'VŠE':
             queryset = queryset.filter(
                 Q(datum_vydeje__year=year, datum_vydeje__month=month) |
                 Q(datum_nakupu__year=year, datum_nakupu__month=month)
-            ) 
+            )
 
-        # Filtrace podle typu operace
-        typ_operace = self.request.GET.get('typ_operace')
-        if typ_operace and typ_operace != 'VŠE':
-            queryset = queryset.filter(typ_operace=typ_operace)
+        sort = self.request.GET.get('sort', 'id')
+        order = self.request.GET.get('order', 'asc')
+        if order == 'desc':
+            sort = f"-{sort}"
+        queryset = queryset.order_by(sort)
 
         return queryset
 
