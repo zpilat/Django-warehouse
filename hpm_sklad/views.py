@@ -9,6 +9,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Q
+
+import datetime
 
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
@@ -227,19 +230,35 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         if selected_id:
             context['selected_item'] = get_object_or_404(AuditLog, id=selected_id)
         else:
-            context['selected_item'] = None       
+            context['selected_item'] = None
+
+        # Generování seznamu let pro výběr
+        current_year = datetime.datetime.now().year
+        context['years'] = range(current_year, 2022, -1)
+        
         return context    
 
     def get_queryset(self):
         queryset = AuditLog.objects.all()
-        query = self.request.GET.get('q')
 
+        # Filtrace na základě vyhledávání
+        query = self.request.GET.get('query')        
         if query:
             queryset = queryset.filter(nazev_dilu__icontains=query)
         
         # Filtrace na základě checkboxu
         if self.request.GET.get('ucetnictvi') == 'on':
             queryset = queryset.filter(ucetnictvi=True)
+
+        # Filtrace na základě období
+        month = self.request.GET.get('month')
+        year = self.request.GET.get('year')
+
+        if (month and month != 'VŠE') and (year and year != 'VŠE'):
+            queryset = queryset.filter(
+                Q(datum_vydeje__year=year, datum_vydeje__month=month) |
+                Q(datum_nakupu__year=year, datum_nakupu__month=month)
+            ) 
 
         # Filtrace podle typu operace
         typ_operace = self.request.GET.get('typ_operace')

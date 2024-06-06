@@ -9,15 +9,39 @@
 <h3 class="text-center">Auditovací log</h3>
     <form method="GET" action="" class="search-form">
         <div class="search-group">
-            <input class="search" type="text" name="q" placeholder="Vyhledat název dílu" value="{{ request.GET.q }}">
-            <label>
-                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
-            </label>
-            <select class="search" name="typ_operace">
+            <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
+            <label for="typ_operace">Typ operace:</label>
+            <select name="typ_operace" class="search" id="typ_operace">
                 <option value="VŠE" {% if request.GET.typ_operace == 'VŠE' or not request.GET.typ_operace %}selected{% endif %}>VŠE</option>
                 <option value="PŘÍJEM" {% if request.GET.typ_operace == 'PŘÍJEM' %}selected{% endif %}>PŘÍJEM</option>
                 <option value="VÝDEJ" {% if request.GET.typ_operace == 'VÝDEJ' %}selected{% endif %}>VÝDEJ</option>
-            </select>            
+            </select>  
+            <label for="month">Vyberte měsíc:</label>
+            <select name="month" id="month" class="search">
+                <option value="VŠE" {% if request.GET.month == 'VŠE' or not request.GET.month %}selected{% endif %}>VŠE</option>
+                <option value="01" {% if request.GET.month == '01' %}selected{% endif %}>Leden</option>
+                <option value="02" {% if request.GET.month == '02' %}selected{% endif %}>Únor</option>
+                <option value="03" {% if request.GET.month == '03' %}selected{% endif %}>Březen</option>
+                <option value="04" {% if request.GET.month == '04' %}selected{% endif %}>Duben</option>
+                <option value="05" {% if request.GET.month == '05' %}selected{% endif %}>Květen</option>
+                <option value="06" {% if request.GET.month == '06' %}selected{% endif %}>Červen</option>
+                <option value="07" {% if request.GET.month == '07' %}selected{% endif %}>Červenec</option>
+                <option value="08" {% if request.GET.month == '08' %}selected{% endif %}>Srpen</option>
+                <option value="09" {% if request.GET.month == '09' %}selected{% endif %}>Září</option>
+                <option value="10" {% if request.GET.month == '10' %}selected{% endif %}>Říjen</option>
+                <option value="11" {% if request.GET.month == '11' %}selected{% endif %}>Listopad</option>
+                <option value="12" {% if request.GET.month == '12' %}selected{% endif %}>Prosinec</option>
+            </select>        
+            <label for="year">Vyberte rok:</label>
+            <select name="year" id="year" class="search">
+                <option value="VŠE" {% if request.GET.year == 'VŠE' or not request.GET.year %}selected{% endif %}>VŠE</option>
+                {% for year in years %}
+                    <option value="{{ year }}" {% if request.GET.year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>     
+            <label>
+                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
+            </label>                 
             <button class="search nav-item" type="submit">Filtrovat</button>            
         </div>
     </form>
