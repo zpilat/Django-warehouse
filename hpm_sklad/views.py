@@ -220,7 +220,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
-    template_name = 'hpm_sklad/audit_log.html'
+    template_name = 'hpm_sklad/audit_log.html'  # Zajistěte, že tato cesta je správná
     paginate_by = 25
 
     def get_context_data(self, **kwargs):
@@ -237,7 +237,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         context.update({
             'sort': self.request.GET.get('sort', 'id'),
-            'order': self.request.GET.get('order', 'asc'),
+            'order': self.request.GET.get('order', 'up'),
             'query': self.request.GET.get('query', ''),
             'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
@@ -269,8 +269,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             )
 
         sort = self.request.GET.get('sort', 'id')
-        order = self.request.GET.get('order', 'asc')
-        if order == 'desc':
+        order = self.request.GET.get('order', 'up')
+        if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)
 
