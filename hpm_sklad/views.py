@@ -241,7 +241,9 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             'query': self.request.GET.get('query', ''),
             'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
-            'year': self.request.GET.get('year', 'VŠE')
+            'year': self.request.GET.get('year', 'VŠE'),
+            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
+            
         })
 
         return context    
@@ -252,8 +254,11 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         if query:
             queryset = queryset.filter(
-                Q(evidencni_cislo__nazev_dilu__icontains=query) | Q(dodavatel__icontains(query))
+                Q(nazev_dilu__icontains=query) | Q(dodavatel__icontains=query)
             )
+
+        if self.request.GET.get('ucetnictvi', '') == 'on':
+            queryset = queryset.filter(ucetnictvi=True)
         
         typ_operace = self.request.GET.get('typ_operace', 'VŠE')
         if typ_operace != 'VŠE':

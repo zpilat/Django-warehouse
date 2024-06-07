@@ -5,6 +5,6 @@
 <form method="post" action="{% url 'delete_sklad' object.pk %}">
     {% csrf_token %}
     <p>Opravdu chcete smazat tuto položku?:</p>
-    <p>{{ object|truncatechars:40 }}</p>
+    <p>{{ object|truncatechars:70 }}</p>
     <input type="submit" value="Smazat" class="button nav-item" />
 </form>

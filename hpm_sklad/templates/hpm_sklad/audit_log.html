@@ -36,6 +36,9 @@
                     <option value="{{ year }}" {% if request.GET.year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
                 {% endfor %}
             </select>
+            <label>
+                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
+            </label> 
             <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'id' }}">
             <input type="hidden" name="order" value="{{ request.GET.order|default_if_none:'up' }}">
             <button type="submit">Filtrovat</button>
@@ -64,9 +67,9 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort=evidencni_cislo__nazev_dilu&order={% if request.GET.sort == 'evidencni_cislo__nazev_dilu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Skladová položka
-                                {% if request.GET.sort == 'evidencni_cislo__nazev_dilu' %}
+                            <a href="?sort=nazev_dilu&order={% if request.GET.sort == 'nazev_dilu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Název dílu
+                                {% if request.GET.sort == 'nazev_dilu' %}
                                     <i class="fas fa-sort-{{ request.GET.order }}"></i>
                                 {% endif %}
                             </a>
@@ -152,7 +155,7 @@
                     {% if item.id == selected_item.id %} class="selected-row"{% endif %}>  
                         <td>{{ item.id }}</td>
                         <td>{{ item.typ_operace }}</td>
-                        <td>{{ item.evidencni_cislo.nazev_dilu }}</td>                   
+                        <td>{{ item.nazev_dilu }}</td>                   
                         <td>{{ item.zmena_mnozstvi }}</td>
                         <td>{{ item.jednotky }}</td>
                         <td>{{ item.datum_vydeje | date:"d.m.Y" }}</td>
