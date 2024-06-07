@@ -1,5 +1,6 @@
 {% extends "hpm_sklad/base_left_right_column.html" %}
 {% load static %}
+{% load custom_filters %}
 
 {% block navbar %}
 <nav class="navbar">
@@ -19,7 +20,7 @@
 <h3 class="text-center">Skladové zásoby</h3>
     <form method="GET" action="" class="search-form">
         <div class="search-group">
-            <input class="search" type="text" name="q" placeholder="Vyhledat název dílu" value="{{ request.GET.q }}">
+            <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
             <label>
                 <input type="checkbox" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}> Kritický díl
             </label>
@@ -29,6 +30,8 @@
             <label>
                 <input type="checkbox" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}> Pod minimem
             </label>
+            <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'evidencni_cislo' }}">
+            <input type="hidden" name="order" value="{{ request.GET.order|default_if_none:'up' }}">
             <button class="search nav-item" type="submit">Filtrovat</button>
         </div>
         <div class="radio-group">
@@ -104,19 +107,115 @@
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
-                    <th>Ev. číslo</th>
-                    <th>Č. karty</th>
-                    <th>Název dílu</th>
-                    <th>Min.</th>
-                    <th>Množství</th>
-                    <th>Jedn.</th>
-                    <th>Umístění</th>
-                    <th>Dodavatel</th>
-                    <th>Datum nákupu</th>
-                    <th>Číslo obj.</th>
-                    <th>EUR/ jedn.</th>
-                    <th>Celkem EUR</th>
-                    <th>Poznámka</th>
+                    {% with request.GET.urlencode as querystring %}
+                        <th>
+                            <a href="?sort=evidencni_cislo&order={% if request.GET.sort == 'evidencni_cislo' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Ev. číslo
+                                {% if request.GET.sort == 'evidencni_cislo' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                                {% if not request.GET.sort %}
+                                    <i class="fas fa-sort-up"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=interne_cislo&order={% if request.GET.sort == 'interne_cislo' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Č. karty
+                                {% if request.GET.sort == 'interne_cislo' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=nazev_dilu&order={% if request.GET.sort == 'nazev_dilu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Název dílu
+                                {% if request.GET.sort == 'nazev_dilu' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=min_mnozstvi_ks&order={% if request.GET.sort == 'min_mnozstvi_ks' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Min.
+                                {% if request.GET.sort == 'min_mnozstvi_ks' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=mnozstvi&order={% if request.GET.sort == 'mnozstvi' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Množství
+                                {% if request.GET.sort == 'mnozstvi' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=jednotky&order={% if request.GET.sort == 'jednotky' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Jedn.
+                                {% if request.GET.sort == 'jednotky' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=umisteni&order={% if request.GET.sort == 'umisteni' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Umístění
+                                {% if request.GET.sort == 'umisteni' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=dodavatel&order={% if request.GET.sort == 'dodavatel' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Dodavatel
+                                {% if request.GET.sort == 'dodavatel' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=datum_nakupu&order={% if request.GET.sort == 'datum_nakupu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Datum nákupu
+                                {% if request.GET.sort == 'datum_nakupu' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=cislo_objednavky&order={% if request.GET.sort == 'cislo_objednavky' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Číslo obj.
+                                {% if request.GET.sort == 'cislo_objednavky' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=jednotkova_cena_eur&order={% if request.GET.sort == 'jednotkova_cena_eur' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                EUR/ jedn.
+                                {% if request.GET.sort == 'jednotkova_cena_eur' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=celkova_cena_eur&order={% if request.GET.sort == 'celkova_cena_eur' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Celkem EUR
+                                {% if request.GET.sort == 'celkova_cena_eur' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=poznamka&order={% if request.GET.sort == 'poznamka' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Poznámka
+                                {% if request.GET.sort == 'poznamka' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                    {% endwith %}
                 </tr>
             </thead>
             <tbody class="show-pointer">

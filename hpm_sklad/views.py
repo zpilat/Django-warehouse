@@ -130,12 +130,23 @@ class SkladListView(LoginRequiredMixin, ListView):
         if selected_ev_cislo:
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
         else:
-            context['selected_item'] = None       
+            context['selected_item'] = None
+
+        context.update({
+            'sort': self.request.GET.get('sort', 'evidencni_cislo'),
+            'order': self.request.GET.get('order', 'up'),
+            'query': self.request.GET.get('query', ''),
+            'kriticky_dil': self.request.GET.get('kriticky_dil', ''),
+            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),            
+            'pod_minimem': self.request.GET.get('pod_minimem', ''),
+            'radio_filter': self.request.GET.get('radio_filter', 'VŠE'),           
+        })
+        
         return context    
 
     def get_queryset(self):
         queryset = Sklad.objects.all()
-        query = self.request.GET.get('q')
+        query = self.request.GET.get('query')
         
         if query:
             queryset = queryset.filter(nazev_dilu__icontains=query)
@@ -152,6 +163,12 @@ class SkladListView(LoginRequiredMixin, ListView):
         radio_filter = self.request.GET.get('radio_filter')
         if radio_filter:
             queryset = queryset.filter(**{radio_filter: True})
+
+        sort = self.request.GET.get('sort', 'evidencni_cislo')
+        order = self.request.GET.get('order', 'up')
+        if order == 'down':
+            sort = f"-{sort}"
+        queryset = queryset.order_by(sort)            
 
         # Ruční filtrování pro vlastnost pod_minimem
         pod_minimem = self.request.GET.get('pod_minimem')
@@ -242,8 +259,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
             'year': self.request.GET.get('year', 'VŠE'),
-            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
-            
+            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),  
         })
 
         return context    

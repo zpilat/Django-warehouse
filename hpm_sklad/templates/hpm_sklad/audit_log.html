@@ -56,6 +56,9 @@
                                 {% if request.GET.sort == 'id' %}
                                     <i class="fas fa-sort-{{ request.GET.order }}"></i>
                                 {% endif %}
+                                {% if not request.GET.sort %}
+                                    <i class="fas fa-sort-up"></i>
+                                {% endif %} 
                             </a>
                         </th>
                         <th>
