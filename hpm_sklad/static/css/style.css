@@ -24,6 +24,24 @@ thead th {
     background-color: #A9A9A9;
 }
 
+
+.table th a {
+    color: inherit; /* zachovat barvu textu */
+    text-decoration: none; /* odstranit podtržení */
+    display: inline-flex;
+    align-items: center;
+}
+.table th a:hover {
+    color: inherit; /* zachovat barvu textu při hoveru */
+}
+.table th a:visited {
+    color: inherit; /* zachovat barvu textu po kliknutí */
+}
+.table th a .fa-sort-up,
+.table th a .fa-sort-down {
+    margin-left: 5px;
+}
+
 main_menu {
     border: 4px solid #ddd; 
     background-color: #f9f9f9;  

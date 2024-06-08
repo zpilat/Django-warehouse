@@ -165,7 +165,7 @@ class SkladListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(**{radio_filter: True})
 
         sort = self.request.GET.get('sort', 'evidencni_cislo')
-        order = self.request.GET.get('order', 'up')
+        order = self.request.GET.get('order', 'down')
         if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)            
@@ -290,7 +290,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             )
 
         sort = self.request.GET.get('sort', 'id')
-        order = self.request.GET.get('order', 'up')
+        order = self.request.GET.get('order', 'down')
         if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)
