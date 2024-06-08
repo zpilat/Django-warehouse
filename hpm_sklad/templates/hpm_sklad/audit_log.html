@@ -39,9 +39,9 @@
             <label>
                 <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
             </label> 
-            <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'id' }}">
-            <input type="hidden" name="order" value="{{ request.GET.order|default_if_none:'up' }}">
-            <button type="submit">Filtrovat</button>
+            <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}id{% endif %}">
+            <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">            
+            <button class="search nav-item" type="submit">Filtrovat</button>
         </div>
     </form>
 

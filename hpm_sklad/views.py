@@ -134,7 +134,7 @@ class SkladListView(LoginRequiredMixin, ListView):
 
         context.update({
             'sort': self.request.GET.get('sort', 'evidencni_cislo'),
-            'order': self.request.GET.get('order', 'up'),
+            'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
             'kriticky_dil': self.request.GET.get('kriticky_dil', ''),
             'ucetnictvi': self.request.GET.get('ucetnictvi', ''),            
@@ -146,7 +146,9 @@ class SkladListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Sklad.objects.all()
-        query = self.request.GET.get('query')
+        query = self.request.GET.get('query', '')
+        sort = self.request.GET.get('sort', 'evidencni_cislo')
+        order = self.request.GET.get('order', 'down')
         
         if query:
             queryset = queryset.filter(nazev_dilu__icontains=query)
@@ -164,8 +166,6 @@ class SkladListView(LoginRequiredMixin, ListView):
         if radio_filter:
             queryset = queryset.filter(**{radio_filter: True})
 
-        sort = self.request.GET.get('sort', 'evidencni_cislo')
-        order = self.request.GET.get('order', 'down')
         if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)            
@@ -254,7 +254,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         context.update({
             'sort': self.request.GET.get('sort', 'id'),
-            'order': self.request.GET.get('order', 'up'),
+            'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
             'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
@@ -267,6 +267,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = AuditLog.objects.all()
         query = self.request.GET.get('query', '')
+        sort = self.request.GET.get('sort', 'id')
+        order = self.request.GET.get('order', 'down')
 
         if query:
             queryset = queryset.filter(
@@ -289,8 +291,6 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 Q(datum_nakupu__year=year, datum_nakupu__month=month)
             )
 
-        sort = self.request.GET.get('sort', 'id')
-        order = self.request.GET.get('order', 'down')
         if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)

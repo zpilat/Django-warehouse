@@ -30,8 +30,8 @@
             <label>
                 <input type="checkbox" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}> Pod minimem
             </label>
-            <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'evidencni_cislo' }}">
-            <input type="hidden" name="order" value="{{ request.GET.order|default_if_none:'up' }}">
+            <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
+            <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
             <button class="search nav-item" type="submit">Filtrovat</button>
         </div>
         <div class="radio-group">
