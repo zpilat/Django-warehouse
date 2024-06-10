@@ -149,5 +149,5 @@ class AuditLog(models.Model):
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
 
     def __str__(self):
-        return f"{self.movement_type}: {self.quantity}x {self.spare_part}"
+        return f"{self.typ_operace}: {self.zmena_mnozstvi}x {self.nazev_dilu}"
 
