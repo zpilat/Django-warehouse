@@ -33,18 +33,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Funkce pro načtení formulářů (vytvořit/upravit/smazat) do pravého sloupce
-    function loadForm(url) {
-        fetch(url)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('detail').innerHTML = html;
-        })
-        .catch(err => console.error('Chyba při načítání formuláře:', err));
-    }
-
     // Automaticky vyberte první řádek při načtení stránky
-    selectFirstRow();
+    selectFirstRow();    
 
     // Přidání onclick události ke všem řádkům
     document.querySelectorAll('table tbody tr').forEach(row => {

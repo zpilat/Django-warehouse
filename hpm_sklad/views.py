@@ -11,11 +11,14 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
 
+import logging
 import datetime
 
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm)
+
+logger = logging.getLogger(__name__)
 
 def home_view(request):
     return render(request, "hpm_sklad/home.html")
@@ -216,6 +219,10 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         object_instance = self.get_object()
 
+        logger.debug(f"Sklad object: {object_instance}")
+        varianty = Varianty.objects.filter(id_sklad=object_instance)
+        logger.debug(f"Varianty: {varianty}")
+
         equipment_fields_true = [
             field for field in Sklad._meta.fields
             if field.get_internal_type() == 'BooleanField' and getattr(object_instance, field.name) is True and field.name not in ("ucetnictvi", "kriticky_dil")
@@ -232,6 +239,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         context['equipment_fields_true'] = equipment_fields_true
         context['info_fields'] = info_fields
         context['detail_item_fields'] = detail_item_fields
+        context['varianty'] = varianty
         return context
     
 

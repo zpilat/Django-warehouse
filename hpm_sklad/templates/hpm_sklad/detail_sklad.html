@@ -78,4 +78,27 @@
             </tr>
         </tbody>
     </table>
+    
+    <h3 class="text-center">Varianty skladové položky</h3>
+    {% if varianty %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Název varianty</th>
+                    <th>Dodavatel</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for varianta in varianty %}
+                    <tr>
+                        <td>{{ varianta.nazev_varianty|truncatechars:40 }}</td>
+                        <td>{{ varianta.id_dodavatele|truncatechars:20 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Žádné varianty nenalezeny.</p>
+    {% endif %}
+    
 </div>

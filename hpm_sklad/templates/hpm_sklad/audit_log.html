@@ -129,14 +129,6 @@
                             </a>
                         </th>
                         <th>
-                            <a href="?sort=cas_vytvoreni&order={% if request.GET.sort == 'cas_vytvoreni' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Čas operace
-                                {% if request.GET.sort == 'cas_vytvoreni' %}
-                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
-                                {% endif %}
-                            </a>
-                        </th>
-                        <th>
                             <a href="?sort=jednotkova_cena_eur&order={% if request.GET.sort == 'jednotkova_cena_eur' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 EUR / jedn.
                                 {% if request.GET.sort == 'jednotkova_cena_eur' %}
@@ -152,6 +144,14 @@
                                 {% endif %}
                             </a>
                         </th>
+                        <th>
+                            <a href="?sort=cas_vytvoreni&order={% if request.GET.sort == 'cas_vytvoreni' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Čas vytvoření
+                                {% if request.GET.sort == 'cas_vytvoreni' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>                        
                         <th>
                             <a href="?sort=operaci_provedl&order={% if request.GET.sort == 'operaci_provedl' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Operaci provedl
@@ -169,16 +169,16 @@
                     {% if item.id == selected_item.id %} class="selected-row"{% endif %}>  
                         <td>{{ item.id }}</td>
                         <td>{{ item.typ_operace }}</td>
-                        <td>{{ item.nazev_dilu }}</td>                   
+                        <td>{{ item.nazev_dilu|truncatechars:60 }}</td>                   
                         <td>{{ item.zmena_mnozstvi }}</td>
                         <td>{{ item.jednotky }}</td>
                         <td>{{ item.datum_vydeje | date:"d.m.Y" }}</td>
                         <td>{{ item.datum_nakupu | date:"d.m.Y" }}</td>
-                        <td>{{ item.dodavatel }}</td>
-                        <td>{{ item.cas_vytvoreni | date:"d.m.Y H:i" }}</td>
+                        <td>{{ item.dodavatel|truncatechars:20 }}</td>
                         <td>{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td>{{ item.celkova_cena_eur|floatformat:2 }}</td>
-                        <td>{{ item.operaci_provedl.first_name }} {{ item.operaci_provedl.last_name }}</td>
+                        <td>{{ item.cas_vytvoreni|date:"d.m.Y" }}</td>                        
+                        <td>{{ item.operaci_provedl.last_name }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

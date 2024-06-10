@@ -27,7 +27,7 @@ class Sklad(models.Model):
     min_mnozstvi_ks = models.PositiveIntegerField(default=0, verbose_name="Minimum")
     mnozstvi = models.PositiveIntegerField(default=0, verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
-    umisteni = models.CharField(max_length=25, verbose_name="Umístění")
+    umisteni = models.CharField(max_length=25, null=True, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, null=True, blank=True, verbose_name="Dodavatel")
     datum_nakupu = models.DateField(null=True, blank=True, verbose_name="Datum nákupu")
     cislo_objednavky = models.CharField(max_length=20, null=True, blank=True, verbose_name="Číslo objednávky")
@@ -136,7 +136,7 @@ class AuditLog(models.Model):
     mnozstvi = models.PositiveIntegerField(verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
     typ_operace = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, verbose_name="Typ operace")
-    pouzite_zarizeni = models.CharField(max_length=70, verbose_name="Pro zařízení")
+    pouzite_zarizeni = models.CharField(max_length=70, null=True, verbose_name="Pro zařízení")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, verbose_name="Dodavatel")
     datum_vydeje = models.DateField(null=True, blank=True, verbose_name="Datum výdeje")
@@ -151,3 +151,21 @@ class AuditLog(models.Model):
     def __str__(self):
         return f"{self.typ_operace}: {self.zmena_mnozstvi}x {self.nazev_dilu}"
 
+
+class Varianty(models.Model):
+
+    id_sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty', verbose_name="ID sklad")
+    id_dodavatele = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty', verbose_name="ID dodavatele")
+    nazev_varianty = models.CharField(max_length=255, verbose_name="Název varianty")
+    cislo_varianty = models.CharField(max_length=255, null=True, verbose_name="Číslo varianty")
+    jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
+    dodaci_lhuta = models.PositiveIntegerField(verbose_name="Dodací lhůta")
+    min_obj_mnozstvi = models.PositiveIntegerField(verbose_name="Min. obj. množství")
+
+    class Meta:
+        verbose_name_plural = 'Varianty'
+        verbose_name = 'Varianta'
+ 
+    def __str__(self):
+        return self.nazev_varianty
+    

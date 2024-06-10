@@ -224,12 +224,12 @@
           	    {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="selected-row"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
           	        <td>{{ sklad.evidencni_cislo }}</td>
                 	<td>{{ sklad.interne_cislo }}</td>
-                	<td>{{ sklad.nazev_dilu }}</td>
+                	<td>{{ sklad.nazev_dilu|truncatechars:60 }}</td>
                 	<td>{{ sklad.min_mnozstvi_ks }}</td>
              		<td>{{ sklad.mnozstvi }}</td>
 	              	<td>{{ sklad.jednotky }}</td>
        		        <td>{{ sklad.umisteni }}</td>
-       		        <td>{{ sklad.dodavatel }}</td>
+       		        <td>{{ sklad.dodavatel|truncatechars:20 }}</td>
                   	<td>{{ sklad.datum_nakupu|date:"d.m.Y" }}</td>
                   	<td>{{ sklad.cislo_objednavky }}</td>
                   	<td>{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
