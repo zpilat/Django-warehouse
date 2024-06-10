@@ -67,38 +67,45 @@
     <table>
         <thead>
             <tr>
-                <th>Zařízení:</th>
+                <th>Pro zařízení:</th>
             </tr>
         </thead>        
         <tbody>
-            <tr>
-                {% for field in equipment_fields_true %}
-                    <td>{{ field.verbose_name }}</td>
-                {% endfor %}                
-            </tr>
+            {% if equipment_fields_true %}
+                <tr>
+                    {% for field in equipment_fields_true %}
+                        <td>{{ field.verbose_name }}</td>
+                    {% endfor %}                
+                </tr>
+            {% else %}
+                <tr>
+                    <td>Žádné konkrétní zařízení.</td>
+                </tr>
+            {% endif %}
         </tbody>
     </table>
     
-    <h3 class="text-center">Varianty skladové položky</h3>
-    {% if varianty %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Název varianty</th>
-                    <th>Dodavatel</th>
-                </tr>
-            </thead>
-            <tbody>
+    <table>
+        <thead>
+            <tr>
+                <th>Varianty:</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if varianty %}
                 {% for varianta in varianty %}
                     <tr>
+                        <td>{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
                         <td>{{ varianta.nazev_varianty|truncatechars:40 }}</td>
-                        <td>{{ varianta.id_dodavatele|truncatechars:20 }}</td>
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Žádné varianty nenalezeny.</p>
-    {% endif %}
+            {% else %}
+                <tr>
+                    <td>Neexistuje žádná varianta.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
     
 </div>
