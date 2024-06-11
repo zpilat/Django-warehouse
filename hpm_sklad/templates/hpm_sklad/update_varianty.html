@@ -1,0 +1,9 @@
+{% load static %} 
+{% load crispy_forms_tags %}
+
+<h3>Úprava varianty pro skladovou položku:</h3>
+<p>{{ skladova_polozka }}</p>
+<form method="post" action="{% url 'update_varianty' object.pk %}">
+    {% csrf_token %}
+    {% crispy form %}
+</form>

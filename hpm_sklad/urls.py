@@ -12,6 +12,7 @@ urlpatterns = [
     path('sklad/audit_logs/', views.AuditLogListView.as_view(), name='audit_log'),
     path('sklad/audit_logs/<int:pk>/detail/', views.AuditLogDetailView.as_view(), name='detail_audit_log'),
     path('sklad/<int:pk>/create_varianty/', views.VariantyCreateView.as_view(), name='create_varianty'),
+    path('sklad/<int:pk>/update_varianty/', views.VariantyUpdateView.as_view(), name='update_varianty'),
     path('sklad/<int:pk>/receipt_audit_log/', views.receipt_form_view, name='receipt_audit_log'),
     path('sklad/<int:pk>/dispatch_audit_log/', views.dispatch_form_view, name='dispatch_audit_log'),    
     path('account/', include('django.contrib.auth.urls')),

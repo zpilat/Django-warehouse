@@ -100,6 +100,11 @@
                     <tr>
                         <td>{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
                         <td>{{ varianta.nazev_varianty|truncatechars:40 }}</td>
+                        {% if perms.hpm_sklad.update_varianty %}            
+                            <td>
+                                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_varianty' varianta.pk %}')">Upravit</a>       
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             {% else %}

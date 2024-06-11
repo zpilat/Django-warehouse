@@ -17,7 +17,7 @@ import datetime
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
-                    VariantyCreateForm,)
+                    VariantyCreateForm, VariantyUpdateForm,)
 
 logger = logging.getLogger(__name__)
 
@@ -321,13 +321,27 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
-        context['skladova_polozka'] = skladova_polozka
+        context['skladova_polozka'] = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return context
 
     def form_valid(self, form):
+        skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         form.instance.id_sklad = skladova_polozka
         return super().form_valid(form)
+
+
+class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Varianty
+    form_class = VariantyCreateForm
+    template_name = 'hpm_sklad/update_varianty.html'
+    success_url = reverse_lazy('sklad')
+    permission_required = 'hpm_sklad.update_varianty'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        varianta = self.get_object()
+        context['skladova_polozka'] = varianta.id_sklad
+        return context
     
     
 class SignUp(CreateView):
