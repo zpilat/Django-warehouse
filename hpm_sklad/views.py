@@ -79,8 +79,6 @@ def dispatch_form_view(request, pk):
     if request.method == 'POST':
         sklad_movement_form = SkladDispatchForm(request.POST, instance=sklad_instance)
         auditlog_dispatch_form = AuditLogDispatchForm(request.POST, max_mnozstvi=sklad_instance.mnozstvi)
-        print(f"{sklad_movement_form.is_valid()=}")
-        print(f"{auditlog_dispatch_form.is_valid()=}")
         
         if sklad_movement_form.is_valid() and auditlog_dispatch_form.is_valid():
             updated_sklad = sklad_movement_form.save(commit=False)
@@ -129,6 +127,9 @@ class SkladListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         selected_ev_cislo = self.request.GET.get('selected', None)
+        logger.debug(f"{self.request.GET}")
+        urlencode=self.request.GET.urlencode()
+        logger.debug(f"{urlencode}")
 
         if selected_ev_cislo:
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
@@ -218,10 +219,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         object_instance = self.get_object()
-
-        logger.debug(f"Sklad object: {object_instance}")
         varianty = Varianty.objects.filter(id_sklad=object_instance)
-        logger.debug(f"Varianty: {varianty}")
 
         equipment_fields_true = [
             field for field in Sklad._meta.fields
@@ -258,7 +256,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             context['selected_item'] = None
 
         current_year = datetime.datetime.now().year
-        context['years'] = range(current_year, 2022, -1)
+        context['years'] = range(current_year, 2023, -1)
 
         context.update({
             'sort': self.request.GET.get('sort', 'id'),
