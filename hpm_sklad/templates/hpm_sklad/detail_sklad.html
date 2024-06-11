@@ -4,21 +4,24 @@
 <header>
     <nav class="navbar">
         <div class="navbar-left">
-	    {% if not perms.hpm_sklad.change_sklad %}
+	        {% if not perms.hpm_sklad.change_sklad %}
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>    
-	    {% endif %}
+	        {% endif %}
             {% if perms.hpm_sklad.change_sklad %}            
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>       
             {% endif %}
             {% if perms.hpm_sklad.delete_sklad %}  
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání</a>            
             {% endif %}
-            {% if perms.hpm_sklad.add_auditlog %}  
+            {% if perms.hpm_sklad.add_auditlog and perms.hpm_sklad.change_sklad %}  
                 <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'receipt_audit_log' object.evidencni_cislo %}')">Příjem</a>
                 {% if object.mnozstvi > 0 %}
                     <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'dispatch_audit_log' object.evidencni_cislo %}')">Výdej</a>
                 {% endif %}
             {% endif %}
+            {% if perms.hpm_sklad.add_varianty %}            
+                <a class="nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'create_varianty' object.pk %}')">Varianta</a>       
+            {% endif %}          
         </div>
     </nav>
 </header>

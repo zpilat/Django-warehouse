@@ -16,7 +16,8 @@ import datetime
 
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
-                    SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm)
+                    SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
+                    VariantyCreateForm,)
 
 logger = logging.getLogger(__name__)
 
@@ -127,9 +128,6 @@ class SkladListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         selected_ev_cislo = self.request.GET.get('selected', None)
-        logger.debug(f"{self.request.GET}")
-        urlencode=self.request.GET.urlencode()
-        logger.debug(f"{urlencode}")
 
         if selected_ev_cislo:
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
@@ -177,7 +175,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         # Ruční filtrování pro vlastnost pod_minimem
         pod_minimem = self.request.GET.get('pod_minimem')
         if pod_minimem == 'on':
-            queryset = [obj for obj in queryset if obj.pod_minimem]
+            queryset = [obj for obj in queryset if obj.pod_minimem]         
 
         return queryset
 
@@ -311,8 +309,26 @@ class AuditLogDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['detail_item_fields'] = self.model._meta.get_fields()
-        return context    
- 
+        return context
+
+    
+class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Varianty
+    form_class = VariantyCreateForm
+    template_name = 'hpm_sklad/create_varianty.html'
+    success_url = reverse_lazy('sklad')
+    permission_required = 'hpm_sklad.add_varianty'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        context['skladova_polozka'] = skladova_polozka
+        return context
+
+    def form_valid(self, form):
+        form.instance.id_sklad = skladova_polozka
+        return super().form_valid(form)
+    
     
 class SignUp(CreateView):
   form_class = CustomUserCreationForm

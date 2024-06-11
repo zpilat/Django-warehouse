@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -204,6 +204,23 @@ class AuditLogDispatchForm(forms.ModelForm):
             )
         self.fields['datum_vydeje'].required = True
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]        
+
+
+class VariantyCreateForm(forms.ModelForm):   
+    class Meta:
+        model = Varianty
+        fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta", "min_obj_mnozstvi", "id_dodavatele",]
+
+    def __init__(self, *args, **kwargs):
+        super(VariantyCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-grid'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'), 
+            Submit('submit', 'Uložit', css_class="nav-item"),
+            )
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
