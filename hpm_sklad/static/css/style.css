@@ -1,16 +1,6 @@
 /* Formuláře */
-form .form-control {
-    font-size: 0.8rem; /* Zmenšení písma */
-    padding: 3px; /* Zmenšení vnitřních okrajů */
-}
-
 form .form-group {
     margin-bottom: 5px; /* Zmenšení rozestupů mezi poli */
-}
-
-form .btn {
-    font-size: 0.8rem; /* Zmenšení písma */
-    padding: 5px 10px; /* Zmenšení vnitřních okrajů */
 }
 
 /* Kontejner pro formulář */
@@ -124,44 +114,6 @@ thead th {
     background-color: #f8d7da; /* Jemná růžová */
 }
 
-.search {
-    font-size: 12px;
-    font-family: Arial, sans-serif;
-}
-
-.nav-item, .button-link {
-    font-size: 0.8rem; /* Zmenšení písma */
-    margin: 2px;
-    display: inline-block;
-    padding: 5px 10px;
-    background-color: #007BFF;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 5px;
-    border: none;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.narrow-nav-item {
-    font-size: 0.8rem; /* Zmenšení písma */
-    margin: 0px;
-    display: inline-block;
-    padding: 3px 10px;
-    background-color: #007BFF;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 5px;
-    border: none;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.nav-item:hover, .button-link:hover, .narrow-nav-item:hover {
-    background-color: #0056b3;
-    color: #ffffff;
-}
-
 .selected-row {
     background-color: #A9A9A9 !important; 
     color: white;
@@ -169,17 +121,6 @@ thead th {
 
 .pod-minimem-row {
     color: #FF5C5C;
-}
-
-.btn-primary {
-    width: 150px;
-    margin-top: 15px;
-    margin-left: 5px;
-}
-
-.current {
-    font-weight: bold;
-    font-size: 0.8rem;
 }
 
 .mb-0 {
@@ -214,27 +155,26 @@ thead th {
     margin-left: auto; /* Tlačí pravou část na pravou stranu */
 }
 
-/* Vyhledávání a checkbuttony */
-.search-form {
-    margin-bottom: 20px;
-}
-
 .search-group {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 5px;
 }
 
 .radio-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 2px;
-    margin-top: 10px;
+    gap: 10px;
 }
 
 .radio-group label {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 10px;    
+    gap: 5px; 
+}
+
+.btn-xs {
+    font-size: 0.8rem !important; /* Zmenšení písma */
+    padding: 3px 10px !important; /* Přizpůsobení vnitřních okrajů */
 }

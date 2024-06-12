@@ -1,7 +1,7 @@
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import ListView
@@ -59,6 +59,18 @@ def receipt_form_view(request, pk):
             
             updated_sklad.save()            
             created_auditlog.save()
+
+            # Získání dodavatele z formuláře
+            dodavatel_form_value = sklad_movement_form.cleaned_data['dodavatel']
+            dodavatel_object = Dodavatele.objects.get(dodavatel=dodavatel_form_value)
+
+            # Kontrola, zda varianta existuje
+            varianty = Varianty.objects.filter(id_sklad=sklad_instance)
+            varianta_dodavatele = [var.id_dodavatele for var in varianty]
+           
+            if not varianty or dodavatel_object not in varianta_dodavatele:
+                return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
+                                           
             return redirect('audit_log')
         
     else: # GET 
@@ -193,22 +205,26 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         response = super().form_valid(form)
         return response
 
+
 class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Sklad
     form_class = SkladUpdateForm    
     template_name = 'hpm_sklad/update_sklad.html'
     permission_required = 'hpm_sklad.change_sklad'
+    success_url = reverse_lazy('sklad')
+
     
 class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
     model = Sklad
     form_class = SkladUpdateObjednanoForm    
     template_name = 'hpm_sklad/update_objednano_sklad.html'
-    success_url = "/sklad/"
+    success_url = reverse_lazy('sklad')
+
 
 class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Sklad
     template_name = 'hpm_sklad/delete_sklad.html'
-    success_url = "/sklad/"
+    success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.delete_sklad'
     
 
@@ -330,12 +346,41 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     def form_valid(self, form):
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         form.instance.id_sklad = skladova_polozka
+
+        # Kontrola, zda varianta se stejným dodavatelem již existuje
+        if Varianty.objects.filter(id_sklad=skladova_polozka, id_dodavatele=form.instance.id_dodavatele).exists():
+            form.add_error('id_dodavatele', 'Varianta se stejným dodavatelem již existuje.')
+            return self.form_invalid(form)
+
         return super().form_valid(form)
 
 
-class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class VariantyWithDodavatelCreateView(CreateView):
     model = Varianty
     form_class = VariantyCreateForm
+    template_name = 'hpm_sklad/create_varianty_with_dodavatel.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        dodavatel_id = self.kwargs.get('dodavatel')
+        if dodavatel_id:
+            initial['id_dodavatele'] = Dodavatele.objects.get(id=dodavatel_id)
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dodavatel_id = self.kwargs.get('dodavatel')
+        skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs.get('pk'))
+        context['skladova_polozka'] = skladova_polozka
+        if dodavatel_id:
+            dodavatel_object = Dodavatele.objects.get(id=dodavatel_id)
+            context['dodavatel'] = dodavatel_object
+            context['dodavatel_id'] = dodavatel_id  # Dodání ID do kontextu
+        return context
+
+class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Varianty
+    form_class = VariantyUpdateForm
     template_name = 'hpm_sklad/update_varianty.html'
     success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.update_varianty'

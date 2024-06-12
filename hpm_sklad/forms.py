@@ -59,7 +59,7 @@ class SkladCreateForm(forms.ModelForm):
                     *[Field(field, css_class='form-control') for field in self.Meta.fields[8:]],
                     css_class='form-column right-col'
                 ),
-                css_class='form-row'
+                css_class='form-row small'
             ),
             Div(
                 Submit('submit', 'Uložit', css_class="btn btn-primary"),
@@ -93,7 +93,7 @@ class SkladUpdateForm(forms.ModelForm):
                     *[Field(field, css_class='form-control') for field in self.Meta.fields[7:]],
                     css_class='form-column right-col'
                 ),
-                css_class='form-row'
+                css_class='form-row small'
             ),
             Div(
                 Submit('submit', 'Uložit', css_class="btn btn-primary"),
@@ -114,7 +114,7 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Div(Field(self.Meta.fields[0]), css_class='form-column'), 
+            Div(Field(self.Meta.fields[0]), css_class='form-column small'), 
             Submit('submit', 'Uložit', css_class='d-flex justify-content-center mt-3'),
             )
 
@@ -137,7 +137,7 @@ class SkladReceiptForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small')
             )
 
         self.fields['dodavatel'].required = True
@@ -163,7 +163,7 @@ class SkladDispatchForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'),
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
             )
         
 
@@ -180,7 +180,7 @@ class AuditLogReceiptForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small')
             )
 
 class AuditLogDispatchForm(forms.ModelForm):
@@ -203,7 +203,7 @@ class AuditLogDispatchForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column')
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small')
             )
         self.fields['datum_vydeje'].required = True
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]        
@@ -220,7 +220,7 @@ class VariantyCreateForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'), 
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'), 
             Submit('submit', 'Uložit', css_class='d-flex justify-content-center mt-3'),
             )
 
@@ -231,12 +231,12 @@ class VariantyUpdateForm(forms.ModelForm):
         fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta", "min_obj_mnozstvi", ]
 
     def __init__(self, *args, **kwargs):
-        super(VariantyCreateForm, self).__init__(*args, **kwargs)
+        super(VariantyUpdateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'), 
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'), 
             Submit('submit', 'Uložit', css_class='d-flex justify-content-center mt-3'),
             )        
 

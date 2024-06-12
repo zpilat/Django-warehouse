@@ -3,17 +3,17 @@
 <div class="pagination d-flex justify-content-between align-items-center">
     <span class="step-links">
         {% if page_obj.has_previous %}
-            <a class="nav-item" href="?page=1&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-left"></i> první</a>
-            <a class="nav-item" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angle-left"></i> předchozí</a>
+            <a class="btn btn-secondary btn-sm" href="?page=1&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-left"></i> první</a>
+            <a class="btn btn-secondary btn-sm" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angle-left"></i> předchozí</a>
         {% endif %}
             
-        <span class="current">
+        <span class="btn btn-secondary btn-sm">
             Str. {{ page_obj.number }} ze {{ page_obj.paginator.num_pages }}
         </span>
             
         {% if page_obj.has_next %}
-            <a class="nav-item" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}">další <i class="fas fa-angle-right"></i></a>
-            <a class="nav-item" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode|url_remove_param:'page' }}">poslední <i class="fas fa-angles-right"></i></a>
+            <a class="btn btn-secondary btn-sm" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}">další <i class="fas fa-angle-right"></i></a>
+            <a class="btn btn-secondary btn-sm" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode|url_remove_param:'page' }}">poslední <i class="fas fa-angles-right"></i></a>
         {% endif %}
     </span>
     <p class="mb-0">Přihlášený uživatel: {{ current_user.first_name }} {{ current_user.last_name }}</p>

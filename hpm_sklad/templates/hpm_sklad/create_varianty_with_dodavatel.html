@@ -1,0 +1,15 @@
+{% load static %} 
+{% load crispy_forms_tags %}
+
+<div class="navbar">
+    <h5 class="text-center">Vytvoření varianty pro:</h5>
+    <p>{{ skladova_polozka|truncatechars:50 }}</p>
+    <h5 class="text-center">s dodavatelem:</h5>    
+    <p>{{ dodavatel|truncatechars:50 }}</p>    
+</div>
+<hr>
+
+<form method="post" action="{% url 'create_varianty_with_dodavatel' skladova_polozka.pk dodavatel_id %}">
+    {% csrf_token %}
+    {% crispy form %}
+</form>

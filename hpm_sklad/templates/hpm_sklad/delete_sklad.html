@@ -10,5 +10,5 @@
 <form method="post" action="{% url 'delete_sklad' object.pk %}">
     {% csrf_token %}
     <p>Opravdu chcete tuto položku smazat?:</p>
-    <input type="submit" value="Smazat" class="button nav-item" />
+    <input type="submit" value="Smazat" class="btn btn-primary btn-sm" />
 </form>

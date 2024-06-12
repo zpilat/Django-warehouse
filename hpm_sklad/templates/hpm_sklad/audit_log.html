@@ -5,7 +5,8 @@
 {% block navbar %}
 <nav class="navbar">
     <div class="navbar-left">
-        <a class="button nav-item" href="{% url 'sklad' %}">Sklad</a>
+        <a class="btn btn-primary btn-sm" href="{% url 'sklad' %}">Sklad</a>
+        <a class="btn btn-danger btn-sm" href="{% url 'audit_log' %}">Audit log</a>  
     </div>
     <div class="navbar-right">
         {% include "hpm_sklad/login.html" %}
@@ -14,9 +15,8 @@
 {% endblock %}
 
 {% block left_content %}
-    <h5 class="text-center">Auditovací log</h5><hr>
     <form method="GET" action="" class="search-form">
-        <div class="search-group">
+        <div class="search-group small">
             <input class="search" type="text" name="query" placeholder="Vyhledat díl / dodavatele" value="{{ request.GET.query }}">
             <label for="typ_operace">Typ operace:</label>
             <select name="typ_operace" class="search" id="typ_operace">
@@ -52,13 +52,13 @@
             </label> 
             <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}id{% endif %}">
             <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">            
-            <button class="search nav-item" type="submit">Filtrovat</button>
+            <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
         </div>
     </form>
 
     <div class="container-fluid">
-        <table class="table-sm table-bordered">
-            <thead class="thead-light">
+        <table class="table-sm table-hover table-bordered">
+            <thead class="thead-dark">
                 <tr>
                     {% with request.GET.urlencode as querystring %}
                         <th>
