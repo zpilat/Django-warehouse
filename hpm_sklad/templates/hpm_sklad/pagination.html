@@ -1,9 +1,9 @@
 {% load custom_filters %}
 {% if is_paginated %}
-<div class="pagination">
+<div class="pagination d-flex justify-content-between align-items-center">
     <span class="step-links">
         {% if page_obj.has_previous %}
-            <a class="nav-item"  href="?page=1&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-left"></i> první</a>
+            <a class="nav-item" href="?page=1&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-left"></i> první</a>
             <a class="nav-item" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angle-left"></i> předchozí</a>
         {% endif %}
             
@@ -16,5 +16,6 @@
             <a class="nav-item" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode|url_remove_param:'page' }}">poslední <i class="fas fa-angles-right"></i></a>
         {% endif %}
     </span>
+    <p class="mb-0">Přihlášený uživatel: {{ current_user.first_name }} {{ current_user.last_name }}</p>
 </div>
 {% endif %}

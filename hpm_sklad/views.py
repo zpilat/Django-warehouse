@@ -128,11 +128,12 @@ class SkladListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         selected_ev_cislo = self.request.GET.get('selected', None)
-
+        
         if selected_ev_cislo:
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
         else:
             context['selected_item'] = None
+
 
         context.update({
             'sort': self.request.GET.get('sort', 'evidencni_cislo'),
@@ -141,7 +142,8 @@ class SkladListView(LoginRequiredMixin, ListView):
             'kriticky_dil': self.request.GET.get('kriticky_dil', ''),
             'ucetnictvi': self.request.GET.get('ucetnictvi', ''),            
             'pod_minimem': self.request.GET.get('pod_minimem', ''),
-            'radio_filter': self.request.GET.get('radio_filter', 'VŠE'),           
+            'radio_filter': self.request.GET.get('radio_filter', 'VŠE'),
+            'current_user': self.request.user,
         })
         
         return context    
@@ -263,7 +265,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
             'year': self.request.GET.get('year', 'VŠE'),
-            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),  
+            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
+            'current_user': self.request.user,            
         })
 
         return context    

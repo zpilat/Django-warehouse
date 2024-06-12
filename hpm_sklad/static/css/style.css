@@ -179,6 +179,16 @@ thead th {
 
 .current {
     font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+    padding-right: 10px;
+}
+
+.step-links {
+    padding-left: 10px;
 }
 
 /* Styl pro navbar */
