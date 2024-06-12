@@ -1,48 +1,90 @@
-body {
-    font-size: 12px;
-    font-family: arial;
+/* Formuláře */
+form .form-control {
+    font-size: 0.8rem; /* Zmenšení písma */
+    padding: 3px; /* Zmenšení vnitřních okrajů */
+}
+
+form .form-group {
+    margin-bottom: 5px; /* Zmenšení rozestupů mezi poli */
+}
+
+form .btn {
+    font-size: 0.8rem; /* Zmenšení písma */
+    padding: 5px 10px; /* Zmenšení vnitřních okrajů */
+}
+
+/* Kontejner pro formulář */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Mezery mezi řádky */
+}
+
+/* Nastavení šířek sloupců a mezer mezi nimi */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-column.left-col {
+    flex: 0 0 70%; /* Nastavení šířky levého sloupce na 70% */
+    padding: 10px; /* Přidání mezery na pravé straně levého sloupce */
+}
+
+.form-column.right-col {
+    flex: 0 0 30%; /* Nastavení šířky pravého sloupce na 30% */
+    padding: 10px; /* Přidání mezery na levé straně pravého sloupce */
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Mezery mezi sloupci */
+}
+
+/* Tabulky */
+table {
+    font-size: 0.8rem; /* Zmenšení písma */
 }
 
 th, td {
-    padding: 4px;
+    padding: 5px; /* Zmenšení vnitřních okrajů */
     text-align: left;
 }
 
-container-sklad th:nth-child(3), container-sklad td:nth-child(3) {
-    width: 500px; 
-}
-
 tbody tr:nth-child(odd) {
-    background-color: #ffffff; /* bílá pro liché sloupce */
-}
-
-tbody tr:nth-child(odd) {
-    background-color: #f2f2f2; /* šedá pro sudé sloupce */
+    background-color: #ffffff; /* bílá pro liché řádky */
 }
 
 thead th {
     background-color: #A9A9A9;
 }
 
+.width-nowrap {
+    white-space: nowrap;
+}
 
-.table th a {
+.table-sm th a {
     color: inherit; /* zachovat barvu textu */
     text-decoration: none; /* odstranit podtržení */
     display: inline-flex;
     align-items: center;
 }
-.table th a:hover {
+
+.table-sm th a:hover {
     color: inherit; /* zachovat barvu textu při hoveru */
 }
-.table th a:visited {
+
+.table-sm th a:visited {
     color: inherit; /* zachovat barvu textu po kliknutí */
 }
-.table th a .fa-sort-up,
-.table th a .fa-sort-down {
+
+.table-sm th a .fa-sort-up,
+.table-sm th a .fa-sort-down {
     margin-left: 5px;
 }
 
-main_menu {
+.main_menu {
     border: 4px solid #ddd; 
     background-color: #f9f9f9;  
 }
@@ -82,13 +124,13 @@ main_menu {
     background-color: #f8d7da; /* Jemná růžová */
 }
 
-
 .search {
     font-size: 12px;
-    font-family: arial;
+    font-family: Arial, sans-serif;
 }
 
 .nav-item, .button-link {
+    font-size: 0.8rem; /* Zmenšení písma */
     margin: 2px;
     display: inline-block;
     padding: 5px 10px;
@@ -102,6 +144,7 @@ main_menu {
 }
 
 .narrow-nav-item {
+    font-size: 0.8rem; /* Zmenšení písma */
     margin: 0px;
     display: inline-block;
     padding: 3px 10px;
@@ -126,20 +169,6 @@ main_menu {
 
 .pod-minimem-row {
     color: #FF5C5C;
-}
-
-.form-grid {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-column {
-    flex: 0 0 50%; 
-    padding: 5px;
-}
-
-.row {
-    display: flex;
 }
 
 .btn-primary {

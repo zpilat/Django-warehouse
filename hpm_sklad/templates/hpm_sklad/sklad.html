@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block left_content %}
-<h3 class="text-center">Skladové zásoby</h3>
+<h5 class="text-center">Skladové zásoby</h5><hr>
     <form method="GET" action="" class="search-form">
         <div class="search-group">
             <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
@@ -103,8 +103,8 @@
             </label>
         </div>
     </form>
-    <div class="container-sklad">
-        <table class="table table-bordered">
+    <div class="container-fluid">
+        <table class="table-sm table-bordered">
             <thead class="thead-light">
                 <tr>
                     {% with request.GET.urlencode as querystring %}
@@ -234,7 +234,7 @@
                   	<td>{{ sklad.cislo_objednavky }}</td>
                   	<td>{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
                 	<td>{{ sklad.celkova_cena_eur|floatformat:2 }}</td>
-                  	<td>{{ sklad.poznamka|truncatechars:35 }}</td>
+                    <td>{{ sklad.poznamka|truncatechars:25 }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

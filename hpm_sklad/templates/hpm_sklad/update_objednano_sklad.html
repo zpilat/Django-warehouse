@@ -1,8 +1,12 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<h3>Úprava sloupce objednáno?</h3>
-{{ object|truncatechars:70 }} <br><br>
+<div class="navbar">
+    <h5 class="text-center">Úprava sloupce objednáno?</h5>
+    <p>{{ object|truncatechars:50 }}</p>
+</div>
+<hr>
+
 <form method="post" action="{% url 'update_objednano_sklad' object.pk %}">
     {% csrf_token %}
     {% crispy form %} 

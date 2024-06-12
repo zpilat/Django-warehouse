@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block left_content %}
-    <h3 class="text-center">Auditovací log</h3>
+    <h5 class="text-center">Auditovací log</h5><hr>
     <form method="GET" action="" class="search-form">
         <div class="search-group">
             <input class="search" type="text" name="query" placeholder="Vyhledat díl / dodavatele" value="{{ request.GET.query }}">
@@ -56,8 +56,8 @@
         </div>
     </form>
 
-    <div class="container-log">
-        <table class="table table-bordered">
+    <div class="container-fluid">
+        <table class="table-sm table-bordered">
             <thead class="thead-light">
                 <tr>
                     {% with request.GET.urlencode as querystring %}
@@ -169,7 +169,7 @@
                     {% if item.id == selected_item.id %} class="selected-row"{% endif %}>  
                         <td>{{ item.id }}</td>
                         <td>{{ item.typ_operace }}</td>
-                        <td>{{ item.nazev_dilu|truncatechars:60 }}</td>                   
+                        <td>{{ item.nazev_dilu|truncatechars:58 }}</td>                   
                         <td>{{ item.zmena_mnozstvi }}</td>
                         <td>{{ item.jednotky }}</td>
                         <td>{{ item.datum_vydeje | date:"d.m.Y" }}</td>

@@ -49,22 +49,23 @@ class SkladCreateForm(forms.ModelForm):
         initial_interne_cislo = (max_interne_cislo or 0) + 1
         self.fields['interne_cislo'].initial = initial_interne_cislo
 
-        # Vytvoření layoutu s dvěma sloupci
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field) for field in self.Meta.fields[:8]],
-                    css_class='form-column'
+                    *[Field(field, css_class='form-control') for field in self.Meta.fields[:8]],
+                    css_class='form-column left-col'
                 ),
                 Div(
-                    *[Field(field) for field in self.Meta.fields[8:]],
-                    css_class='form-column'
+                    *[Field(field, css_class='form-control') for field in self.Meta.fields[8:]],
+                    css_class='form-column right-col'
                 ),
-                css_class='row'
+                css_class='form-row'
             ),
-            Submit('submit', 'Uložit', css_class="nav-item")
+            Div(
+                Submit('submit', 'Uložit', css_class="btn btn-primary"),
+                css_class='d-flex justify-content-center mt-3'  
+            )
         )
-
 
 class SkladUpdateForm(forms.ModelForm):
     class Meta:
@@ -79,23 +80,25 @@ class SkladUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SkladUpdateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_class = 'form-grid'  # Přiřazení CSS třídy pro grid layout
+        self.helper.form_class = 'form-grid'  
         self.helper.form_method = 'post'
 
-        # Vytvoření layoutu s dvěma sloupci
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field) for field in self.Meta.fields[:7]],
-                    css_class='form-column'  # Přiřazení CSS třídy pro levý sloupec
+                    *[Field(field, css_class='form-control') for field in self.Meta.fields[:7]],
+                    css_class='form-column left-col'
                 ),
                 Div(
-                    *[Field(field) for field in self.Meta.fields[7:]],
-                    css_class='form-column'  # Přiřazení CSS třídy pro pravý sloupec
+                    *[Field(field, css_class='form-control') for field in self.Meta.fields[7:]],
+                    css_class='form-column right-col'
                 ),
-                css_class='row'  # Přiřazení CSS třídy pro obalový div sloupců
+                css_class='form-row'
             ),
-            Submit('submit', 'Uložit', css_class="nav-item")
+            Div(
+                Submit('submit', 'Uložit', css_class="btn btn-primary"),
+                css_class='d-flex justify-content-center mt-3' 
+            )
         )
 
 
@@ -107,12 +110,12 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SkladUpdateObjednanoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_class = 'form-grid'  # Přiřazení CSS třídy pro grid layout
+        self.helper.form_class = 'form-grid'  
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Div(Field(self.Meta.fields[0]), css_class='form-column'), 
-            Submit('submit', 'Uložit', css_class="nav-item"),
+            Submit('submit', 'Uložit', css_class='d-flex justify-content-center mt-3'),
             )
 
 
@@ -218,7 +221,7 @@ class VariantyCreateForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'), 
-            Submit('submit', 'Uložit', css_class="nav-item"),
+            Submit('submit', 'Uložit', css_class='d-flex justify-content-center mt-3'),
             )
 
 
@@ -234,7 +237,7 @@ class VariantyUpdateForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column'), 
-            Submit('submit', 'Uložit', css_class="nav-item"),
+            Submit('submit', 'Uložit', css_class='d-flex justify-content-center mt-3'),
             )        
 
 

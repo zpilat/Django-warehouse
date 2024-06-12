@@ -242,7 +242,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html'  # Zajistěte, že tato cesta je správná
-    paginate_by = 25
+    paginate_by = 20
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

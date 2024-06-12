@@ -1,10 +1,14 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<h3>Smazání skladové položky</h3>
+<div class="navbar">
+    <h5 class="text-center">Smazání skladové položky</h5>
+    <p>{{ object }}</p>
+</div>
+<hr>
+
 <form method="post" action="{% url 'delete_sklad' object.pk %}">
     {% csrf_token %}
-    <p>Opravdu chcete smazat tuto položku?:</p>
-    <p>{{ object|truncatechars:70 }}</p>
+    <p>Opravdu chcete tuto položku smazat?:</p>
     <input type="submit" value="Smazat" class="button nav-item" />
 </form>

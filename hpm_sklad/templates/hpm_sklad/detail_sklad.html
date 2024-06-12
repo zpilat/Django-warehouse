@@ -26,82 +26,68 @@
     </nav>
 </header>
 
-<h3 class="text-center">Detaily skladové položky</h3>
+<h5 class="text-center">Detaily skladové položky</h5>
     
-<div class="container">
-    <table>
-        <thead>
-            <tr>
-                <th>Detaily:</th>
-            </tr>
-        </thead>          
+<div>
+    <table class="table-sm table-bordered">       
         <tbody>
             {% for field in detail_item_fields %}
                 <tr>
-                    <th>{{ field.verbose_name }}</th>
-                    <td>{{ object|get_attribute:field.name }}</td>
+                    <th class="width-nowrap">{{ field.verbose_name }}</th>
+                    <td class="container-fluid">{{ object|get_attribute:field.name }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Příznaky:</th>
-            </tr>
-        </thead>
+    <br>
+    <table class="table-sm table-bordered container-fluid">
         <tbody>
-            {% for field in info_fields %}
-                <tr>
+            <tr>
+                {% for field in info_fields %}
                     <th>{{ field.verbose_name }}</th>
-                    <td>
-                        {% if field.name == 'pod_minimem' %}
-			    {{ object.pod_minimem_display }}
-                        {% else %}
-			    {{ object|get_attribute:field.name }}
-			{% endif %}
-		    </td>                            
-                </tr>
-            {% endfor %}
+                    {% if field.name == 'pod_minimem' %}
+                        <td>
+			                {{ object.pod_minimem_display }}
+                        </td>
+                    {% else %}
+                        <td>
+			                {{ object|get_attribute:field.name }}
+                        </td>
+                        <td style="background-color: #f8d7da;"></td>
+		            {% endif %}          
+                {% endfor %}
+            </tr>
         </tbody>
     </table>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Pro zařízení:</th>
-            </tr>
-        </thead>        
+    <br>
+    <table class="table-sm table-bordered">    
         <tbody>
             {% if equipment_fields_true %}
                 <tr>
+                    <th>Pro zařízení</th>
                     {% for field in equipment_fields_true %}
                         <td>{{ field.verbose_name }}</td>
-                    {% endfor %}                
+                    {% endfor %}
                 </tr>
             {% else %}
                 <tr>
+                    <th>Pro zařízení</th>
                     <td>Žádné konkrétní zařízení.</td>
                 </tr>
             {% endif %}
         </tbody>
     </table>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Varianty:</th>
-            </tr>
-        </thead>
+    <hr>
+    <table class="table-sm table-bordered">
+        <h6 class="text-center">Varianty skladové položky:</h6>
         <tbody>
             {% if varianty %}
                 {% for varianta in varianty %}
                     <tr>
-                        <td>{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
-                        <td>{{ varianta.nazev_varianty|truncatechars:40 }}</td>
+                        <td class="width-nowrap">{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
+                        <td class="container-fluid">{{ varianta.nazev_varianty|truncatechars:40 }}</td>
                         {% if perms.hpm_sklad.update_varianty %}            
-                            <td>
+                            <td style="background-color: #f8d7da;">
                                 <a class="narrow-nav-item" href="javascript:void(0);" onclick="loadForm('{% url 'update_varianty' varianta.pk %}')">Upravit</a>       
                             </td>
                         {% endif %}
@@ -114,6 +100,4 @@
             {% endif %}
         </tbody>
     </table>
-
-    
 </div>
