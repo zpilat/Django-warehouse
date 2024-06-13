@@ -1,6 +1,8 @@
+{% extends "hpm_sklad/base.html" %}
 {% load static %} 
 {% load crispy_forms_tags %}
 
+{% block left_content %}
 <div class="navbar">
     <h5 class="text-center">Vytvoření varianty pro:</h5>
     <p>{{ skladova_polozka|truncatechars:50 }}</p>
@@ -13,3 +15,4 @@
     {% csrf_token %}
     {% crispy form %}
 </form>
+{% endblock %}

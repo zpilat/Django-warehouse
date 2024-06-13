@@ -6,12 +6,13 @@
 <nav class="navbar">
     <div class="navbar-left">
         <a class="btn btn-danger btn-sm" href="{% url 'sklad' %}">Sklad</a>
-        <a class="btn btn-primary btn-sm" href="{% url 'audit_log' %}">Audit log</a>        
-    </div>
-    <div class="navbar-right">
+        <a class="btn btn-primary btn-sm" href="{% url 'audit_log' %}">Audit log</a>     
+        |
         {% if perms.hpm_sklad.add_sklad %}
             <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}')">Vytvoření položky</a>
-        {% endif %}|    
+        {% endif %}    
+    </div>
+    <div class="navbar-right">   
         {% include "hpm_sklad/login.html" %}
     </div>
 </nav>
@@ -244,5 +245,6 @@
 {% endblock %}
 
 {% block script %}
+    {{ block.super }}
     <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

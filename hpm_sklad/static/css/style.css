@@ -171,7 +171,7 @@ thead th {
 .radio-group label {
     display: flex;
     align-items: center;
-    gap: 5px; 
+    gap: 3px; 
 }
 
 .btn-xs {
