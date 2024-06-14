@@ -1,15 +1,15 @@
 {% load static %}
 {% load custom_filters %}
 
-<h6 class="navbar text-center">Detaily auditovacího logu</h6>
+<h6 class="navbar navbar-expand-lg navbar-light bg-light">Detaily auditovacího logu</h6>
     
 <div>
-    <table>     
+    <table class="table table-sm table-striped table-bordered">     
         <tbody>
             {% for field in detail_item_fields %}
                 <tr>
-                    <th class="width-nowrap">{{ field.verbose_name }}</th>
-                    <td class="container-fluid">{{ object|get_attribute:field.name }}</td>
+                    <th scope="col" class="width-nowrap">{{ field.verbose_name }}</th>
+                    <td scope="col" class="container-fluid">{{ object|get_attribute:field.name }}</td>
                 </tr>
             {% endfor %}
         </tbody>

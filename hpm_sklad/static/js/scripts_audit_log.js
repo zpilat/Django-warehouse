@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", function() {
             // Aktualizace URL a zvýraznění řádku
             history.pushState(null, '', '?selected=' + id);
             document.querySelectorAll('tr').forEach(row => {
-                row.classList.remove('selected-row');
+                row.classList.remove('table-info');
             });
-            document.querySelector('tr[data-id="' + id + '"]').classList.add('selected-row');
+            document.querySelector('tr[data-id="' + id + '"]').classList.add('table-info');
         })
         .catch(err => console.error('Chyba při načítání detailů:', err));
     }

@@ -3,8 +3,7 @@
 {% load custom_filters %}
 
 {% block navbar %}
-<nav class="navbar">
-    <div class="navbar-left">
+    <div class="col">
         <a class="btn btn-danger btn-sm" href="{% url 'sklad' %}">Sklad</a>
         <a class="btn btn-primary btn-sm" href="{% url 'audit_log' %}">Audit log</a>     
         |
@@ -12,29 +11,13 @@
             <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}')">Vytvoření položky</a>
         {% endif %}    
     </div>
-    <div class="navbar-right">   
+    <div class="col-auto">   
         {% include "hpm_sklad/login.html" %}
     </div>
-</nav>
 {% endblock %}
 
 {% block left_content %}
     <form method="GET" action="" class="search-form">
-        <div class="search-group small">
-            <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
-            <label>
-                <input type="checkbox" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}> Kritický díl
-            </label>
-            <label>
-                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
-            </label>
-            <label>
-                <input type="checkbox" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}> Pod minimem
-            </label>
-            <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
-            <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
-            <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
-        </div>
         <div class="radio-group small">
             <label>
                 <input type="radio" name="radio_filter" value="" {% if not request.GET.radio_filter or request.GET.radio_filter == '' %}checked{% endif %}> VŠE
@@ -103,13 +86,28 @@
                 <input type="radio" name="radio_filter" value="mikrof" {% if request.GET.radio_filter == 'mikrof' %}checked{% endif %}> MIKROF
             </label>
         </div>
+        <div class="search-group small">
+            <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
+            <label>
+                <input type="checkbox" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}> Kritický díl
+            </label>
+            <label>
+                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
+            </label>
+            <label>
+                <input type="checkbox" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}> Pod minimem
+            </label>
+            <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
+            <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
+            <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
+        </div>
     </form>
     <div class="container-fluid">
-        <table class="table-sm table-hover table-bordered">
+        <table class="table table-sm table-hover table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
                     {% with request.GET.urlencode as querystring %}
-                        <th>
+                        <th scope="col">
                             <a href="?sort=evidencni_cislo&order={% if request.GET.sort == 'evidencni_cislo' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Ev. číslo
                                 {% if request.GET.sort == 'evidencni_cislo' %}
@@ -120,7 +118,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=interne_cislo&order={% if request.GET.sort == 'interne_cislo' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Č. karty
                                 {% if request.GET.sort == 'interne_cislo' %}
@@ -128,7 +126,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=nazev_dilu&order={% if request.GET.sort == 'nazev_dilu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Název dílu
                                 {% if request.GET.sort == 'nazev_dilu' %}
@@ -136,7 +134,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=min_mnozstvi_ks&order={% if request.GET.sort == 'min_mnozstvi_ks' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Min.
                                 {% if request.GET.sort == 'min_mnozstvi_ks' %}
@@ -144,7 +142,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=mnozstvi&order={% if request.GET.sort == 'mnozstvi' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Množství
                                 {% if request.GET.sort == 'mnozstvi' %}
@@ -152,7 +150,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=jednotky&order={% if request.GET.sort == 'jednotky' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Jedn.
                                 {% if request.GET.sort == 'jednotky' %}
@@ -160,7 +158,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=umisteni&order={% if request.GET.sort == 'umisteni' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Umístění
                                 {% if request.GET.sort == 'umisteni' %}
@@ -168,7 +166,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=dodavatel&order={% if request.GET.sort == 'dodavatel' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Dodavatel
                                 {% if request.GET.sort == 'dodavatel' %}
@@ -176,7 +174,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=datum_nakupu&order={% if request.GET.sort == 'datum_nakupu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Datum nákupu
                                 {% if request.GET.sort == 'datum_nakupu' %}
@@ -184,7 +182,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=cislo_objednavky&order={% if request.GET.sort == 'cislo_objednavky' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Číslo obj.
                                 {% if request.GET.sort == 'cislo_objednavky' %}
@@ -192,7 +190,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=jednotkova_cena_eur&order={% if request.GET.sort == 'jednotkova_cena_eur' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 EUR/ jedn.
                                 {% if request.GET.sort == 'jednotkova_cena_eur' %}
@@ -200,7 +198,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=celkova_cena_eur&order={% if request.GET.sort == 'celkova_cena_eur' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Celkem EUR
                                 {% if request.GET.sort == 'celkova_cena_eur' %}
@@ -208,7 +206,7 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th>
+                        <th scope="col">
                             <a href="?sort=poznamka&order={% if request.GET.sort == 'poznamka' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Poznámka
                                 {% if request.GET.sort == 'poznamka' %}
@@ -222,20 +220,20 @@
             <tbody class="show-pointer">
                 {% for sklad in object_list %}
           	    <tr data-evidencni-cislo="{{ sklad.evidencni_cislo }}" data-detail-url="{% url 'detail_sklad' sklad.evidencni_cislo %}" onclick="loadDetail('{% url 'detail_sklad' sklad.evidencni_cislo %}', '{{ sklad.evidencni_cislo }}')"
-          	    {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="selected-row"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
-          	        <td>{{ sklad.evidencni_cislo }}</td>
-                	<td>{{ sklad.interne_cislo }}</td>
-                	<td>{{ sklad.nazev_dilu|truncatechars:60 }}</td>
-                	<td>{{ sklad.min_mnozstvi_ks }}</td>
-             		<td>{{ sklad.mnozstvi }}</td>
-	              	<td>{{ sklad.jednotky }}</td>
-       		        <td>{{ sklad.umisteni }}</td>
-       		        <td>{{ sklad.dodavatel|truncatechars:20 }}</td>
-                  	<td>{{ sklad.datum_nakupu|date:"d.m.Y" }}</td>
-                  	<td>{{ sklad.cislo_objednavky }}</td>
-                  	<td>{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
-                	<td>{{ sklad.celkova_cena_eur|floatformat:2 }}</td>
-                    <td>{{ sklad.poznamka|truncatechars:25 }}</td>
+          	    {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %}class="table-info"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
+          	        <td scope="row">{{ sklad.evidencni_cislo }}</td>
+                	<td scope="row">{{ sklad.interne_cislo }}</td>
+                	<td scope="row">{{ sklad.nazev_dilu|truncatechars:60 }}</td>
+                	<td scope="row">{{ sklad.min_mnozstvi_ks }}</td>
+             		<td scope="row">{{ sklad.mnozstvi }}</td>
+	              	<td scope="row">{{ sklad.jednotky }}</td>
+       		        <td scope="row">{{ sklad.umisteni }}</td>
+       		        <td scope="row">{{ sklad.dodavatel|truncatechars:20 }}</td>
+                  	<td scope="row">{{ sklad.datum_nakupu|date:"d.m.Y" }}</td>
+                  	<td scope="row">{{ sklad.cislo_objednavky }}</td>
+                  	<td scope="row">{{ sklad.jednotkova_cena_eur|floatformat:2 }}</td>
+                	<td scope="row">{{ sklad.celkova_cena_eur|floatformat:2 }}</td>
+                    <td scope="row">{{ sklad.poznamka|truncatechars:25 }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -2,8 +2,8 @@
 {% load custom_filters %}
 
 <header>
-    <nav class="navbar">
-        <div class="navbar-left">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="col">
 	        {% if not perms.hpm_sklad.change_sklad %}
                 <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>    
 	        {% endif %}
@@ -29,7 +29,7 @@
 <p class="small">Detaily skladové položky:</p>
     
 <div>
-    <table class="table-sm table-bordered">       
+    <table class="table table-sm table-striped table-bordered">       
         <tbody>
             {% for field in detail_item_fields %}
                 <tr>
@@ -53,7 +53,7 @@
                         <td>
 			                {{ object|get_attribute:field.name }}
                         </td>
-                        <td style="background-color: #f8d7da;"></td>
+                        <td></td>
 		            {% endif %}          
                 {% endfor %}
             </tr>
@@ -78,7 +78,7 @@
         </tbody>
     </table>
     <hr>
-    <table class="table-sm table-bordered">
+    <table class="table-sm table-striped table-bordered">
         <p class="small">Varianty skladové položky:</p>
         <tbody>
             {% if varianty %}
@@ -87,7 +87,7 @@
                         <td class="width-nowrap">{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
                         <td class="container-fluid">{{ varianta.nazev_varianty|truncatechars:40 }}</td>
                         {% if perms.hpm_sklad.update_varianty %}            
-                            <td style="background-color: #f8d7da;">
+                            <td>
                                 <a class="btn btn-primary btn-xs" href="javascript:void(0);" onclick="loadForm('{% url 'update_varianty' varianta.pk %}')">Upravit</a>       
                             </td>
                         {% endif %}

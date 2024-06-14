@@ -17,9 +17,9 @@ document.addEventListener("DOMContentLoaded", function() {
             // Aktualizace URL a zvýraznění řádku
             history.pushState(null, '', '?selected=' + evidencniCislo);
             document.querySelectorAll('tr').forEach(row => {
-                row.classList.remove('selected-row');
+                row.classList.remove('table-info');
             });
-            document.querySelector('tr[data-evidencni-cislo="' + evidencniCislo + '"]').classList.add('selected-row');
+            document.querySelector('tr[data-evidencni-cislo="' + evidencniCislo + '"]').classList.add('table-info');
         })
         .catch(err => console.error('Chyba při načítání detailů:', err));
     }

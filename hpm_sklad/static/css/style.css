@@ -16,16 +16,6 @@ form .form-group {
     justify-content: space-between;
 }
 
-.form-column.left-col {
-    flex: 0 0 70%; /* Nastavení šířky levého sloupce na 70% */
-    padding: 10px; /* Přidání mezery na pravé straně levého sloupce */
-}
-
-.form-column.right-col {
-    flex: 0 0 30%; /* Nastavení šířky pravého sloupce na 30% */
-    padding: 10px; /* Přidání mezery na levé straně pravého sloupce */
-}
-
 .row {
     display: flex;
     flex-wrap: wrap;
@@ -35,19 +25,6 @@ form .form-group {
 /* Tabulky */
 table {
     font-size: 0.8rem; /* Zmenšení písma */
-}
-
-th, td {
-    padding: 5px; /* Zmenšení vnitřních okrajů */
-    text-align: left;
-}
-
-tbody tr:nth-child(odd) {
-    background-color: #ffffff; /* bílá pro liché řádky */
-}
-
-thead th {
-    background-color: #A9A9A9;
 }
 
 .width-nowrap {
@@ -61,29 +38,9 @@ thead th {
     align-items: center;
 }
 
-.table-sm th a:hover {
-    color: inherit; /* zachovat barvu textu při hoveru */
-}
-
-.table-sm th a:visited {
-    color: inherit; /* zachovat barvu textu po kliknutí */
-}
-
 .table-sm th a .fa-sort-up,
 .table-sm th a .fa-sort-down {
     margin-left: 5px;
-}
-
-.main_menu {
-    border: 4px solid #ddd; 
-    background-color: #f9f9f9;  
-}
-
-.pagination {
-    background-color: #A9A9A9;
-    padding: 4px;
-    border: 1px solid #ddd;
-    text-align: left;
 }
 
 .show-pointer {
@@ -103,7 +60,6 @@ thead th {
     margin: 0;
     padding: 10px;
     border: 5px ridge #ddd;
-    background-color: #cfe8fc; /* Jemná modrá */
 }
 
 .right-column {
@@ -111,67 +67,10 @@ thead th {
     margin: 0;
     padding: 10px;
     border: 5px ridge #ddd;
-    background-color: #f8d7da; /* Jemná růžová */
-}
-
-.selected-row {
-    background-color: #A9A9A9 !important; 
-    color: white;
 }
 
 .pod-minimem-row {
-    color: #FF5C5C;
-}
-
-.mb-0 {
-    margin-bottom: 0;
-    padding-right: 10px;
-}
-
-.step-links {
-    padding-left: 10px;
-}
-
-/* Styl pro navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Vertikální zarovnání na střed */
-    padding: 10px;
-    gap: 10px; 
-    margin-bottom: 5px;
-    background-color: #f8f9fa; /* Barva pozadí */
-    border-bottom: 1px solid #ddd; /* Spodní ohraničení */
-}
-
-/* Levá část navbaru */
-.navbar-left {
-    flex-grow: 1;
-}
-
-/* Pravá část navbaru */
-.navbar-right {
-    flex-grow: 0;
-    margin-left: auto; /* Tlačí pravou část na pravou stranu */
-}
-
-.search-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 5px;
-}
-
-.radio-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.radio-group label {
-    display: flex;
-    align-items: center;
-    gap: 3px; 
+    color: #FF5C5C !important;
 }
 
 .btn-xs {

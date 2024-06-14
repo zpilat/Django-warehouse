@@ -14,16 +14,10 @@
         <main class="app">
             <div class="left-column">
                  <header>
-                    {% block navbar %}
-                        <nav class="navbar">
-                            <div class="navbar-left">
-                                {% include "hpm_sklad/navbar.html" %}
-                            </div>
-                            <div class="navbar-right">
-                                {% include "hpm_sklad/login.html" %}
-                            </div>
-                        </nav>
-                    {% endblock %}
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                        {% block navbar %}
+                        {% endblock %}
+                    </nav>
                 </header>
                 {% block left_content %}{% endblock %}
             </div>

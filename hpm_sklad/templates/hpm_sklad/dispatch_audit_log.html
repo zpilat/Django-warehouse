@@ -11,5 +11,7 @@
     {% csrf_token %}
     {{ sklad_movement_form|crispy }}
     {{ auditlog_dispatch_form|crispy }}
-    <button type="submit" class="btn btn-primary btn-sm">Uložit</button>
+    <div class="d-flex justify-content-center mt-3">
+        <button type="submit" class="btn btn-primary btn-sm">Uložit</button>
+    </div>
 </form>

@@ -3,15 +3,13 @@
 {% load custom_filters %}
 
 {% block navbar %}
-<nav class="navbar">
-    <div class="navbar-left">
+    <div class="col">
         <a class="btn btn-primary btn-sm" href="{% url 'sklad' %}">Sklad</a>
         <a class="btn btn-danger btn-sm" href="{% url 'audit_log' %}">Audit log</a>  
     </div>
-    <div class="navbar-right">
+    <div class="col-auto">
         {% include "hpm_sklad/login.html" %}
     </div>
-</nav>
 {% endblock %}
 
 {% block left_content %}
@@ -57,7 +55,7 @@
     </form>
 
     <div class="container-fluid">
-        <table class="table-sm table-hover table-bordered">
+        <table class="table table-sm table-hover table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
                     {% with request.GET.urlencode as querystring %}
@@ -166,7 +164,7 @@
             <tbody class="show-pointer">
                 {% for item in object_list %}
                     <tr data-id="{{ item.id }}" data-detail-url="{% url 'detail_audit_log' item.id %}" onclick="loadDetail('{% url 'detail_audit_log' item.id %}', '{{ item.id }}')"
-                    {% if item.id == selected_item.id %} class="selected-row"{% endif %}>  
+                    {% if item.id == selected_item.id %} class="table-info"{% endif %}>  
                         <td>{{ item.id }}</td>
                         <td>{{ item.typ_operace }}</td>
                         <td>{{ item.nazev_dilu|truncatechars:58 }}</td>                   
