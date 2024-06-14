@@ -1,21 +1,42 @@
 {% load custom_filters %}
 {% if is_paginated %}
-<div class="navbar navbar-expand-lg navbar-light bg-light">
-    <span class="col">
-        {% if page_obj.has_previous %}
-            <a class="btn btn-secondary btn-xs" href="?page=1&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-left"></i> první</a>
-            <a class="btn btn-secondary btn-xs" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angle-left"></i> předchozí</a>
-        {% endif %}
+<nav aria-label="..." class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="col">
+        <ul class="pagination pagination-sm">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-left"></i></a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angle-left"></i></a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fas fa-angles-left"></i></a>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fas fa-angle-left"></i></a>
+                </li>                
+            {% endif %}
             
-        <span class="btn btn-secondary btn-xs">
-            Str. {{ page_obj.number }} ze {{ page_obj.paginator.num_pages }}
-        </span>
-            
-        {% if page_obj.has_next %}
-            <a class="btn btn-secondary btn-xs" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}">další <i class="fas fa-angle-right"></i></a>
-            <a class="btn btn-secondary btn-xs" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode|url_remove_param:'page' }}">poslední <i class="fas fa-angles-right"></i></a>
-        {% endif %}
-    </span>
-    <h6 class="col-auto">Přihlášený uživatel: {{ current_user.first_name }} {{ current_user.last_name }}</h6>
-</div>
+            <li class="page-item active">
+                <a class="page-link" href="?page={{ page_obj.number }}&{{ request.GET.urlencode|url_remove_param:'page' }}">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</a>
+            </li>
+                
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angle-right"></i></a></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode|url_remove_param:'page' }}"><i class="fas fa-angles-right"></i></a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fas fa-angle-right"></i></a>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="fas fa-angles-right"></i></a>
+                </li>
+            {% endif %}
+    </div>
+    <div class="col-auto">
+        <h6 class="small">Přihlášený uživatel: {{ current_user.first_name }} {{ current_user.last_name }}</h6>
+    </div>
+</nav>
 {% endif %}

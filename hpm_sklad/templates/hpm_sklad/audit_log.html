@@ -13,17 +13,22 @@
 {% endblock %}
 
 {% block left_content %}
-    <form method="GET" action="" class="search-form">
-        <div class="search-group small">
-            <input class="search" type="text" name="query" placeholder="Vyhledat díl / dodavatele" value="{{ request.GET.query }}">
-            <label for="typ_operace">Typ operace:</label>
-            <select name="typ_operace" class="search" id="typ_operace">
+    <form method="GET" action="" class="form-inline justify-content-center align-items-center small">
+        <div class="form-group form-check mx-sm-2 mb-2">
+            <input type="checkbox" class="form-check-input" name="ucetnictvi" id="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
+            <label class="form-check-label mr-sm-2" for="ucetnictvi">Účetnictví</label>
+        </div>    
+        <div class="form-group mx-sm-2 mb-2">
+            <label for="typ_operace" class="mr-sm-2">Typ operace:</label>
+            <select name="typ_operace" class="form-control form-control-sm mr-sm-2" id="typ_operace">
                 <option value="VŠE" {% if request.GET.typ_operace == 'VŠE' or not request.GET.typ_operace %}selected{% endif %}>VŠE</option>
                 <option value="PŘÍJEM" {% if request.GET.typ_operace == 'PŘÍJEM' %}selected{% endif %}>PŘÍJEM</option>
                 <option value="VÝDEJ" {% if request.GET.typ_operace == 'VÝDEJ' %}selected{% endif %}>VÝDEJ</option>
             </select>
-            <label for="month">Vyberte měsíc:</label>
-            <select name="month" id="month" class="search">
+        </div>
+        <div class="form-group mx-sm-2 mb-2">
+            <label for="month" class="mr-sm-2">Vyberte měsíc a rok:</label>
+            <select name="month" id="month" class="form-control form-control-sm mr-sm-2">
                 <option value="VŠE" {% if request.GET.month == 'VŠE' or not request.GET.month %}selected{% endif %}>VŠE</option>
                 <option value="01" {% if request.GET.month == '01' %}selected{% endif %}>Leden</option>
                 <option value="02" {% if request.GET.month == '02' %}selected{% endif %}>Únor</option>
@@ -38,20 +43,24 @@
                 <option value="11" {% if request.GET.month == '11' %}selected{% endif %}>Listopad</option>
                 <option value="12" {% if request.GET.month == '12' %}selected{% endif %}>Prosinec</option>
             </select>
-            <label for="year">Vyberte rok:</label>
-            <select name="year" id="year" class="search">
+        </div>
+        <div class="form-group mx-sm-2 mb-2">
+            <select name="year" id="year" class="form-control form-control-sm mr-sm-2">
                 <option value="VŠE" {% if request.GET.year == 'VŠE' or not request.GET.year %}selected{% endif %}>VŠE</option>
                 {% for year in years %}
                     <option value="{{ year }}" {% if request.GET.year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
                 {% endfor %}
             </select>
-            <label>
-                <input type="checkbox" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
-            </label> 
-            <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}id{% endif %}">
-            <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">            
+        </div>
+        <div class="form-group mx-sm-2 mb-2">
+            <input class="form-control form-control-sm mr-sm-2" type="text" name="query" placeholder="Vyhledat díl / dodavatele" value="{{ request.GET.query }}">
+        </div>
+        <div class="form-group mx-sm-2 mb-2">
             <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
         </div>
+        
+        <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}id{% endif %}">
+        <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
     </form>
 
     <div class="container-fluid">

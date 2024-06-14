@@ -53,11 +53,11 @@ class SkladCreateForm(forms.ModelForm):
             Div(
                 Div(
                     *[Field(field, css_class='form-control') for field in self.Meta.fields[:8]],
-                    css_class='form-column col'
+                    css_class='form-column col mr-3'
                 ),
                 Div(
                     *[Field(field, css_class='form-control') for field in self.Meta.fields[8:]],
-                    css_class='form-column col-auto'
+                    css_class='form-column col-auto mr-3'
                 ),
                 css_class='form-row small'
             ),
@@ -87,11 +87,11 @@ class SkladUpdateForm(forms.ModelForm):
             Div(
                 Div(
                     *[Field(field, css_class='form-control') for field in self.Meta.fields[:7]],
-                    css_class='form-column col'
+                    css_class='form-column col mr-3'
                 ),
                 Div(
                     *[Field(field, css_class='form-control') for field in self.Meta.fields[7:]],
-                    css_class='form-column col-auto'
+                    css_class='form-column col-auto mr-3'
                 ),
                 css_class='form-row small'
             ),

@@ -140,40 +140,42 @@ class SkladListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         selected_ev_cislo = self.request.GET.get('selected', None)
-        
+
         if selected_ev_cislo:
             context['selected_item'] = get_object_or_404(Sklad, evidencni_cislo=selected_ev_cislo)
         else:
             context['selected_item'] = None
 
+        radio_filters = [("", "VŠE")] + [(z.zarizeni.lower(), z.zarizeni.replace('_', ' ')) for z in Zarizeni.objects.all()]
 
         context.update({
             'sort': self.request.GET.get('sort', 'evidencni_cislo'),
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
             'kriticky_dil': self.request.GET.get('kriticky_dil', ''),
-            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),            
+            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
             'pod_minimem': self.request.GET.get('pod_minimem', ''),
-            'radio_filter': self.request.GET.get('radio_filter', 'VŠE'),
+            'radio_filter': self.request.GET.get('radio_filter', ''),
+            'radio_filters': radio_filters,
             'current_user': self.request.user,
         })
-        
-        return context    
+
+        return context
 
     def get_queryset(self):
         queryset = Sklad.objects.all()
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'evidencni_cislo')
         order = self.request.GET.get('order', 'down')
-        
+
         if query:
             queryset = queryset.filter(nazev_dilu__icontains=query)
-        
+
         filters = {
             'kriticky_dil': self.request.GET.get('kriticky_dil'),
             'ucetnictvi': self.request.GET.get('ucetnictvi'),
         }
-        
+
         for field, value in filters.items():
             if value == 'on':
                 queryset = queryset.filter(**{field: True})
@@ -184,12 +186,11 @@ class SkladListView(LoginRequiredMixin, ListView):
 
         if order == 'down':
             sort = f"-{sort}"
-        queryset = queryset.order_by(sort)            
+        queryset = queryset.order_by(sort)
 
-        # Ruční filtrování pro vlastnost pod_minimem
         pod_minimem = self.request.GET.get('pod_minimem')
         if pod_minimem == 'on':
-            queryset = [obj for obj in queryset if obj.pod_minimem]         
+            queryset = [obj for obj in queryset if obj.pod_minimem]
 
         return queryset
 
