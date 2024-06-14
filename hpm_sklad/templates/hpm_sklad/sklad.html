@@ -18,92 +18,144 @@
 
 {% block left_content %}
     <form method="GET" action="">
-        <div class="form-group small">
-                <label>
-                    <input type="radio" name="radio_filter" value="" {% if not request.GET.radio_filter or request.GET.radio_filter == '' %}checked{% endif %}> VŠE
+        <div class="form-group mx-sm-3 mb-2">
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="" {% if not request.GET.radio_filter or request.GET.radio_filter == '' %}checked{% endif %}> VŠE
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="hsh" {% if request.GET.radio_filter == 'hsh' %}checked{% endif %}> HSH
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="hsh" {% if request.GET.radio_filter == 'hsh' %}checked{% endif %}> HSH
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="tq8" {% if request.GET.radio_filter == 'tq8' %}checked{% endif %}> TQ8
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="tq8" {% if request.GET.radio_filter == 'tq8' %}checked{% endif %}> TQ8
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="tqf_xl1" {% if request.GET.radio_filter == 'tqf_xl1' %}checked{% endif %}> TQF XL1
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="tqf_xl1" {% if request.GET.radio_filter == 'tqf_xl1' %}checked{% endif %}> TQF XL1
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="tqf_xl2" {% if request.GET.radio_filter == 'tqf_xl2' %}checked{% endif %}> TQF XL2
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="tqf_xl2" {% if request.GET.radio_filter == 'tqf_xl2' %}checked{% endif %}> TQF XL2
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="dc_xl" {% if request.GET.radio_filter == 'dc_xl' %}checked{% endif %}> DC XL
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="dc_xl" {% if request.GET.radio_filter == 'dc_xl' %}checked{% endif %}> DC XL
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="dac_xl1_2" {% if request.GET.radio_filter == 'dac_xl1_2' %}checked{% endif %}> DAC XL1-2
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="dac_xl1_2" {% if request.GET.radio_filter == 'dac_xl1_2' %}checked{% endif %}> DAC XL1-2
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="dl_xl" {% if request.GET.radio_filter == 'dl_xl' %}checked{% endif %}> DL XL
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="dl_xl" {% if request.GET.radio_filter == 'dl_xl' %}checked{% endif %}> DL XL
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="dac" {% if request.GET.radio_filter == 'dac' %}checked{% endif %}> DAC
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="dac" {% if request.GET.radio_filter == 'dac' %}checked{% endif %}> DAC
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="lac_1" {% if request.GET.radio_filter == 'lac_1' %}checked{% endif %}> LAC 1
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="lac_1" {% if request.GET.radio_filter == 'lac_1' %}checked{% endif %}> LAC 1
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="lac_2" {% if request.GET.radio_filter == 'lac_2' %}checked{% endif %}> LAC 2
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="lac_2" {% if request.GET.radio_filter == 'lac_2' %}checked{% endif %}> LAC 2
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="ipsen_ene" {% if request.GET.radio_filter == 'ipsen_ene' %}checked{% endif %}> IPSEN ENE
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="ipsen_ene" {% if request.GET.radio_filter == 'ipsen_ene' %}checked{% endif %}> IPSEN ENE
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="hsh_ene" {% if request.GET.radio_filter == 'hsh_ene' %}checked{% endif %}> HSH ENE
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="hsh_ene" {% if request.GET.radio_filter == 'hsh_ene' %}checked{% endif %}> HSH ENE
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="xl_ene1" {% if request.GET.radio_filter == 'xl_ene1' %}checked{% endif %}> XL ENE1
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="xl_ene1" {% if request.GET.radio_filter == 'xl_ene1' %}checked{% endif %}> XL ENE1
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="xl_ene2" {% if request.GET.radio_filter == 'xl_ene2' %}checked{% endif %}> XL ENE2
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="xl_ene2" {% if request.GET.radio_filter == 'xl_ene2' %}checked{% endif %}> XL ENE2
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="ipsen_w" {% if request.GET.radio_filter == 'ipsen_w' %}checked{% endif %}> IPSEN W
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="ipsen_w" {% if request.GET.radio_filter == 'ipsen_w' %}checked{% endif %}> IPSEN W
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="hsh_w" {% if request.GET.radio_filter == 'hsh_w' %}checked{% endif %}> HSH W
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="hsh_w" {% if request.GET.radio_filter == 'hsh_w' %}checked{% endif %}> HSH W
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="kw" {% if request.GET.radio_filter == 'kw' %}checked{% endif %}> KW
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="kw" {% if request.GET.radio_filter == 'kw' %}checked{% endif %}> KW
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="kw1" {% if request.GET.radio_filter == 'kw1' %}checked{% endif %}> KW 1
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="kw1" {% if request.GET.radio_filter == 'kw1' %}checked{% endif %}> KW 1
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="kw2" {% if request.GET.radio_filter == 'kw2' %}checked{% endif %}> KW 2
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="kw2" {% if request.GET.radio_filter == 'kw2' %}checked{% endif %}> KW 2
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="kw3" {% if request.GET.radio_filter == 'kw3' %}checked{% endif %}> KW 3
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="kw3" {% if request.GET.radio_filter == 'kw3' %}checked{% endif %}> KW 3
                 </label>
-                <label>
-                    <input type="radio" name="radio_filter" value="mikrof" {% if request.GET.radio_filter == 'mikrof' %}checked{% endif %}> MIKROF
+            </div>
+            <div class="form-check form-check-inline small">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="radio" name="radio_filter" value="mikrof" {% if request.GET.radio_filter == 'mikrof' %}checked{% endif %}> MIKROF
                 </label>
-        </div>    
-        <div class="form-group form-check">
+            </div>
+        </div> 
+        
+        <div class="form-inline small">
+            <div class="form-check mx-sm-3 mb-2">
                 <label class="form-check-label">
                     <input type="checkbox" class="form-check-input" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}> Kritický díl
                 </label>
+            </div>
+            <div class="form-check mx-sm-3 mb-2">            
                 <label class="form-check-label">
                     <input type="checkbox" class="form-check-input" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}> Účetnictví
                 </label>
+            </div>
+            <div class="form-check mx-sm-3 mb-2">            
                 <label class="form-check-label">
                     <input type="checkbox" class="form-check-input" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}> Pod minimem
                 </label>
-        </div>
-        <div class="form-group"
-                <input class="search" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">            
-        </div>
-                <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
-                <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
+            </div>
+            <div class="form-group mx-sm-3 mb-2">
+                <input class="form-control form-control-sm" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">            
+            </div>
+            <div class="form-group mx-sm-3 mb-2">
                 <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
+            </div>
+        </div>
+        <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
+        <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
     </form>
+    
     <div class="container-fluid">
         <table class="table table-sm table-hover table-striped table-bordered">
             <thead class="thead-dark">

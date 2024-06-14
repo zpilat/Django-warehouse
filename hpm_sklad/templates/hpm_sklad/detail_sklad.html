@@ -47,14 +47,14 @@
                     <th>{{ field.verbose_name }}</th>
                     {% if field.name == 'pod_minimem' %}
                         <td>
-			                {{ object.pod_minimem_display }}
+                            {{ object.pod_minimem_display }}
                         </td>
                     {% else %}
                         <td>
-			                {{ object|get_attribute:field.name }}
+                            {{ object|get_attribute:field.name }}
                         </td>
                         <td></td>
-		            {% endif %}          
+                    {% endif %}          
                 {% endfor %}
             </tr>
         </tbody>
