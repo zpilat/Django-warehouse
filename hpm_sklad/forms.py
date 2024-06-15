@@ -62,7 +62,7 @@ class SkladCreateForm(forms.ModelForm):
                 css_class='form-row small'
             ),
             Div(
-                Submit('submit', 'Uložit', css_class="btn btn-sm btn-primary"),
+                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
                 css_class='d-flex justify-content-center mt-3'  
             )
         )
@@ -96,7 +96,7 @@ class SkladUpdateForm(forms.ModelForm):
                 css_class='form-row small'
             ),
             Div(
-                Submit('submit', 'Uložit', css_class="btn btn-sm btn-primary"),
+                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
                 css_class='d-flex justify-content-center mt-3' 
             )
         )
@@ -116,7 +116,7 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(Field(self.Meta.fields[0]), css_class='form-column small'),
-                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-primary"),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
                     css_class='d-flex justify-content-center mt-3'
                     ),
                 ),
@@ -226,7 +226,7 @@ class VariantyCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
-                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-primary"),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
                     css_class='d-flex justify-content-center mt-3'
                     )
                 )
@@ -246,7 +246,7 @@ class VariantyUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
-                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-primary"),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
                     css_class='d-flex justify-content-center mt-3'
                     )
                 )

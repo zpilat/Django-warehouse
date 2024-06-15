@@ -1,13 +1,12 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<div class="navbar">
-    <h5 class="text-center">Vytvoření varianty pro:</h5>
-    <p>{{ skladova_polozka|truncatechars:50 }}</p>
+<div class="navbar navbar-dark bg-dark">
+    <p class="h5 text-white">Vytvoření varianty pro:</p>
+    <p class="h6 text-white"> {{ skladova_polozka|truncatechars:50 }}</p>
 </div>
-<hr>
 
-<form method="post" action="{% url 'create_varianty' skladova_polozka.pk %}">
+<form class="mt-2" method="post" action="{% url 'create_varianty' skladova_polozka.pk %}">
     {% csrf_token %}
     {% crispy form %}
 </form>

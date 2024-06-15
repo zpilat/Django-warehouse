@@ -1,16 +1,15 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<div class="navbar">
-    <h5 class="text-center">Smazání skladové položky</h5>
-    <p>{{ object }}</p>
+<div class="navbar navbar-dark bg-dark">
+    <p class="h5 text-white">Smazání skladové položky</p>
+    <p class="h6 text-white">{{ object }}</p>
 </div>
-<hr>
 
-<form method="post" action="{% url 'delete_sklad' object.pk %}">
+<form class="mt-2" method="post" action="{% url 'delete_sklad' object.pk %}">
     {% csrf_token %}
-    <p>Opravdu chcete tuto položku smazat?:</p>
+    <p class="h6">Opravdu chcete tuto položku smazat?:</p>
     <div class="d-flex justify-content-center mt-3">
-        <button type="submit" class="btn btn-primary btn-sm">Smazat</button>
+        <button type="submit" class="btn btn-dark btn-sm">Smazat</button>
     </div>
 </form>

@@ -1,12 +1,12 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<div class="navbar">
-    <h5 class="text-center">Vytvoření skladové položky</h5>
+<div class="navbar navbar-dark bg-dark">
+    <p class="h5 text-white">Vytvoření skladové položky</p>
+    <p class="h6 text-white"> {{ object|truncatechars:50 }}</p>
 </div>
-<hr>
 
-<form method="post" action="{% url 'create_sklad' %}">
+<form class="mt-2" method="post" action="{% url 'create_sklad' %}">
     {% csrf_token %}
     {% crispy form %}
 </form>

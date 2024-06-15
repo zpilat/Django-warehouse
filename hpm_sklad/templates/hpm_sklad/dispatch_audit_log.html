@@ -1,17 +1,16 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<div class="navbar">
-    <h5 class="text-center">Výdej zboží ze skladu:</h5><br>
-    <p>{{ object|truncatechars:50 }}</p>
+<div class="navbar navbar-dark bg-dark">
+    <p class="h5 text-white">Výdej zboží ze skladu:<p>
+    <p class="h6 text-white">{{ object|truncatechars:50 }}</p>
 </div>
-<hr>
 
-<form method="post" action="{% url 'dispatch_audit_log' object.pk %}">
+<form class="mt-2" method="post" action="{% url 'dispatch_audit_log' object.pk %}">
     {% csrf_token %}
     {{ sklad_movement_form|crispy }}
     {{ auditlog_dispatch_form|crispy }}
     <div class="d-flex justify-content-center mt-3">
-        <button type="submit" class="btn btn-primary btn-sm">Uložit</button>
+        <button type="submit" class="btn btn-dark btn-sm">Uložit</button>
     </div>
 </form>

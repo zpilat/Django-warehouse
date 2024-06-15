@@ -19,15 +19,15 @@
         <!-- Druhý řádek: checkbuttony, vyhledávání a tlačítko -->
         <div class="form-group mx-sm-3 mb-2">
             <div class="form-row justify-content-center align-items-center small">
-                <div class="form-check form-check-inline">
+                <div class="form-check form-check-inline mb-2">
                     <input type="checkbox" class="form-check-input" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}>
                     <label class="form-check-label">Kritický díl</label>
                 </div>
-                <div class="form-check form-check-inline">
+                <div class="form-check form-check-inline mb-2">
                     <input type="checkbox" class="form-check-input" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
                     <label class="form-check-label">Účetnictví</label>
                 </div>
-                <div class="form-check form-check-inline">
+                <div class="form-check form-check-inline mb-2">
                     <input type="checkbox" class="form-check-input" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}>
                     <label class="form-check-label">Pod minimem</label>
                 </div>
