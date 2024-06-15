@@ -10,15 +10,15 @@
         </div>    
         <div class="form-group mx-sm-2 mb-2">
             <label for="typ_operace" class="mr-sm-2">Typ operace:</label>
-            <select name="typ_operace" class="form-control form-control-sm mr-sm-2" id="typ_operace">
+            <select name="typ_operace" class="form-select form-select-sm mr-sm-2" id="typ_operace">
                 <option value="VŠE" {% if request.GET.typ_operace == 'VŠE' or not request.GET.typ_operace %}selected{% endif %}>VŠE</option>
                 <option value="PŘÍJEM" {% if request.GET.typ_operace == 'PŘÍJEM' %}selected{% endif %}>PŘÍJEM</option>
                 <option value="VÝDEJ" {% if request.GET.typ_operace == 'VÝDEJ' %}selected{% endif %}>VÝDEJ</option>
             </select>
         </div>
-        <div class="form-group mx-sm-2 mb-2">
+        <div class="form-group ml-sm-2 mb-2">
             <label for="month" class="mr-sm-2">Vyberte měsíc a rok:</label>
-            <select name="month" id="month" class="form-control form-control-sm mr-sm-2">
+            <select name="month" id="month" class="form-select form-select-sm mr-sm-2">
                 <option value="VŠE" {% if request.GET.month == 'VŠE' or not request.GET.month %}selected{% endif %}>VŠE</option>
                 <option value="01" {% if request.GET.month == '01' %}selected{% endif %}>Leden</option>
                 <option value="02" {% if request.GET.month == '02' %}selected{% endif %}>Únor</option>
@@ -34,8 +34,8 @@
                 <option value="12" {% if request.GET.month == '12' %}selected{% endif %}>Prosinec</option>
             </select>
         </div>
-        <div class="form-group mx-sm-2 mb-2">
-            <select name="year" id="year" class="form-control form-control-sm mr-sm-2">
+        <div class="form-group mr-sm-2 mb-2">
+            <select name="year" id="year" class="form-select form-select-sm mr-sm-2">
                 <option value="VŠE" {% if request.GET.year == 'VŠE' or not request.GET.year %}selected{% endif %}>VŠE</option>
                 {% for year in years %}
                     <option value="{{ year }}" {% if request.GET.year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>

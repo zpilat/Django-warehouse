@@ -9,8 +9,8 @@
             <div class="form-row small">
                 {% for value, label in radio_filters %}
                     <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="radio_filter" value="{{ value }}" {% if request.GET.radio_filter == value %}checked{% endif %}>
-                        <label class="form-check-label">{{ label }}</label>
+                        <input class="form-check-input" type="radio" name="radio_filter" id="{{ label }}" value="{{ value }}" {% if request.GET.radio_filter == value %}checked{% endif %}>
+                        <label class="form-check-label" for="{{ label }}">{{ label }}</label>
                     </div>
                 {% endfor %}
             </div>
@@ -20,16 +20,16 @@
         <div class="form-group mx-sm-3 mb-2">
             <div class="form-row justify-content-center align-items-center small">
                 <div class="form-check form-check-inline mb-2">
-                    <input type="checkbox" class="form-check-input" name="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}>
-                    <label class="form-check-label">Kritický díl</label>
+                    <input type="checkbox" class="form-check-input" name="kriticky_dil" id="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="kriticky_dil">Kritický díl</label>
                 </div>
                 <div class="form-check form-check-inline mb-2">
-                    <input type="checkbox" class="form-check-input" name="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
-                    <label class="form-check-label">Účetnictví</label>
+                    <input type="checkbox" class="form-check-input" name="ucetnictvi" id="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="ucetnictvi">Účetnictví</label>
                 </div>
                 <div class="form-check form-check-inline mb-2">
-                    <input type="checkbox" class="form-check-input" name="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}>
-                    <label class="form-check-label">Pod minimem</label>
+                    <input type="checkbox" class="form-check-input" name="pod_minimem" id="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="pod_minimem">Pod minimem</label>
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <input class="form-control form-control-sm" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
