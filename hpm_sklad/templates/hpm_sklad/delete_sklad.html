@@ -8,7 +8,7 @@
 
 <form class="mt-2" method="post" action="{% url 'delete_sklad' object.pk %}">
     {% csrf_token %}
-    <p class="h6">Opravdu chcete tuto položku smazat?:</p>
+    <p class="h6 text-center">Opravdu chcete tuto položku smazat?</p>
     <div class="d-flex justify-content-center mt-3">
         <button type="submit" class="btn btn-dark btn-sm">Smazat</button>
     </div>

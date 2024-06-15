@@ -49,17 +49,22 @@ class SkladCreateForm(forms.ModelForm):
         initial_interne_cislo = (max_interne_cislo or 0) + 1
         self.fields['interne_cislo'].initial = initial_interne_cislo
 
+        # Add form-label-sm class to all labels
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control form-control-sm'})
+            field.label_suffix = ""
+        
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field, css_class='form-control') for field in self.Meta.fields[:8]],
-                    css_class='form-column col mr-3'
+                    *[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields[:8]],
+                    css_class='form-column col mr-3 small'
                 ),
                 Div(
-                    *[Field(field, css_class='form-control') for field in self.Meta.fields[8:]],
-                    css_class='form-column col-auto mr-3'
+                    *[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields[8:]],
+                    css_class='form-column col-auto mr-3 small'
                 ),
-                css_class='form-row small'
+                css_class='form-row'
             ),
             Div(
                 Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
@@ -86,14 +91,14 @@ class SkladUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field, css_class='form-control') for field in self.Meta.fields[:7]],
-                    css_class='form-column col mr-3'
+                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[:7]],
+                    css_class='form-column col mr-3 small'
                 ),
                 Div(
-                    *[Field(field, css_class='form-control') for field in self.Meta.fields[7:]],
-                    css_class='form-column col-auto mr-3'
+                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[7:]],
+                    css_class='form-column col-auto mr-3 small'
                 ),
-                css_class='form-row small'
+                css_class='form-row'
             ),
             Div(
                 Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
@@ -115,19 +120,16 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(Field(self.Meta.fields[0]), css_class='form-column small'),
-                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
-                    css_class='d-flex justify-content-center mt-3'
-                    ),
-                ),
-            )
+                Field(self.Meta.fields[0], css_class='form-control form-control-sm', label_class='form-label-sm'),
+                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
+                css_class='form-column small'
+            ),
+        )
 
 
 class SkladReceiptForm(forms.ModelForm):
-    datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,
-                                   label='Datum nákupu')
-    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False,
-                                       empty_label="Vyberte dodavatele")
+    datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True, label='Datum nákupu')
+    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
         
     class Meta:
         model = Sklad
@@ -141,7 +143,10 @@ class SkladReceiptForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small')
+            Div(
+                *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields],
+                css_class='form-column col-auto mr-3 small'
+                ),
             )
 
         self.fields['dodavatel'].required = True
@@ -167,8 +172,8 @@ class SkladDispatchForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
-            )
+            Div(*[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields], css_class='form-column small'),
+        )
         
 
 class AuditLogReceiptForm(forms.ModelForm):
@@ -184,21 +189,21 @@ class AuditLogReceiptForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small')
+            Div(
+                *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields],
+                css_class='form-column col-auto mr-3 small'
+                ),
             )
 
+
 class AuditLogDispatchForm(forms.ModelForm):
-    datum_vydeje = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True,
-                                   label='Datum výdeje')
-    pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True,
-                                              empty_label="Vyberte zařízení", label="Pro zařízení")
+    datum_vydeje = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True, label='Datum výdeje')
+    pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True, empty_label="Vyberte zařízení", label="Pro zařízení")
     zmena_mnozstvi = forms.ChoiceField(label='Změna množství')
    
     class Meta:
         model = AuditLog
-        fields = [
-            "zmena_mnozstvi", "pouzite_zarizeni", "datum_vydeje", 
-            ]
+        fields = ["zmena_mnozstvi", "pouzite_zarizeni", "datum_vydeje"]
 
     def __init__(self, *args, **kwargs):
         max_mnozstvi = kwargs.pop('max_mnozstvi', 1)
@@ -207,10 +212,12 @@ class AuditLogDispatchForm(forms.ModelForm):
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small')
+            Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small', label_class='form-label-sm'),
             )
+        
         self.fields['datum_vydeje'].required = True
-        self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]        
+        self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
+      
 
 
 class VariantyCreateForm(forms.ModelForm):   
