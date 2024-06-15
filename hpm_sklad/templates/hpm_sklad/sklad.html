@@ -2,24 +2,10 @@
 {% load static %}
 {% load custom_filters %}
 
-{% block navbar %}
-    <div class="col">
-        <a class="btn btn-danger btn-sm" href="{% url 'sklad' %}">Sklad</a>
-        <a class="btn btn-primary btn-sm" href="{% url 'audit_log' %}">Audit log</a>     
-        |
-        {% if perms.hpm_sklad.add_sklad %}
-            <a class="btn btn-primary btn-sm" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}')">Vytvoření položky</a>
-        {% endif %}    
-    </div>
-    <div class="col-auto">   
-        {% include "hpm_sklad/login.html" %}
-    </div>
-{% endblock %}
-
 {% block left_content %}
     <form method="GET" action="">
         <!-- První řádek: radiobuttony -->
-        <div class="form-group mx-sm-3 mb-2">
+        <div class="form-group mx-sm-3 my-2">
             <div class="form-row small">
                 {% for value, label in radio_filters %}
                     <div class="form-check form-check-inline">
@@ -49,7 +35,7 @@
                     <input class="form-control form-control-sm" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
-                    <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
+                    <button class="btn btn-dark btn-sm" type="submit">Filtrovat</button>
                 </div>
             </div>
         </div>

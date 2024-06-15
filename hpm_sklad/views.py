@@ -22,7 +22,8 @@ from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, 
 logger = logging.getLogger(__name__)
 
 def home_view(request):
-    return render(request, "hpm_sklad/home.html")
+    context = {'current_user': request.user}
+    return render(request, "hpm_sklad/home.html", context)
 
 @login_required
 @permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
@@ -149,6 +150,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         radio_filters = [("", "VŠE")] + [(z.zarizeni.lower(), z.zarizeni.replace('_', ' ')) for z in Zarizeni.objects.all()]
 
         context.update({
+            'db_table': 'sklad',
             'sort': self.request.GET.get('sort', 'evidencni_cislo'),
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
@@ -276,6 +278,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         context['years'] = range(current_year, 2023, -1)
 
         context.update({
+            'db_table': 'audit_log',
             'sort': self.request.GET.get('sort', 'id'),
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),

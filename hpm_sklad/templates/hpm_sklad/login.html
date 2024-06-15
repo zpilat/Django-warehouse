@@ -1,6 +1,0 @@
-{% if user.is_authenticated %}
-    <a class="btn btn-primary btn-sm" href="{% url 'logout' %}">Odhlásit se</a>
-{% else %}
-    <a class="btn btn-primary btn-sm" href="{% url 'login' %}">Přihlásit se</a>
-    <a class="btn btn-primary btn-sm" href="{% url 'signup' %}">Registrace</a>
-{% endif %}

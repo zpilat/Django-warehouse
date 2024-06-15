@@ -13,11 +13,8 @@
     <body>
         <main class="app">
             <div class="left-column">
-                 <header>
-                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                        {% block navbar %}
-                        {% endblock %}
-                    </nav>
+                <header>
+                    {% include "hpm_sklad/navbar.html" %}
                 </header>
                 {% block left_content %}{% endblock %}
             </div>

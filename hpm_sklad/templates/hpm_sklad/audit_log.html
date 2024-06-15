@@ -2,18 +2,8 @@
 {% load static %}
 {% load custom_filters %}
 
-{% block navbar %}
-    <div class="col">
-        <a class="btn btn-primary btn-sm" href="{% url 'sklad' %}">Sklad</a>
-        <a class="btn btn-danger btn-sm" href="{% url 'audit_log' %}">Audit log</a>  
-    </div>
-    <div class="col-auto">
-        {% include "hpm_sklad/login.html" %}
-    </div>
-{% endblock %}
-
 {% block left_content %}
-    <form method="GET" action="" class="form-inline justify-content-center align-items-center small">
+    <form method="GET" action="" class="form-inline justify-content-center align-items-center small my-2">
         <div class="form-group form-check mx-sm-2 mb-2">
             <input type="checkbox" class="form-check-input" name="ucetnictvi" id="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
             <label class="form-check-label mr-sm-2" for="ucetnictvi">Účetnictví</label>

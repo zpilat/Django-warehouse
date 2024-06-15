@@ -1,2 +1,27 @@
-<a class="btn btn-primary btn-sm" href="{% url 'sklad' %}">Sklad</a>
-<a class="btn btn-primary btn-sm" href="{% url 'audit_log' %}">Audit log</a>   
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="col">
+        <a {% if db_table and db_table == 'sklad' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %} href="{% url 'sklad' %}">Sklad</a>
+        <a {% if db_table and db_table == 'audit_log' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %}href="{% url 'audit_log' %}">Audit log</a>     
+    </div>
+    {% if user.is_authenticated %}
+        <div class="col-auto">
+            <div>
+                <p class="h6 small text-white">Přihlášený uživatel:</p>
+            </div>
+            <div>
+                <p class="h6 small text-center my-0 text-white">{{ current_user.first_name }} {{ current_user.last_name }}</p>
+            </div>
+        </div>                            
+        <div class="col-auto">   
+            <a class="btn btn-light btn-sm" href="{% url 'logout' %}">Odhlásit se</a>
+        </div>
+    {% else %}
+        <div class="col-auto">
+            <a class="btn btn-light btn-sm" href="{% url 'login' %}">Přihlásit se</a>
+            <a class="btn btn-light btn-sm" href="{% url 'signup' %}">Registrace</a>
+        </div>
+    {% endif %}        
+</nav>
+
+
+
