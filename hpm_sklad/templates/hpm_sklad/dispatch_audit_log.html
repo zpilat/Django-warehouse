@@ -6,7 +6,7 @@
     <p class="h6 text-white">{{ object|truncatechars:50 }}</p>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'dispatch_audit_log' object.pk %}">
+<form class="small mt-2" method="post" action="{% url 'dispatch_audit_log' object.pk %}">
     {% csrf_token %}
     {{ sklad_movement_form|crispy }}
     {{ auditlog_dispatch_form|crispy }}
