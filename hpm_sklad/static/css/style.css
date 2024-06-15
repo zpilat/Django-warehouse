@@ -77,3 +77,14 @@ table {
     font-size: 0.8rem !important; /* Zmenšení písma */
     padding: 3px 10px !important; /* Přizpůsobení vnitřních okrajů */
 }
+
+.page-link {
+    color: #17a2b8 !important; /* Barva z btn-info */
+}
+
+.page-link i {
+    color: #17a2b8; /* Barva z btn-info */
+}
+.page-item.disabled .page-link i {
+    color: #6c757d; /* Barva pro disabled */
+}
