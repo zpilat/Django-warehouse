@@ -47,28 +47,6 @@ table {
     cursor: pointer;
 }
 
-.app {
-    display: flex;
-    flex-direction: row;  /* Zajistí, že sloupce budou vodorovně vedle sebe */
-    width: 100%;          /* Zajistí, že flex kontejner zaujme celou šířku */
-    margin: 0;
-    padding: 0;
-}
-
-.left-column {
-    flex: 75;
-    margin: 0;
-    padding: 10px;
-    border: 5px ridge #ddd;
-}
-
-.right-column {
-    flex: 25;
-    margin: 0;
-    padding: 10px;
-    border: 5px ridge #ddd;
-}
-
 .pod-minimem-row {
     color: #FF5C5C !important;
 }
