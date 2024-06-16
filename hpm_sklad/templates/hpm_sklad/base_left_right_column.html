@@ -12,14 +12,14 @@
     
     <body>
         <main class="container-fluid">
-            <div class="row p-2 border border-dark">
-                <div class="col p-1 border border-dark">
+            <div class="row p-1 border">
+                <div class="col p-1 border">
                     <header>
                         {% include "hpm_sklad/navbar.html" %}
                     </header>
                     {% block left_content %}{% endblock %}
                 </div>
-                <div class="col-3 p-1 border border-dark" id="detail">
+                <div class="col-3 p-1 border" id="detail">
                     {% block right_content %}{% endblock %}
                 </div>
             </div>
