@@ -118,7 +118,7 @@
                         <td class="container-fluid">{{ varianta.nazev_varianty|truncatechars:40 }}</td>
                         {% if perms.hpm_sklad.update_varianty %}            
                             <td>
-                                <a class="btn btn-dark btn-xs" href="javascript:void(0);" onclick="loadForm('{% url 'update_varianty' varianta.pk %}')">Upravit</a>       
+                                <a class="btn btn-outline-dark btn-xs" href="javascript:void(0);" onclick="loadForm('{% url 'update_varianty' varianta.pk %}')">Upravit</a>       
                             </td>
                         {% endif %}
                     </tr>

@@ -46,7 +46,7 @@
             <input class="form-control form-control-sm mr-sm-2" type="text" name="query" placeholder="Vyhledat díl / dodavatele" value="{{ request.GET.query }}">
         </div>
         <div class="form-group mx-sm-2 mb-2">
-            <button class="btn btn-primary btn-sm" type="submit">Filtrovat</button>
+            <button class="btn btn-outline-dark btn-sm" type="submit">Filtrovat</button>
         </div>
         
         <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}id{% endif %}">
