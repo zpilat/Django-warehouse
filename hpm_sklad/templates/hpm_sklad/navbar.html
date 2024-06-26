@@ -1,7 +1,10 @@
 <nav class="navbar navbar-dark bg-dark">
     <div class="col">
         <a {% if db_table and db_table == 'sklad' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %} href="{% url 'sklad' %}">Sklad</a>
-        <a {% if db_table and db_table == 'audit_log' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %}href="{% url 'audit_log' %}">Audit log</a>     
+        <a {% if db_table and db_table == 'audit_log' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %}href="{% url 'audit_log' %}">Audit log</a>    
+        {% if db_table and db_table == 'sklad' %}
+            <a class="btn btn-sm btn-light" href="{% url 'sklad_export_csv' %}?{{ request.GET.urlencode }}">Export do CSV</a>
+        {% endif %}
     </div>
     {% if user.is_authenticated %}
         <div class="col-auto">

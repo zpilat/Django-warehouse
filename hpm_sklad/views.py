@@ -1,3 +1,5 @@
+import csv
+from django.http import HttpResponse
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -137,6 +139,7 @@ class SkladListView(LoginRequiredMixin, ListView):
     model = Sklad
     template_name = 'hpm_sklad/sklad.html'
     paginate_by = 20
+    export_csv = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -195,6 +198,24 @@ class SkladListView(LoginRequiredMixin, ListView):
             queryset = [obj for obj in queryset if obj.pod_minimem]
 
         return queryset
+
+    def export_to_csv(self, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="sklad_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Evidenční číslo', 'Název dílu', 'Kritický díl', 'Účetnictví', 'Pod minimem'])  # Přizpůsob sloupce podle modelu Sklad
+
+        for item in queryset:
+            writer.writerow([item.evidencni_cislo, item.nazev_dilu, item.kriticky_dil, item.ucetnictvi, item.pod_minimem])
+
+        return response
+
+    def render_to_response(self, context, **response_kwargs):
+        if getattr(self, 'export_csv', False):
+            return self.export_to_csv(self.get_queryset())
+        else:
+            return super().render_to_response(context, **response_kwargs)    
 
 
 class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

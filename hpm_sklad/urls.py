@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.home_view, name='home'),
     path('sklad/', views.SkladListView.as_view(), name='sklad'),
+    path('sklad/export/csv/', views.SkladListView.as_view(export_csv=True), name='sklad_export_csv'),
     path('sklad/new/', views.SkladCreateView.as_view(), name='create_sklad'),
     path('sklad/<int:pk>/detail/', views.SkladDetailView.as_view(), name='detail_sklad'),
     path('sklad/<int:pk>/update/', views.SkladUpdateView.as_view(), name='update_sklad'),
