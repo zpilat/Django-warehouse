@@ -204,10 +204,54 @@ class SkladListView(LoginRequiredMixin, ListView):
         response['Content-Disposition'] = 'attachment; filename="sklad_export.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Evidenční číslo', 'Název dílu', 'Kritický díl', 'Účetnictví', 'Pod minimem'])  # Přizpůsob sloupce podle modelu Sklad
+        writer.writerow([
+            'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Minimum', 'Množství', 'Jednotky', 
+            'Umístění', 'Dodavatel', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR', 
+            'Poznámka', 'Účetnictví', 'Kritický díl', 'HSH', 'TQ8', 'TQF XL1', 'TQF XL2', 'DC XL', 
+            'DAC XL1-2', 'DL XL', 'DAC', 'LAC 1', 'LAC 2', 'IPSEN ENE', 'HSH ENE', 'XL ENE1', 
+            'XL ENE2', 'IPSEN W', 'HSH W', 'KW', 'KW 1', 'KW 2', 'KW 3', 'MIKROF'
+        ])
 
         for item in queryset:
-            writer.writerow([item.evidencni_cislo, item.nazev_dilu, item.kriticky_dil, item.ucetnictvi, item.pod_minimem])
+            writer.writerow([
+                item.evidencni_cislo, 
+                item.interne_cislo, 
+                item.objednano, 
+                item.nazev_dilu, 
+                item.min_mnozstvi_ks, 
+                item.mnozstvi, 
+                item.jednotky, 
+                item.umisteni, 
+                item.dodavatel, 
+                item.datum_nakupu, 
+                item.cislo_objednavky, 
+                item.jednotkova_cena_eur, 
+                item.celkova_cena_eur, 
+                item.poznamka, 
+                item.ucetnictvi, 
+                item.kriticky_dil, 
+                item.hsh, 
+                item.tq8, 
+                item.tqf_xl1, 
+                item.tqf_xl2, 
+                item.dc_xl, 
+                item.dac_xl1_2, 
+                item.dl_xl, 
+                item.dac, 
+                item.lac_1, 
+                item.lac_2, 
+                item.ipsen_ene, 
+                item.hsh_ene, 
+                item.xl_ene1, 
+                item.xl_ene2, 
+                item.ipsen_w, 
+                item.hsh_w, 
+                item.kw, 
+                item.kw1, 
+                item.kw2, 
+                item.kw3, 
+                item.mikrof
+            ])
 
         return response
 
@@ -285,6 +329,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html'  # Zajistěte, že tato cesta je správná
     paginate_by = 20
+    export_csv = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -344,6 +389,50 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         queryset = queryset.order_by(sort)
 
         return queryset
+
+    def export_to_csv(self, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="audit_log_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Účetnictví', 'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Změna množství', 
+            'Množství', 'Jednotky', 'Typ operace', 'Pro zařízení', 'Umístění', 'Dodavatel', 
+            'Datum výdeje', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR', 
+            'Čas vytvoření', 'Operaci provedl', 'Poznámka'
+        ])
+
+        for item in queryset:
+            writer.writerow([
+                item.ucetnictvi, 
+                item.evidencni_cislo_id,  
+                item.interne_cislo, 
+                item.objednano, 
+                item.nazev_dilu, 
+                item.zmena_mnozstvi, 
+                item.mnozstvi, 
+                item.jednotky, 
+                item.typ_operace, 
+                item.pouzite_zarizeni, 
+                item.umisteni, 
+                item.dodavatel, 
+                item.datum_vydeje, 
+                item.datum_nakupu, 
+                item.cislo_objednavky, 
+                item.jednotkova_cena_eur, 
+                item.celkova_cena_eur, 
+                item.cas_vytvoreni, 
+                item.operaci_provedl.username, 
+                item.poznamka
+            ])
+
+        return response
+
+    def render_to_response(self, context, **response_kwargs):
+        if getattr(self, 'export_csv', False):
+            return self.export_to_csv(self.get_queryset())
+        else:
+            return super().render_to_response(context, **response_kwargs)        
 
 
 class AuditLogDetailView(LoginRequiredMixin, DetailView):

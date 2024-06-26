@@ -11,6 +11,7 @@ urlpatterns = [
     path('sklad/<int:pk>/update_objednano/', views.SkladUpdateObjednanoView.as_view(), name='update_objednano_sklad'),
     path('sklad/<int:pk>/delete/', views.SkladDeleteView.as_view(), name='delete_sklad'),
     path('sklad/audit_logs/', views.AuditLogListView.as_view(), name='audit_log'),
+    path('sklad/audit_logs/export/csv', views.AuditLogListView.as_view(export_csv=True), name='audit_log_export_csv'),
     path('sklad/audit_logs/<int:pk>/detail/', views.AuditLogDetailView.as_view(), name='detail_audit_log'),
     path('sklad/<int:pk>/create_varianty/', views.VariantyCreateView.as_view(), name='create_varianty'),
     path('sklad/<int:pk>/update_varianty/', views.VariantyUpdateView.as_view(), name='update_varianty'),
