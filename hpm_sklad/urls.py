@@ -17,7 +17,9 @@ urlpatterns = [
     path('sklad/<int:pk>/update_varianty/', views.VariantyUpdateView.as_view(), name='update_varianty'),
     path('sklad/<int:pk>/create_varianty_with_dodavatel/<int:dodavatel>/', views.VariantyWithDodavatelCreateView.as_view(), name='create_varianty_with_dodavatel'),
     path('sklad/<int:pk>/receipt_audit_log/', views.receipt_form_view, name='receipt_audit_log'),
-    path('sklad/<int:pk>/dispatch_audit_log/', views.dispatch_form_view, name='dispatch_audit_log'),    
+    path('sklad/<int:pk>/dispatch_audit_log/', views.dispatch_form_view, name='dispatch_audit_log'),
+    path('sklad/dodavatele/', views.DodavateleListView.as_view(), name='dodavatele'),      
+    path('sklad/dodavatele/export/csv/', views.DodavateleListView.as_view(export_csv=True), name='dodavatele_export_csv'),    
     path('account/', include('django.contrib.auth.urls')),
     path("signup/", views.SignUp.as_view(), name="signup"),
     path("logout/", views.logout_request, name= "logout")

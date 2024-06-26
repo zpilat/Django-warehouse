@@ -504,7 +504,76 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
         varianta = self.get_object()
         context['skladova_polozka'] = varianta.id_sklad
         return context
-    
+
+
+class DodavateleListView(LoginRequiredMixin, ListView):
+    model = Dodavatele
+    template_name = 'hpm_sklad/dodavatele.html'
+    paginate_by = 20
+    export_csv = False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('selected', None)
+
+        if selected_id:
+            context['selected_item'] = get_object_or_404(Dodavatele, id=selected_id)
+        else:
+            context['selected_item'] = None
+
+        context.update({
+            'db_table': 'dodavatele',
+            'sort': self.request.GET.get('sort', 'id'),
+            'order': self.request.GET.get('order', 'down'),
+            'query': self.request.GET.get('query', ''),
+            'current_user': self.request.user,
+        })
+
+        return context
+
+    def get_queryset(self):
+        queryset = Dodavatele.objects.all()
+        query = self.request.GET.get('query', '')
+        sort = self.request.GET.get('sort', 'id')
+        order = self.request.GET.get('order', 'down')
+
+        if query:
+            queryset = queryset.filter(nazev_dilu__icontains=query)
+
+        if order == 'down':
+            sort = f"-{sort}"
+            
+        queryset = queryset.order_by(sort)
+
+        return queryset
+
+    def export_to_csv(self, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="dodavatele_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Dodavatel', 'Kontaktní osoba', 'E-mail', 'Telefon', 'Jazyk', 
+        ])
+
+        for item in queryset:
+            writer.writerow([
+                item.id, 
+                item.dodavatel, 
+                item.kontakt, 
+                item.email, 
+                item.telefon, 
+                item.jazyk, 
+            ])
+
+        return response
+
+    def render_to_response(self, context, **response_kwargs):
+        if getattr(self, 'export_csv', False):
+            return self.export_to_csv(self.get_queryset())
+        else:
+            return super().render_to_response(context, **response_kwargs)        
+
     
 class SignUp(CreateView):
   form_class = CustomUserCreationForm
