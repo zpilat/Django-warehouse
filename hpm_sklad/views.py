@@ -316,7 +316,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 
         detail_item_fields = [
             field for field in Sklad._meta.fields
-            if field.get_internal_type() != 'BooleanField'
+            if field.get_internal_type() != 'BooleanField' and field.name != 'nazev_dilu'
         ]
 
         context['equipment_fields_true'] = equipment_fields_true
@@ -583,9 +583,8 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
     template_name = 'hpm_sklad/detail_dodavatele.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Filtrování pouze polí, která nejsou ManyToOneRel
-        context['detail_item_fields'] = [field for field in self.model._meta.get_fields() if not isinstance(field, models.ManyToOneRel)]
+        context = super().get_context_data(**kwargs)               
+        context['varianty'] = self.object.varianty.all()
         return context
 
     

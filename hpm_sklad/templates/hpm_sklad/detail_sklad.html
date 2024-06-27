@@ -53,7 +53,7 @@
     <table class="table table-sm table-striped table-bordered">       
         <thead class="thead-dark">
             <tr>
-                <th colspan=2 scope="col">Detail skladové položky:</h6>                
+                <th colspan=2 scope="col">Detail položky: {{ sklad.nazev_dilu|truncatechars:50 }}</h6>                
             </tr>
         </thead>            
         <tbody>
@@ -107,7 +107,7 @@
     <table class="table table-sm table-striped table-bordered">
         <thead class="thead-dark">
             <tr>
-                <th colspan=3 scope="col">Varianty skladové položky:</h6>                
+                <th colspan=3 scope="col">Varianty položky: {{ sklad.nazev_dilu|truncatechars:50 }}</h6>                
             </tr>
         </thead>     
         <tbody>
