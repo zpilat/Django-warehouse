@@ -12,6 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
+from django.db import models
 
 import logging
 import datetime
@@ -538,7 +539,9 @@ class DodavateleListView(LoginRequiredMixin, ListView):
         order = self.request.GET.get('order', 'down')
 
         if query:
-            queryset = queryset.filter(nazev_dilu__icontains=query)
+            queryset = queryset.filter(
+                Q(dodavatel__icontains=query) | Q(kontakt__icontains=query)
+            )
 
         if order == 'down':
             sort = f"-{sort}"
@@ -573,6 +576,17 @@ class DodavateleListView(LoginRequiredMixin, ListView):
             return self.export_to_csv(self.get_queryset())
         else:
             return super().render_to_response(context, **response_kwargs)        
+
+
+class DodavateleDetailView(LoginRequiredMixin, DetailView):
+    model = Dodavatele
+    template_name = 'hpm_sklad/detail_dodavatele.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Filtrování pouze polí, která nejsou ManyToOneRel
+        context['detail_item_fields'] = [field for field in self.model._meta.get_fields() if not isinstance(field, models.ManyToOneRel)]
+        return context
 
     
 class SignUp(CreateView):

@@ -76,7 +76,6 @@ class Sklad(models.Model):
 class Dodavatele(models.Model):
     class Meta:
         verbose_name_plural = "Dodavatelé"
-
     
     LANGUAGE_CHOICES = [
         ('CZ', 'Český'),
