@@ -4,8 +4,11 @@
         <a {% if db_table and db_table == 'audit_log' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %}href="{% url 'audit_log' %}">Pohyby</a>    
         <a {% if db_table and db_table == 'dodavatele' %} class="btn btn-sm btn-info" {% else %} class="btn btn-sm btn-light" {% endif %}href="{% url 'dodavatele' %}">Dodavatelé</a>   
         {% if db_table %}
-            <a class="btn btn-sm btn-light ml-3" href="{% if db_table == 'sklad' %}{% url 'sklad_export_csv' %}{% elif db_table == 'audit_log' %}{% url 'audit_log_export_csv' %}{% elif db_table == 'dodavatele' %}{% url 'dodavatele_export_csv' %}{% endif %}?{{ request.GET.urlencode }}">Export do CSV</a>       
-        {% endif %}
+            <a class="btn btn-sm btn-light ml-3" href="{% if db_table == 'sklad' %}{% url 'sklad_export_csv' %}{% elif db_table == 'audit_log' %}{% url 'audit_log_export_csv' %}{% elif db_table == 'dodavatele' %}{% url 'dodavatele_export_csv' %}{% endif %}?{{ request.GET.urlencode }}">Export do CSV</a>    
+            {% if db_table == 'audit_log' %}
+                <a class="btn btn-sm btn-light" href="{% url 'audit_log_graph'%}?{{ request.GET.urlencode }}">Graf nákladů</a>              
+            {% endif %}
+        {% endif %}       
     </div>
     {% if user.is_authenticated %}
         <div class="col-auto">

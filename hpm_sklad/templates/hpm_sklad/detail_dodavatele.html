@@ -7,10 +7,12 @@
             <tr>
                 <th colspan=2 scope="col">Zboží od dodavatele: {{ dodavatele.dodavatel }}</h6>   
             </tr>
-            <tr>
-                <th class="width-nowrap">Č. varianty</th>
-                <th>Název varianty</th>
-            </tr>
+            {% if varianty %}
+                <tr>
+                    <th class="width-nowrap">Č. varianty</th>
+                    <th>Název varianty</th>
+                </tr>
+            {% endif %}
         </thead>
         <tbody>
             {% if varianty %}
@@ -22,7 +24,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td>Dodavatel nemá přiřazené žádné zboží.</td>
+                    <td colspan=2 scope="col">Dodavatel nemá přiřazené žádné zboží.</td>
                 </tr>
             {% endif %}
         </tbody>

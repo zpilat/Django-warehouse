@@ -1,5 +1,5 @@
 import csv
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -14,8 +14,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.db.models import Q
 from django.db import models
 
+import io
 import logging
 import datetime
+
+
+import matplotlib.pyplot as plt
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.utils import ImageReader
+from PIL import Image
 
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
@@ -328,9 +336,10 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
-    template_name = 'hpm_sklad/audit_log.html'  # Zajistěte, že tato cesta je správná
+    template_name = 'hpm_sklad/audit_log.html' 
     paginate_by = 20
     export_csv = False
+    graph = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -376,13 +385,17 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         if typ_operace != 'VŠE':
             queryset = queryset.filter(typ_operace=typ_operace)
 
-        month = self.request.GET.get('month', 'VŠE')
-        year = self.request.GET.get('year', 'VŠE')
+        self.month = self.request.GET.get('month', 'VŠE')
+        self.year = self.request.GET.get('year', 'VŠE')
 
-        if month != 'VŠE' and year != 'VŠE':
+        if self.month != 'VŠE':
             queryset = queryset.filter(
-                Q(datum_vydeje__year=year, datum_vydeje__month=month) |
-                Q(datum_nakupu__year=year, datum_nakupu__month=month)
+                Q(datum_vydeje__month=self.month) | Q(datum_nakupu__month=self.month)
+            )
+
+        if self.year != 'VŠE':
+            queryset = queryset.filter(
+                Q(datum_vydeje__year=self.year) | Q(datum_nakupu__year=self.year)
             )
 
         if order == 'down':
@@ -429,9 +442,55 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         return response
 
+    def generate_graph_to_pdf(self, queryset):
+        # Připraví data pro graf
+        data = {}
+        for item in queryset:
+            if item.typ_operace == 'VÝDEJ':
+                if item.pouzite_zarizeni not in data:
+                    data[item.pouzite_zarizeni] = 0
+                data[item.pouzite_zarizeni] -= item.celkova_cena_eur
+        
+        zarizeni = sorted(data.keys())
+        naklady = [data[key] for key in zarizeni]
+
+        # Vytvoří graf pomocí matplotlib
+        plt.figure(figsize=(14, 8))  # Zvýšení velikosti obrázku
+        plt.bar(zarizeni, naklady, color='skyblue')
+        plt.xlabel('Zařízení')
+        plt.ylabel('EUR')
+        plt.title(f"Náklady za období: měsíc:{self.month}, rok:{self.year}")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+
+        # Uloží graf do bufferu
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+
+        # Načte obrázek z bufferu pomocí Pillow
+        image = Image.open(buf)
+
+        # Připraví PDF pomocí reportlab
+        pdf_buffer = io.BytesIO()
+        p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+        p.drawString(100, 560, "Náklady na náhradní díly")  # Úprava pozice textu
+
+        # Použije ImageReader pro přidání obrázku do PDF
+        img_reader = ImageReader(image)
+        p.drawImage(img_reader, 50, 150, width=700, height=400)  # Úprava velikosti a pozice obrázku
+
+        p.showPage()
+        p.save()
+        pdf_buffer.seek(0)
+
+        return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_na_zarizeni.pdf')
+
     def render_to_response(self, context, **response_kwargs):
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
+        elif getattr(self, 'graph', False):
+            return self.generate_graph_to_pdf(self.get_queryset())        
         else:
             return super().render_to_response(context, **response_kwargs)        
 
