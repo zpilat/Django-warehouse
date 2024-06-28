@@ -2,7 +2,7 @@
     <div class="col">    
         <div class="btn-group btn-group-sm dropdown my-1 mr-1">
             <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {% if db_table %}{% if db_table == 'sklad' %}SKLAD{% elif db_table == 'audit_log' %}POHYBY{% elif db_table == 'dodavatele' %}DODAVATELÉ{% endif %}{% endif %}
+                {% if db_table == 'sklad' %}SKLAD{% elif db_table == 'audit_log' %}POHYBY{% elif db_table == 'dodavatele' %}DODAVATELÉ{% else %}Výběr modulu{% endif %}
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
                 <a class="dropdown-item small" href="{% url 'sklad' %}">Sklad</a>
@@ -10,15 +10,17 @@
                 <a class="dropdown-item small" href="{% url 'dodavatele' %}">Dodavatelé</a>
             </div>
         </div>
-        <div class="btn-group btn-group-sm dropdown mr-1">
-            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Export
-            </button>
-            <div class="dropdown-menu" aria-labeledby="dropdownMenuButton2">
-                <a class="dropdown-item small" href="{% if db_table == 'sklad' %}{% url 'sklad_export_csv' %}{% elif db_table == 'audit_log' %}{% url 'audit_log_export_csv' %}{% elif db_table == 'dodavatele' %}{% url 'dodavatele_export_csv' %}{% endif %}?{{ request.GET.urlencode }}">Export do CSV</a>
-                <a class="dropdown-item small {% if db_table != 'audit_log' %}disabled{% endif %}" href="{% url 'audit_log_graph'%}?{{ request.GET.urlencode }}">Graf nákladů</a>                              
-            </div>            
-        </div>  
+        {% if db_table %}
+            <div class="btn-group btn-group-sm dropdown mr-1">
+                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Export
+                </button>
+                <div class="dropdown-menu" aria-labeledby="dropdownMenuButton2">
+                    <a class="dropdown-item small" href="{% if db_table == 'sklad' %}{% url 'sklad_export_csv' %}{% elif db_table == 'audit_log' %}{% url 'audit_log_export_csv' %}{% elif db_table == 'dodavatele' %}{% url 'dodavatele_export_csv' %}{% endif %}?{{ request.GET.urlencode }}">Export do CSV</a>
+                    <a class="dropdown-item small {% if db_table != 'audit_log' %}disabled{% endif %}" href="{% url 'audit_log_graph'%}?{{ request.GET.urlencode }}">Graf nákladů</a>                              
+                </div>            
+            </div>  
+        {% endif %}
     </div>
     {% if user.is_authenticated %}
         <div class="col-auto">
