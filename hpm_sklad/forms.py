@@ -67,7 +67,7 @@ class SkladCreateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Div(
-                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
+                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                 css_class='d-flex justify-content-center mt-3'  
             )
         )
@@ -101,7 +101,7 @@ class SkladUpdateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Div(
-                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
+                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                 css_class='d-flex justify-content-center mt-3' 
             )
         )
@@ -121,7 +121,7 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Field(self.Meta.fields[0], css_class='form-control form-control-sm', label_class='form-label-sm'),
-                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
+                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                 css_class='form-column small'
             ),
         )
@@ -233,7 +233,7 @@ class VariantyCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
-                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                     css_class='d-flex justify-content-center mt-3'
                     )
                 )
@@ -253,7 +253,7 @@ class VariantyUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
-                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark"),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                     css_class='d-flex justify-content-center mt-3'
                     )
                 )

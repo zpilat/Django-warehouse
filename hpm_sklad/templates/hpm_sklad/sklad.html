@@ -35,7 +35,7 @@
                     <input class="form-control form-control-sm" type="text" name="query" placeholder="Vyhledat název dílu" value="{{ request.GET.query }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
-                    <button class="btn btn-outline-dark btn-sm" type="submit">Filtrovat</button>
+                    <button class="btn btn-outline-dark btn-sm rounded-pill" type="submit">Filtrovat</button>
                 </div>
             </div>
         </div>
@@ -162,7 +162,7 @@
             <tbody class="show-pointer">
                 {% for sklad in object_list %}
           	    <tr data-evidencni-cislo="{{ sklad.evidencni_cislo }}" data-detail-url="{% url 'detail_sklad' sklad.evidencni_cislo %}" onclick="loadDetail('{% url 'detail_sklad' sklad.evidencni_cislo %}', '{{ sklad.evidencni_cislo }}')"
-          	    {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %}class="table-info"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
+          	    {% if sklad.evidencni_cislo == selected_sklad.evidencni_cislo %} class="table-info"{% endif %} {% if sklad.pod_minimem %} class="pod-minimem-row"{% endif %}>
           	        <td scope="row">{{ sklad.evidencni_cislo }}</td>
                 	<td scope="row">{{ sklad.interne_cislo }}</td>
                 	<td scope="row">{{ sklad.nazev_dilu|truncatechars:60 }}</td>
