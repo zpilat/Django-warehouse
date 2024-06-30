@@ -7,7 +7,7 @@
     <table class="table table-sm table-striped table-bordered">       
         <thead class="thead-dark">
             <tr>
-                <th colspan=2 scope="col">Detail položky: {{ sklad.nazev_dilu|truncatechars:50 }}</h6>                
+                <th colspan=2 scope="col">Detail položky: {{ sklad.nazev_dilu|truncatechars:50 }}</th>                
             </tr>
         </thead>            
         <tbody>
@@ -20,31 +20,32 @@
         </tbody>
     </table>
 
-    <table class="table table-sm table-bordered container-fluid">
+    <table class="table table-sm table-striped table-bordered">
         <tbody>
-            <tr>
-                {% for field in info_fields %}
-                    <th>{{ field.verbose_name }}</th>
+            {% for field in info_fields %}
+                <tr>
+                    <th class="width-nowrap">{{ field.verbose_name }}</th>
                     {% if field.name == 'pod_minimem' %}
-                        <td>
+                        <td class="container-fluid">
                             {{ object.pod_minimem_display }}
                         </td>
                     {% else %}
-                        <td>
+                        <td class="container-fluid">
                             {{ object|get_attribute:field.name }}
                         </td>
-                        <td></td>
                     {% endif %}          
-                {% endfor %}
-            </tr>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 
-    <table class="table table-sm table-bordered">    
+    <table class="table table-sm table-striped table-bordered">    
         <tbody>
             {% if equipment_fields_true %}
                 <tr>
-                    <th>Pro zařízení</th>
+                    <th colspan=10 scope="col">Pro zařízení</th>
+                </tr>
+                <tr>
                     {% for field in equipment_fields_true %}
                         <td>{{ field.verbose_name }}</td>
                     {% endfor %}
@@ -52,34 +53,9 @@
             {% else %}
                 <tr>
                     <th>Pro zařízení</th>
-                    <td>Žádné konkrétní zařízení.</td>
                 </tr>
-            {% endif %}
-        </tbody>
-    </table>
-    <hr>
-    <table class="table table-sm table-striped table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th colspan=3 scope="col">Varianty položky: {{ sklad.nazev_dilu|truncatechars:50 }}</h6>                
-            </tr>
-        </thead>     
-        <tbody>
-            {% if varianty %}
-                {% for varianta in varianty %}
-                    <tr>
-                        <td class="width-nowrap">{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
-                        <td class="container-fluid">{{ varianta.nazev_varianty|truncatechars:40 }}</td>
-                        {% if perms.hpm_sklad.update_varianty %}            
-                            <td>
-                                <a class="btn btn-outline-dark btn-xs rounded-pill" href="javascript:void(0);" onclick="loadForm('{% url 'update_varianty' varianta.pk %}')">Upravit</a>       
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            {% else %}
                 <tr>
-                    <td>Neexistuje žádná varianta.</td>
+                    <td>Žádné konkrétní zařízení.</td>
                 </tr>
             {% endif %}
         </tbody>

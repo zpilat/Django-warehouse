@@ -318,7 +318,6 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         object_instance = self.get_object()
-        varianty = Varianty.objects.filter(id_sklad=object_instance)
 
         equipment_fields_true = [
             field for field in Sklad._meta.fields
@@ -336,6 +335,17 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         context['equipment_fields_true'] = equipment_fields_true
         context['info_fields'] = info_fields
         context['detail_item_fields'] = detail_item_fields
+        return context
+
+
+class SkladVariantyDetailView(LoginRequiredMixin, DetailView):
+    model = Sklad
+    template_name = 'hpm_sklad/show_varianty.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object_instance = self.get_object()
+        varianty = Varianty.objects.filter(id_sklad=object_instance)
         context['varianty'] = varianty
         return context
     
@@ -510,6 +520,26 @@ class AuditLogDetailView(LoginRequiredMixin, DetailView):
         context['detail_item_fields'] = self.model._meta.get_fields()
         return context
 
+
+class AuditLogShowView(LoginRequiredMixin, ListView):
+    model = AuditLog
+    template_name = 'hpm_sklad/show_audit_log.html' 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('pk', None)
+        context['object'] = get_object_or_404(Sklad, pk=selected_id)
+        context['more_items'] = self.filtered_count > 22
+        return context    
+
+    def get_queryset(self):
+        queryset = AuditLog.objects.all()
+        selected_id = self.request.GET.get('pk', None)
+        if selected_id:
+            queryset = queryset.filter(evidencni_cislo_id=selected_id)
+        self.filtered_count = queryset.count()
+        return queryset[:22]
+    
     
 class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Varianty

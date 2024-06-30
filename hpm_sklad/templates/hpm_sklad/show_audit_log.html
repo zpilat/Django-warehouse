@@ -1,0 +1,42 @@
+{% load static %}
+{% load custom_filters %}
+
+{% include "hpm_sklad/navbar_sklad.html" %}  
+<div class="mt-3"> 
+    <table class="table table-sm table-hover table-striped table-bordered"> 
+        <thead class="thead-dark">
+            <tr>
+                <th colspan=5 scope="col">Pohyby položky: {{ object.nazev_dilu|truncatechars:50 }}</h6>                
+            </tr>        
+            <tr>
+                <th>Typ operace</th>
+                <th>Množství</th>
+                <th>Jednotky</th>
+                <th>Datum</th>
+                <th>Dodavatel</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in object_list %}
+                <tr>  
+                    <td>{{ item.typ_operace }}</td>            
+                    <td>{{ item.zmena_mnozstvi }}</td>
+                    <td>{{ item.jednotky }}</td>
+                    {% if item.typ_operace == 'VÝDEJ' %}
+                        <td>{{ item.datum_vydeje | date:"d.m.Y" }}</td>
+                    {% else %}
+                        <td>{{ item.datum_nakupu | date:"d.m.Y" }}</td>
+                    {% endif %}
+                    <td>{{ item.dodavatel|truncatechars:30 }}</td>
+                    </tr>
+            {% endfor %}
+            {% if more_items %}
+                <tr>
+                    <td colspan=5 scope="col"> ... </td>
+                </tr>
+            {% endif %}            
+        </tbody>
+    </table>
+</div>  
+
+
