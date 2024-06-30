@@ -281,6 +281,12 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('pk', None)
+        context['skladova_polozka'] = get_object_or_404(Sklad, evidencni_cislo=selected_id)
+        return context       
 
 
 class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):

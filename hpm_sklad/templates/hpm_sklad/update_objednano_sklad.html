@@ -1,9 +1,12 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
-<div class="navbar navbar-dark bg-dark">
-    <p class="h5 text-white">Úprava sloupce objednáno?</p>
-    <p class="h6 text-white">{{ object|truncatechars:50 }}</p>
+{% include "hpm_sklad/navbar_sklad.html" %}
+<div class="navbar navbar-dark bg-dark my-3 pb-0 align-items-center">
+    <div>
+        <p class="h5 text-white">Úprava sloupce objednáno?</p>
+        <p class="h6 text-white">{{ object|truncatechars:50 }}</p>
+    </div>
 </div>
 
 <form class="mt-2" method="post" action="{% url 'update_objednano_sklad' object.pk %}">

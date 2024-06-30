@@ -120,12 +120,12 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Field(self.Meta.fields[0], css_class='form-control form-control-sm', label_class='form-label-sm'),
-                Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
-                css_class='form-column small'
-            ),
-        )
-
+                Div(Field(self.Meta.fields[0], css_class='form-column small')),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
+                    css_class='d-flex justify-content-center mt-3'
+                    )
+                )
+            )  
 
 class SkladReceiptForm(forms.ModelForm):
     datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True, label='Datum nákupu')

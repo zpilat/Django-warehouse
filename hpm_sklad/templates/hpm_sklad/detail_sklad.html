@@ -1,53 +1,7 @@
 {% load static %}
 {% load custom_filters %}
 
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="btn-group btn-group-sm dropdown mr-1 my-1">
-            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Skladové položky
-            </button>
-            <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
-                {% if perms.hpm_sklad.add_sklad %}
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}')">Vytvoření</a>
-                {% endif %}          
-                {% if not perms.hpm_sklad.change_sklad %}
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>    
-                {% endif %}
-                {% if perms.hpm_sklad.change_sklad %}            
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava</a>       
-                {% endif %}
-                {% if perms.hpm_sklad.delete_sklad %}  
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání</a>            
-                {% endif %}
-            </div>
-        </div>
-        {% if perms.hpm_sklad.add_auditlog and perms.hpm_sklad.change_sklad %}        
-            <div class="btn-group btn-group-sm dropdown mr-1">
-                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Pohyby
-                </button>
-                <div class="dropdown-menu" aria-labeledby="dropdownMenuButton2">                 
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'receipt_audit_log' object.evidencni_cislo %}')">Příjem</a>
-                    {% if object.mnozstvi > 0 %}
-                        <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'dispatch_audit_log' object.evidencni_cislo %}')">Výdej</a>
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
-        {% if perms.hpm_sklad.add_varianty %}                
-        <div class="btn-group btn-group-sm dropdown">
-            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Varianty
-            </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labeledby="dropdownMenuButton3">                         
-                <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_varianty' object.pk %}')">Vytvoření</a>          
-            </div>
-        </div>
-        {% endif %}        
-    </nav>
-</header>
+{% include "hpm_sklad/navbar_sklad.html" %}
     
 <div class="mt-3">
     <table class="table table-sm table-striped table-bordered">       

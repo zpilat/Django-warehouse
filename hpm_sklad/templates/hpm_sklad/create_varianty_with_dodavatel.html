@@ -4,10 +4,12 @@
 
 {% block left_content %}
 <div class="navbar navbar-dark bg-dark">
-    <p class="h5 text-white">Vytvoření varianty pro:</p>
-    <p>{{ skladova_polozka|truncatechars:50 }}</p>
-    <h5 class="text-center">s dodavatelem:</h5>    
-    <p class="h6 text-white">{{ dodavatel|truncatechars:50 }}</p>    
+    <div>
+        <p class="h5 text-white">Vytvoření varianty pro:</p>
+        <p>{{ skladova_polozka|truncatechars:50 }}</p>
+        <h5 class="text-center">s dodavatelem:</h5>    
+        <p class="h6 text-white">{{ dodavatel|truncatechars:50 }}</p>    
+    </div>
 </div>
 
 <form class="mt-2" method="post" action="{% url 'create_varianty_with_dodavatel' skladova_polozka.pk dodavatel_id %}">
