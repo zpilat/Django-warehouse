@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from datetime import date
 
 
 all_sklad_fields = [
@@ -128,13 +129,20 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
             )  
 
 class SkladReceiptForm(forms.ModelForm):
-    datum_nakupu = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True, label='Datum nákupu')
-    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
+    datum_nakupu = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
+        required=True,
+        label='Datum nákupu'
+    )
+    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=True, empty_label="Vyberte dodavatele")
         
     class Meta:
         model = Sklad
         fields = ["objednano", "umisteni", "dodavatel", "datum_nakupu", "cislo_objednavky",
                   "jednotkova_cena_eur", "poznamka",]
+        widgets = {
+            'jednotkova_cena_eur': forms.NumberInput(attrs={'min': '0.001'}),
+            }        
 
     def __init__(self, *args, **kwargs):
         super(SkladReceiptForm, self).__init__(*args, **kwargs)
@@ -161,7 +169,7 @@ class SkladReceiptForm(forms.ModelForm):
         return jednotkova_cena
 
 
-class SkladDispatchForm(forms.ModelForm):      
+class SkladDispatchForm(forms.ModelForm):
     class Meta:
         model = Sklad
         fields = ["umisteni", "poznamka",]
@@ -197,7 +205,11 @@ class AuditLogReceiptForm(forms.ModelForm):
 
 
 class AuditLogDispatchForm(forms.ModelForm):
-    datum_vydeje = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True, label='Datum výdeje')
+    datum_vydeje = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
+        required=True,
+        label='Datum výdeje'
+        )
     pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True, empty_label="Vyberte zařízení", label="Pro zařízení")
     zmena_mnozstvi = forms.ChoiceField(label='Změna množství')
    
@@ -220,11 +232,13 @@ class AuditLogDispatchForm(forms.ModelForm):
       
 
 
-class VariantyCreateForm(forms.ModelForm):   
+class VariantyCreateForm(forms.ModelForm):
     class Meta:
         model = Varianty
         fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta", "min_obj_mnozstvi", "id_dodavatele",]
-
+        widgets = {
+            'jednotkova_cena_eur': forms.NumberInput(attrs={'min': '0'}),
+            }
     def __init__(self, *args, **kwargs):
         super(VariantyCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)

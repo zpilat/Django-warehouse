@@ -553,15 +553,18 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         context['skladova_polozka'] = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return context
 
-    def form_valid(self, form):
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
-        form.instance.id_sklad = skladova_polozka
+        
+        # Získání dodavatelů, kteří ještě nemají variantu pro danou skladovou položku
+        existing_dodavatele_ids = Varianty.objects.filter(id_sklad=skladova_polozka).values_list('id_dodavatele', flat=True)
+        form.fields['id_dodavatele'].queryset = Dodavatele.objects.exclude(pk__in=existing_dodavatele_ids)
+        
+        return form    
 
-        # Kontrola, zda varianta se stejným dodavatelem již existuje
-        if Varianty.objects.filter(id_sklad=skladova_polozka, id_dodavatele=form.instance.id_dodavatele).exists():
-            form.add_error('id_dodavatele', 'Varianta se stejným dodavatelem již existuje.')
-            return self.form_invalid(form)
-
+    def form_valid(self, form):
+        form.instance.id_sklad = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return super().form_valid(form)
 
 
@@ -569,6 +572,7 @@ class VariantyWithDodavatelCreateView(CreateView):
     model = Varianty
     form_class = VariantyCreateForm
     template_name = 'hpm_sklad/create_varianty_with_dodavatel.html'
+    success_url = reverse_lazy('sklad')
 
     def get_initial(self):
         initial = super().get_initial()
@@ -587,6 +591,16 @@ class VariantyWithDodavatelCreateView(CreateView):
             context['dodavatel'] = dodavatel_object
             context['dodavatel_id'] = dodavatel_id  # Dodání ID do kontextu
         return context
+
+    def form_valid(self, form):
+        skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        form.instance.id_sklad = skladova_polozka
+
+        # Kontrola, zda varianta se stejným dodavatelem již existuje
+        if Varianty.objects.filter(id_sklad=skladova_polozka, id_dodavatele=form.instance.id_dodavatele).exists():
+            form.add_error('id_dodavatele', 'Varianta se stejným dodavatelem již existuje.')
+            return self.form_invalid(form)    
+
 
 class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Varianty
