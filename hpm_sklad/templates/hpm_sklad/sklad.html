@@ -5,10 +5,10 @@
 {% block left_content %}
     <form method="GET" action="">
         <!-- První řádek: radiobuttony -->
-        <div class="form-group mx-sm-3 my-2">
+        <div class="form-group ml-2 my-2">
             <div class="form-row small">
                 {% for value, label in radio_filters %}
-                    <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline mx-1">
                         <input class="form-check-input" type="radio" name="radio_filter" id="{{ label }}" value="{{ value }}" {% if request.GET.radio_filter == value %}checked{% endif %}>
                         <label class="form-check-label" for="{{ label }}">{{ label }}</label>
                     </div>
