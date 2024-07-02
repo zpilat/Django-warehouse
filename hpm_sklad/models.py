@@ -153,8 +153,8 @@ class AuditLog(models.Model):
 
 class Varianty(models.Model):
 
-    id_sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty', verbose_name="ID sklad")
-    id_dodavatele = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty', verbose_name="ID dodavatele")
+    id_sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty_skladu', verbose_name="Skladová položka")
+    id_dodavatele = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty_dodavatele', verbose_name="Dodavatel")
     nazev_varianty = models.CharField(max_length=255, verbose_name="Název varianty")
     cislo_varianty = models.CharField(max_length=255, null=True, verbose_name="Číslo varianty")
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
@@ -167,4 +167,24 @@ class Varianty(models.Model):
  
     def __str__(self):
         return self.nazev_varianty
+    
+
+class Poptavky(models.Model):
+    STAVY = [
+        ('Tvorba', 'Tvorba'),
+        ('Poptáno', 'Poptáno'),
+        ('Uzavřeno', 'Uzavřeno'),        
+        ]
+
+    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='poptavky', verbose_name="Dodavatel")
+    datum_vytvoreni = models.DateTimeField(auto_now_add=True)
+    stav = models.CharField(max_length=10, choices=STAVY, default='Tvorba')
+    varianty = models.ManyToManyField(Varianty)
+
+    class Meta:
+        verbose_name_plural = 'Poptávky'
+        verbose_name = 'Poptávka'
+ 
+    def __str__(self):
+        return f"Poptávka #{self.id} na dodavatele: {self.dodavatel.dodavatel}"
     

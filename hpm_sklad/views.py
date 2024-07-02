@@ -344,8 +344,7 @@ class SkladVariantyDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        object_instance = self.get_object()
-        varianty = Varianty.objects.filter(id_sklad=object_instance)
+        varianty = self.object.varianty_skladu.all()
         context['varianty'] = varianty
         return context
     
@@ -693,7 +692,7 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)               
-        context['varianty'] = self.object.varianty.all()
+        context['varianty'] = self.object.varianty_dodavatele.all()
         return context
 
     
