@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from django.forms import inlineformset_factory
 from datetime import date
 
 
@@ -274,9 +275,25 @@ class VariantyUpdateForm(forms.ModelForm):
             )        
 
 
+class PoptavkaVariantyForm(forms.ModelForm):
+    class Meta:
+        model = PoptavkaVarianty
+        fields = ['varianta', 'mnozstvi', 'jednotky']
+
+    def __init__(self, *args, **kwargs):
+        dodavatel_id = kwargs.pop('dodavatel_id', None)
+        super(PoptavkaVariantyForm, self).__init__(*args, **kwargs)
+        if dodavatel_id:
+            self.fields['varianta'].queryset = Varianty.objects.filter(dodavatel_id=dodavatel_id)
+
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
+
+PoptavkaVariantyFormSet = inlineformset_factory(
+    Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=1, can_delete=True
+    )

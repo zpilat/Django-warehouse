@@ -25,10 +25,10 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
-                    VariantyCreateForm, VariantyUpdateForm,)
+                    VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyFormSet)
 
 logger = logging.getLogger(__name__)
 
@@ -694,6 +694,27 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)               
         context['varianty'] = self.object.varianty_dodavatele.all()
         return context
+
+
+def create_poptavka(request, dodavatel_id):
+    dodavatel = get_object_or_404(Dodavatele, id=dodavatel_id)
+
+    if request.method == 'POST':
+        formset = PoptavkaVariantyFormSet(request.POST, queryset=PoptavkaVarianty.objects.none())
+        if formset.is_valid():
+            poptavka = Poptavky.objects.create(
+                dodavatel=dodavatel,
+                stav='Tvorba',
+            )
+            for form in formset:
+                poptavka_varianty = form.save(commit=False)
+                poptavka_varianty.poptavka = poptavka
+                poptavka_varianty.save()
+            return redirect('poptavka_detail', pk=poptavka.pk)
+    else:
+        formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none())
+
+    return render(request, 'hpm_sklad/create_poptavka.html', {'formset': formset, 'dodavatel': dodavatel})
 
     
 class SignUp(CreateView):

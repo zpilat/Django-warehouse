@@ -170,21 +170,39 @@ class Varianty(models.Model):
     
 
 class Poptavky(models.Model):
-    STAVY = [
-        ('Tvorba', 'Tvorba'),
-        ('Poptáno', 'Poptáno'),
-        ('Uzavřeno', 'Uzavřeno'),        
-        ]
-
-    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='poptavky', verbose_name="Dodavatel")
-    datum_vytvoreni = models.DateTimeField(auto_now_add=True)
-    stav = models.CharField(max_length=10, choices=STAVY, default='Tvorba')
-    varianty = models.ManyToManyField(Varianty)
-
     class Meta:
         verbose_name_plural = 'Poptávky'
         verbose_name = 'Poptávka'
- 
+
+    STAVY_CHOICES = [
+        ('Tvorba', 'Ve tvorbě'),
+        ('Poptáno', 'Poptáno'),
+        ('Uzavřeno', 'Uzavřeno'),
+        ]
+
+    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='poptavky', verbose_name="Dodavatel")
+    datum_vytvoreni = models.DateTimeField(auto_now_add=True, verbose_name="Datum vytvoření")
+    stav = models.CharField(max_length=10, choices=STAVY_CHOICES, default='Tvorba', verbose_name="Stav poptávky")
+    varianty = models.ManyToManyField('Varianty', through='PoptavkaVarianty')
+
     def __str__(self):
-        return f"Poptávka #{self.id} na dodavatele: {self.dodavatel.dodavatel}"
+        return f"Poptávka #{self.id} u dodavatele: {self.dodavatel.dodavatel}"
     
+
+class PoptavkaVarianty(models.Model):
+    JEDNOTKY_CHOICES = [
+        ('ks', 'kus'),
+        ('kg', 'kilogram'),
+        ('par', 'pár'),
+        ('l', 'litr'),
+        ('m', 'metr'),
+        ('baleni', 'balení'),
+    ]
+    
+    poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE)
+    varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE)
+    mnozstvi = models.PositiveIntegerField()
+    jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, verbose_name="Jednotky")
+
+    def __str__(self):
+        return f"{self.poptavka} - {self.varianta} - {self.mnozstvi} {self.jednotky}"

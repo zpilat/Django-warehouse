@@ -1,0 +1,18 @@
+{% extends "hpm_sklad/base.html" %}
+
+{% block title %}
+    Vytvoření poptávky
+{% endblock %}
+
+{% block left_content %}
+    <h1>Vytvoření poptávky pro dodavatele: {{ dodavatel.dodavatel }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+            {{ form.as_p }}
+        {% endfor %}
+        <button type="submit">Vytvořit Poptávku</button>
+    </form>
+{% endblock %}
+
