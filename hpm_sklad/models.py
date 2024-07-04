@@ -153,8 +153,8 @@ class AuditLog(models.Model):
 
 class Varianty(models.Model):
 
-    id_sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty_skladu', verbose_name="Skladová položka")
-    id_dodavatele = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty_dodavatele', verbose_name="Dodavatel")
+    sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty_skladu', verbose_name="Skladová položka")
+    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty_dodavatele', verbose_name="Dodavatel")
     nazev_varianty = models.CharField(max_length=255, verbose_name="Název varianty")
     cislo_varianty = models.CharField(max_length=255, null=True, verbose_name="Číslo varianty")
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
@@ -199,9 +199,9 @@ class PoptavkaVarianty(models.Model):
         ('baleni', 'balení'),
     ]
     
-    poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE)
-    varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE)
-    mnozstvi = models.PositiveIntegerField()
+    poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE, verbose_name="Poptávka")
+    varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE, verbose_name="Varianta")
+    mnozstvi = models.PositiveIntegerField(verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, verbose_name="Jednotky")
 
     def __str__(self):

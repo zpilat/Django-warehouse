@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
 from django.db import models
+from django.forms import inlineformset_factory
 
 import io
 import logging
@@ -28,7 +29,7 @@ from PIL import Image
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
-                    VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyFormSet)
+                    VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm)
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +78,8 @@ def receipt_form_view(request, pk):
             dodavatel_object = Dodavatele.objects.get(dodavatel=dodavatel_form_value)
 
             # Kontrola, zda varianta existuje
-            varianty = Varianty.objects.filter(id_sklad=sklad_instance)
-            varianta_dodavatele = [var.id_dodavatele for var in varianty]
+            varianty = Varianty.objects.filter(skladova_polozka=sklad_instance)
+            varianta_dodavatele = [var.dodavatel for var in varianty]
            
             if not varianty or dodavatel_object not in varianta_dodavatele:
                 return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
@@ -557,13 +558,13 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         
         # Získání dodavatelů, kteří ještě nemají variantu pro danou skladovou položku
-        existing_dodavatele_ids = Varianty.objects.filter(id_sklad=skladova_polozka).values_list('id_dodavatele', flat=True)
-        form.fields['id_dodavatele'].queryset = Dodavatele.objects.exclude(pk__in=existing_dodavatele_ids)
+        existing_dodavatele_ids = Varianty.objects.filter(skladova_polozka=skladova_polozka).values_list('dodavatel', flat=True)
+        form.fields['dodavatel'].queryset = Dodavatele.objects.exclude(pk__in=existing_dodavatele_ids)
         
         return form    
 
     def form_valid(self, form):
-        form.instance.id_sklad = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        form.instance.skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return super().form_valid(form)
 
 
@@ -577,7 +578,7 @@ class VariantyWithDodavatelCreateView(CreateView):
         initial = super().get_initial()
         dodavatel_id = self.kwargs.get('dodavatel')
         if dodavatel_id:
-            initial['id_dodavatele'] = Dodavatele.objects.get(id=dodavatel_id)
+            initial['dodavatel'] = Dodavatele.objects.get(id=dodavatel_id)
         return initial
 
     def get_context_data(self, **kwargs):
@@ -593,11 +594,11 @@ class VariantyWithDodavatelCreateView(CreateView):
 
     def form_valid(self, form):
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
-        form.instance.id_sklad = skladova_polozka
+        form.instance.skladova_polozka = skladova_polozka
 
         # Kontrola, zda varianta se stejným dodavatelem již existuje
-        if Varianty.objects.filter(id_sklad=skladova_polozka, id_dodavatele=form.instance.id_dodavatele).exists():
-            form.add_error('id_dodavatele', 'Varianta se stejným dodavatelem již existuje.')
+        if Varianty.objects.filter(skladova_polozka=skladova_polozka, dodavatel=form.instance.dodavatel).exists():
+            form.add_error('dodavatel', 'Varianta se stejným dodavatelem již existuje.')
             return self.form_invalid(form)    
 
 
@@ -611,7 +612,7 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         varianta = self.get_object()
-        context['skladova_polozka'] = varianta.id_sklad
+        context['skladova_polozka'] = varianta.skladova_polozka
         return context
 
 
@@ -696,23 +697,38 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+PoptavkaVariantyFormSet = inlineformset_factory(
+    Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=0
+    )
+
 def create_poptavka(request, dodavatel_id):
     dodavatel = get_object_or_404(Dodavatele, id=dodavatel_id)
+    queryset = Varianty.objects.filter(dodavatel_id=dodavatel_id)
 
     if request.method == 'POST':
-        formset = PoptavkaVariantyFormSet(request.POST, queryset=PoptavkaVarianty.objects.none())
+        formset = PoptavkaVariantyFormSet(request.POST)
         if formset.is_valid():
             poptavka = Poptavky.objects.create(
                 dodavatel=dodavatel,
                 stav='Tvorba',
             )
             for form in formset:
-                poptavka_varianty = form.save(commit=False)
-                poptavka_varianty.poptavka = poptavka
-                poptavka_varianty.save()
+                if form.cleaned_data.get('should_save'):
+                    poptavka_varianty = form.save(commit=False)
+                    poptavka_varianty.poptavka = poptavka
+                    poptavka_varianty.save()
             return redirect('poptavka_detail', pk=poptavka.pk)
     else:
-        formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none())
+        formset = PoptavkaVariantyFormSet(queryset = queryset)
+        print(f"{queryset=}")
+        print(f"{formset=}")
+        for form, varianta_dodavatele in zip(formset.forms, queryset):
+            form.fields['varianta'].initial = varianta_dodavatele
+            difference = (varianta_dodavatele.varianty_skladu.min_mnozstvi_ks -
+                          varianta_dodavatele.varianty_skladu.mnozstvi)
+            form.fields['mnozstvi'].initial = difference if difference > 0 else 0
+            form.fields['jednotky'].initial = varianta_dodavatele.varianty_skladu.jednotky
+        
 
     return render(request, 'hpm_sklad/create_poptavka.html', {'formset': formset, 'dodavatel': dodavatel})
 

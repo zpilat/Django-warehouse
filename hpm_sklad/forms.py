@@ -9,7 +9,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
-from django.forms import inlineformset_factory
 from datetime import date
 
 
@@ -122,7 +121,7 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(Field(self.Meta.fields[0], css_class='form-column small')),
+                Div('objednano', css_class='form-column small'),
                 Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                     css_class='d-flex justify-content-center mt-3'
                     )
@@ -232,11 +231,11 @@ class AuditLogDispatchForm(forms.ModelForm):
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
       
 
-
 class VariantyCreateForm(forms.ModelForm):
     class Meta:
         model = Varianty
-        fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta", "min_obj_mnozstvi", "id_dodavatele",]
+        fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta",
+                  "min_obj_mnozstvi", "dodavatel",]
         widgets = {
             'jednotkova_cena_eur': forms.NumberInput(attrs={'min': '0'}),
             }
@@ -276,16 +275,27 @@ class VariantyUpdateForm(forms.ModelForm):
 
 
 class PoptavkaVariantyForm(forms.ModelForm):
+    should_save = forms.BooleanField(required=False, label='Do poptávky')
+    
     class Meta:
         model = PoptavkaVarianty
         fields = ['varianta', 'mnozstvi', 'jednotky']
 
     def __init__(self, *args, **kwargs):
-        dodavatel_id = kwargs.pop('dodavatel_id', None)
         super(PoptavkaVariantyForm, self).__init__(*args, **kwargs)
-        if dodavatel_id:
-            self.fields['varianta'].queryset = Varianty.objects.filter(dodavatel_id=dodavatel_id)
-
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-inline'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Div(
+                Div('varianta', css_class='form-group mx-2'),
+                Div('mnozstvi', css_class='form-group mx-2'),
+                Div('jednotky', css_class='form-group mx-2'),
+                Div(Field('should_save'), css_class='form-group mx-2'),
+                css_class='form-row',
+                )
+            )
+        
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -294,6 +304,4 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
-PoptavkaVariantyFormSet = inlineformset_factory(
-    Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=1, can_delete=True
-    )
+
