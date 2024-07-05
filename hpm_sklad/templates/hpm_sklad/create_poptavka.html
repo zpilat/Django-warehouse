@@ -1,20 +1,43 @@
 {% extends "hpm_sklad/base.html" %}
-{% load crispy_forms_tags %}
+{% load custom_filters %}
 
 {% block title %}
     Vytvoření poptávky
 {% endblock %}
 
 {% block left_content %}
-    <p class="h3 text-center mt-3">Vytvoření poptávky pro dodavatele: {{ dodavatel.dodavatel }}</p><hr>
-    <form method="post" class="form-inline my-2 mx-2">
+    <p class="h3 bg-dark text-white text-center mb-0 mt-2 py-2">Vytvoření poptávky pro dodavatele: {{ dodavatel.dodavatel }}</p>
+    <form method="post">
         {% csrf_token %}
         {{ formset.management_form }}
-        {% for form in formset %}
-                {% crispy form %}
-        {% endfor %}
-        <div class="d-flex justify-content-center mb-2 mt-4">
-            <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill">Uložit</button>
+         <table class="table table-sm table-hover table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Varianta</th>
+                    <th>Množství</th>
+                    <th>Jednotky</th>
+                    <th>Do poptávky</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    <tr>
+                        <td> 
+                            {{ form.varianta }}
+                            {{ varianty_dodavatele|get_instance:form.fields.varianta.initial.pk }}
+                        </td>
+                        <td>{{ form.mnozstvi }}</td>
+                        <td>
+                            {{ form.jednotky }}
+                            {{ form.fields.jednotky.initial }}                            
+                        </td>
+                        <td>{{ form.should_save }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-center my-2">
+            <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill">Vytvořit poptávku</button>
         </div>
     </form>
 {% endblock %}

@@ -1,4 +1,5 @@
 from django import template
+from ..models import Varianty
 
 register = template.Library()
 
@@ -22,3 +23,9 @@ def url_remove_param(querystring, params):
     return new_querystring
 
 
+@register.filter
+def get_instance(queryset, pk):
+    try:
+        return queryset.get(pk=pk)
+    except (Varianty.DoesNotExist, TypeError, ValueError):
+        return 'Instance neexistuje'

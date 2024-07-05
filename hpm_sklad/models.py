@@ -165,7 +165,7 @@ class Varianty(models.Model):
     min_obj_mnozstvi = models.PositiveIntegerField(verbose_name="Min. obj. množství")
  
     def __str__(self):
-        return self.nazev_varianty[:50]
+        return self.nazev_varianty[:60]
     
 
 class Poptavky(models.Model):

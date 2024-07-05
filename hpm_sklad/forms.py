@@ -121,7 +121,7 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Div(
-                Div('objednano', css_class='form-column small'),
+                Div(Field('objednano', css_class='form-control form-control-sm'), css_class='form-column small'),
                 Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                     css_class='d-flex justify-content-center mt-3'
                     )
@@ -280,24 +280,17 @@ class PoptavkaVariantyForm(forms.ModelForm):
     class Meta:
         model = PoptavkaVarianty
         fields = ['varianta', 'mnozstvi', 'jednotky']
+        widgets = {
+            'varianta': forms.HiddenInput(),
+            'jednotky': forms.HiddenInput(),
+        }
 
     def __init__(self, *args, **kwargs):
+        varianty_dodavatele = kwargs.pop('varianty_dodavatele', None)
         super(PoptavkaVariantyForm, self).__init__(*args, **kwargs)
-        self.fields['varianta'].widget.attrs['disabled'] = 'disabled'
-        
-        self.helper = FormHelper(self)
-        self.helper.form_class = 'form-inline my-2 mx-2'
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Div(
-                Div(Field('varianta', css_class='form-control small mx-2', label_class="invisible"), css_class='col small'),
-                Div(Field('mnozstvi', css_class='form-control mx-2 w-100'), css_class='col small'),
-                Div(Field('jednotky', css_class='form-control form-control-sm mx-2'), css_class='col small'),
-                Div(Field('should_save', css_class='form-check-input mx-2'), css_class='form-check mr-4 align-self-start'),
-                css_class='row small',
-            )
-        )
-        
+        if varianty_dodavatele is not None:
+            self.fields['varianta'].queryset = varianty_dodavatele    
+   
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

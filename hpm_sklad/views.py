@@ -558,7 +558,7 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         
         # Získání dodavatelů, kteří ještě nemají variantu pro danou skladovou položku
-        existing_dodavatele_ids = Varianty.objects.filter(skladova_polozka=skladova_polozka).values_list('dodavatel', flat=True)
+        existing_dodavatele_ids = Varianty.objects.filter(sklad=skladova_polozka).values_list('dodavatel', flat=True)
         form.fields['dodavatel'].queryset = Dodavatele.objects.exclude(pk__in=existing_dodavatele_ids)
         
         return form    
@@ -597,7 +597,7 @@ class VariantyWithDodavatelCreateView(CreateView):
         form.instance.skladova_polozka = skladova_polozka
 
         # Kontrola, zda varianta se stejným dodavatelem již existuje
-        if Varianty.objects.filter(skladova_polozka=skladova_polozka, dodavatel=form.instance.dodavatel).exists():
+        if Varianty.objects.filter(sklad=skladova_polozka, dodavatel=form.instance.dodavatel).exists():
             form.add_error('dodavatel', 'Varianta se stejným dodavatelem již existuje.')
             return self.form_invalid(form)    
 
@@ -612,7 +612,7 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         varianta = self.get_object()
-        context['skladova_polozka'] = varianta.skladova_polozka
+        context['skladova_polozka'] = varianta.sklad
         return context
 
 
@@ -696,16 +696,18 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
         context['varianty'] = self.object.varianty_dodavatele.all()
         return context
 
-
+@login_required
+##@permission_required('hpm_sklad.add_poptavky')
 def create_poptavka(request, dodavatel_id):
     dodavatel = get_object_or_404(Dodavatele, id=dodavatel_id)
     varianty_dodavatele = Varianty.objects.filter(dodavatel_id=dodavatel_id)
+    
     PoptavkaVariantyFormSet = inlineformset_factory(
         Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=varianty_dodavatele.count(),
         )    
 
     if request.method == 'POST':
-        formset = PoptavkaVariantyFormSet(request.POST)
+        formset = PoptavkaVariantyFormSet(request.POST, form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         if formset.is_valid():
             poptavka = Poptavky.objects.create(
                 dodavatel=dodavatel,
@@ -716,9 +718,9 @@ def create_poptavka(request, dodavatel_id):
                     poptavka_varianty = form.save(commit=False)
                     poptavka_varianty.poptavka = poptavka
                     poptavka_varianty.save()
-            return redirect('poptavka_detail', pk=poptavka.pk)
+            return redirect('detail_poptavky', pk=poptavka.pk)
     else:
-        formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none())
+        formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
             form.fields['varianta'].initial = varianta_dodavatele
             difference = (varianta_dodavatele.sklad.min_mnozstvi_ks -
@@ -728,8 +730,18 @@ def create_poptavka(request, dodavatel_id):
             if difference > 0:
                 form.fields['should_save'].initial = True
         
-    context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel}
+    context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel, 'varianty_dodavatele': varianty_dodavatele}
     return render(request, 'hpm_sklad/create_poptavka.html', context)
+
+
+class PoptavkaDetailView(LoginRequiredMixin, DetailView):
+    model = Poptavky
+    template_name = 'hpm_sklad/detail_poptavky.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['detail_item_fields'] = self.model._meta.get_fields()
+        return context    
 
     
 class SignUp(CreateView):
