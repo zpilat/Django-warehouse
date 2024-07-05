@@ -152,6 +152,9 @@ class AuditLog(models.Model):
 
 
 class Varianty(models.Model):
+    class Meta:
+        verbose_name_plural = 'Varianty'
+        verbose_name = 'Varianta'
 
     sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty_skladu', verbose_name="Skladová položka")
     dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty_dodavatele', verbose_name="Dodavatel")
@@ -160,13 +163,9 @@ class Varianty(models.Model):
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
     dodaci_lhuta = models.PositiveIntegerField(verbose_name="Dodací lhůta")
     min_obj_mnozstvi = models.PositiveIntegerField(verbose_name="Min. obj. množství")
-
-    class Meta:
-        verbose_name_plural = 'Varianty'
-        verbose_name = 'Varianta'
  
     def __str__(self):
-        return self.nazev_varianty
+        return self.nazev_varianty[:50]
     
 
 class Poptavky(models.Model):

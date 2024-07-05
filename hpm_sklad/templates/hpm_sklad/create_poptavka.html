@@ -6,15 +6,15 @@
 {% endblock %}
 
 {% block left_content %}
-    <h1>Vytvoření poptávky pro dodavatele: {{ dodavatel.dodavatel }}</h1>
-    <form method="post" class="form-inline my-4">
+    <p class="h3 text-center mt-3">Vytvoření poptávky pro dodavatele: {{ dodavatel.dodavatel }}</p><hr>
+    <form method="post" class="form-inline my-2 mx-2">
         {% csrf_token %}
         {{ formset.management_form }}
         {% for form in formset %}
-            {% crispy form %}
+                {% crispy form %}
         {% endfor %}
-        <div class="d-flex justify-content-center my-3">
-            <button type="submit" class="btn btn-dark btn-sm rounded-pill">Uložit</button>
+        <div class="d-flex justify-content-center mb-2 mt-4">
+            <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill">Uložit</button>
         </div>
     </form>
 {% endblock %}

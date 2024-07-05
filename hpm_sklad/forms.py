@@ -283,18 +283,20 @@ class PoptavkaVariantyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PoptavkaVariantyForm, self).__init__(*args, **kwargs)
+        self.fields['varianta'].widget.attrs['disabled'] = 'disabled'
+        
         self.helper = FormHelper(self)
-        self.helper.form_class = 'form-inline'
+        self.helper.form_class = 'form-inline my-2 mx-2'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             Div(
-                Div('varianta', css_class='form-group mx-2'),
-                Div('mnozstvi', css_class='form-group mx-2'),
-                Div('jednotky', css_class='form-group mx-2'),
-                Div(Field('should_save'), css_class='form-group mx-2'),
-                css_class='form-row',
-                )
+                Div(Field('varianta', css_class='form-control small mx-2', label_class="invisible"), css_class='col small'),
+                Div(Field('mnozstvi', css_class='form-control mx-2 w-100'), css_class='col small'),
+                Div(Field('jednotky', css_class='form-control form-control-sm mx-2'), css_class='col small'),
+                Div(Field('should_save', css_class='form-check-input mx-2'), css_class='form-check mr-4 align-self-start'),
+                css_class='row small',
             )
+        )
         
 
 class CustomUserCreationForm(UserCreationForm):

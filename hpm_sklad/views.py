@@ -697,13 +697,12 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-PoptavkaVariantyFormSet = inlineformset_factory(
-    Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=0
-    )
-
 def create_poptavka(request, dodavatel_id):
     dodavatel = get_object_or_404(Dodavatele, id=dodavatel_id)
-    queryset = Varianty.objects.filter(dodavatel_id=dodavatel_id)
+    varianty_dodavatele = Varianty.objects.filter(dodavatel_id=dodavatel_id)
+    PoptavkaVariantyFormSet = inlineformset_factory(
+        Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=varianty_dodavatele.count(),
+        )    
 
     if request.method == 'POST':
         formset = PoptavkaVariantyFormSet(request.POST)
@@ -719,18 +718,18 @@ def create_poptavka(request, dodavatel_id):
                     poptavka_varianty.save()
             return redirect('poptavka_detail', pk=poptavka.pk)
     else:
-        formset = PoptavkaVariantyFormSet(queryset = queryset)
-        print(f"{queryset=}")
-        print(f"{formset=}")
-        for form, varianta_dodavatele in zip(formset.forms, queryset):
+        formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none())
+        for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
             form.fields['varianta'].initial = varianta_dodavatele
-            difference = (varianta_dodavatele.varianty_skladu.min_mnozstvi_ks -
-                          varianta_dodavatele.varianty_skladu.mnozstvi)
-            form.fields['mnozstvi'].initial = difference if difference > 0 else 0
-            form.fields['jednotky'].initial = varianta_dodavatele.varianty_skladu.jednotky
+            difference = (varianta_dodavatele.sklad.min_mnozstvi_ks -
+                          varianta_dodavatele.sklad.mnozstvi)
+            form.fields['mnozstvi'].initial = max(difference, 0)
+            form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky
+            if difference > 0:
+                form.fields['should_save'].initial = True
         
-
-    return render(request, 'hpm_sklad/create_poptavka.html', {'formset': formset, 'dodavatel': dodavatel})
+    context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel}
+    return render(request, 'hpm_sklad/create_poptavka.html', context)
 
     
 class SignUp(CreateView):
