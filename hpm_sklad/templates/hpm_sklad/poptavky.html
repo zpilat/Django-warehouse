@@ -1,0 +1,83 @@
+{% extends "hpm_sklad/base_left_right_column.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block left_content %}
+    <form method="GET" action="" class="form-inline justify-content-center align-items-center small my-2">  
+        <div class="form-group mx-sm-2 mb-2">
+            <input class="form-control form-control-sm mr-sm-2" type="text" name="query" placeholder="Vyhledat poptávku dle dodavatele" value="{{ request.GET.query }}">
+        </div>
+        <div class="form-group mx-sm-2 mb-2">
+            <button class="btn btn-outline-dark btn-sm rounded-pill" type="submit">Filtrovat</button>
+        </div>
+        
+        <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}id{% endif %}">
+        <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
+    </form>
+
+    <div class="container-fluid">
+        <table class="table table-sm table-hover table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    {% with request.GET.urlencode as querystring %}
+                        <th>
+                            <a href="?sort=id&order={% if request.GET.sort == 'id' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                ID
+                                {% if request.GET.sort == 'id' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                                {% if not request.GET.sort %}
+                                    <i class="fas fa-sort-down"></i>
+                                {% endif %} 
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=dodavatel&order={% if request.GET.sort == 'dodavatel' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Dodavatel
+                                {% if request.GET.sort == 'dodavatel' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=kontakt&order={% if request.GET.sort == 'kontakt' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Datum vytvoření
+                                {% if request.GET.sort == 'datum_vytvoreni' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?sort=email&order={% if request.GET.sort == 'email' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Stav
+                                {% if request.GET.sort == 'stav' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th class=" ">Varianty</th>
+                    {% endwith %}
+                </tr>
+            </thead>
+            <tbody class="show-pointer">
+                {% for item in object_list %}
+                    <tr data-id="{{ item.id }}" data-detail-url="{% url 'detail_poptavky' item.id %}" onclick="loadDetail('{% url 'detail_poptavky' item.id %}', '{{ item.id }}')"
+                    {% if item.id == selected_item.id %} class="table-info"{% endif %}>  
+                        <td>{{ item.id }}</td>   
+                        <td>{{ item.dodavatel|truncatechars:30 }}</td>                        
+                        <td>{{ item.datum_vytvoreni }}</td>
+                        <td>{{ item.stav }}</td>    
+
+                            <td>{{ item.varianty }}</td>
+                
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>  
+    {% include "hpm_sklad/pagination.html" %}
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'js/scripts_other.js' %}"></script>
+{% endblock %}

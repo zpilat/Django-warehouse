@@ -24,6 +24,7 @@ urlpatterns = [
     path('sklad/dodavatele/', views.DodavateleListView.as_view(), name='dodavatele'),
     path('sklad/dodavatele/<int:pk>/detail/', views.DodavateleDetailView.as_view(), name='detail_dodavatele'),    
     path('sklad/dodavatele/export/', views.DodavateleListView.as_view(export_csv=True), name='dodavatele_export_csv'),
+    path('sklad/poptavky/', views.PoptavkaListView.as_view(), name='poptavky'),
     path('sklad/poptavky/<int:dodavatel_id>/create/', views.create_poptavka, name='create_poptavka'),
     path('sklad/poptavky/<int:pk>/detail/', views.PoptavkaDetailView.as_view(), name='detail_poptavky'),
     path('account/', include('django.contrib.auth.urls')),

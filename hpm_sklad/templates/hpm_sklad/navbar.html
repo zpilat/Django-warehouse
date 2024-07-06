@@ -2,12 +2,13 @@
     <div class="col">    
         <div class="btn-group btn-group-sm dropdown my-1 mr-1">
             <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {% if db_table == 'sklad' %}SKLAD{% elif db_table == 'audit_log' %}POHYBY{% elif db_table == 'dodavatele' %}DODAVATELÉ{% else %}Výběr modulu{% endif %}
+                {% if db_table == 'sklad' %}SKLAD{% elif db_table == 'audit_log' %}POHYBY{% elif db_table == 'dodavatele' %}DODAVATELÉ{% elif db_table == 'poptavky' %}POPTÁVKY{% else %}Výběr modulu{% endif %}
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
                 <a class="dropdown-item small" href="{% url 'sklad' %}">Sklad</a>
                 <a class="dropdown-item small" href="{% url 'audit_log' %}">Pohyby</a>
                 <a class="dropdown-item small" href="{% url 'dodavatele' %}">Dodavatelé</a>
+                <a class="dropdown-item small" href="{% url 'poptavky' %}">Poptávky</a>                
             </div>
         </div>
         {% if db_table %}

@@ -665,7 +665,7 @@ class DodavateleListView(LoginRequiredMixin, ListView):
 
         writer = csv.writer(response)
         writer.writerow([
-            'Dodavatel', 'Kontaktní osoba', 'E-mail', 'Telefon', 'Jazyk', 
+            'ID', 'Dodavatel', 'Kontaktní osoba', 'E-mail', 'Telefon', 'Jazyk', 
         ])
 
         for item in queryset:
@@ -732,6 +732,74 @@ def create_poptavka(request, dodavatel_id):
         
     context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel, 'varianty_dodavatele': varianty_dodavatele}
     return render(request, 'hpm_sklad/create_poptavka.html', context)
+
+
+class PoptavkaListView(LoginRequiredMixin, ListView):
+    model = Poptavky
+    template_name = 'hpm_sklad/poptavky.html'
+    paginate_by = 20
+    export_csv = False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('selected', None)
+
+        if selected_id:
+            context['selected_item'] = get_object_or_404(Dodavatele, id=selected_id)
+        else:
+            context['selected_item'] = None
+
+        context.update({
+            'db_table': 'poptavky',
+            'sort': self.request.GET.get('sort', 'id'),
+            'order': self.request.GET.get('order', 'down'),
+            'query': self.request.GET.get('query', ''),
+            'current_user': self.request.user,
+        })
+
+        return context
+
+    def get_queryset(self):
+        queryset = Poptavky.objects.all()
+        query = self.request.GET.get('query', '')
+        sort = self.request.GET.get('sort', 'id')
+        order = self.request.GET.get('order', 'down')
+
+        if query:
+            queryset = queryset.filter(dodavatel__icontains=query)
+
+        if order == 'down':
+            sort = f"-{sort}"
+            
+        queryset = queryset.order_by(sort)
+
+        return queryset
+
+    def export_to_csv(self, queryset):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="poptavky_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'ID', 'Dodavatel', 'Datum vytvoření', 'Stav', 'Varianty', 
+        ])
+
+        for item in queryset:
+            writer.writerow([
+                item.id, 
+                item.dodavatel, 
+                item.datum_vytvoreni, 
+                item.stav, 
+                item.varianty, 
+            ])
+
+        return response
+
+    def render_to_response(self, context, **response_kwargs):
+        if getattr(self, 'export_csv', False):
+            return self.export_to_csv(self.get_queryset())
+        else:
+            return super().render_to_response(context, **response_kwargs)        
 
 
 class PoptavkaDetailView(LoginRequiredMixin, DetailView):

@@ -22,16 +22,16 @@
             <tbody>
                 {% for form in formset %}
                     <tr>
-                        <td> 
+                        <td class="pt-2"> 
                             {{ form.varianta }}
                             {{ varianty_dodavatele|get_instance:form.fields.varianta.initial.pk }}
                         </td>
                         <td>{{ form.mnozstvi }}</td>
-                        <td>
+                        <td class="pt-2">
                             {{ form.jednotky }}
                             {{ form.fields.jednotky.initial }}                            
                         </td>
-                        <td>{{ form.should_save }}</td>
+                        <td class="pt-2">{{ form.should_save }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

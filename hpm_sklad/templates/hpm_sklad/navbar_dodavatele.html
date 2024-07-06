@@ -1,0 +1,14 @@
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="btn-group btn-group-sm dropdown mr-1 my-1">
+            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Poptávky
+            </button>
+            <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
+                {% if perms.hpm_sklad.add_poptavky %}
+                    <a class="dropdown-item small" href="{% url 'create_poptavka' object.pk %}">Nová poptávka</a>
+                {% endif %}          
+            </div>
+        </div>    
+    </nav>
+</header>

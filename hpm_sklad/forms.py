@@ -289,7 +289,8 @@ class PoptavkaVariantyForm(forms.ModelForm):
         varianty_dodavatele = kwargs.pop('varianty_dodavatele', None)
         super(PoptavkaVariantyForm, self).__init__(*args, **kwargs)
         if varianty_dodavatele is not None:
-            self.fields['varianta'].queryset = varianty_dodavatele    
+            self.fields['varianta'].queryset = varianty_dodavatele
+        self.fields['mnozstvi'].widget.attrs.update({'class': 'form-control form-control-sm w-75'})
    
 
 class CustomUserCreationForm(UserCreationForm):
