@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty, JEDNOTKY_CHOICES
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -292,6 +292,13 @@ class PoptavkaVariantyForm(forms.ModelForm):
             self.fields['varianta'].queryset = varianty_dodavatele
         self.fields['mnozstvi'].widget.attrs.update({'class': 'form-control form-control-sm w-75'})
    
+    def clean_jednotky(self):
+        jednotky = self.cleaned_data.get('jednotky')
+        valid_choices = dict(JEDNOTKY_CHOICES).keys()
+        if jednotky not in valid_choices:
+            raise forms.ValidationError("Neplatná hodnota pro jednotky.")
+        return jednotky
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

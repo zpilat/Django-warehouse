@@ -21,21 +21,46 @@
             </thead>
             <tbody>
                 {% for form in formset %}
-                    <tr>
-                        <td class="pt-2"> 
+                    <tr class="align-middle">
+                        <td class="pt-2">
                             {{ form.varianta }}
-                            {{ varianty_dodavatele|get_instance:form.fields.varianta.initial.pk }}
+                            {% if form.fields.varianta.initial %}
+                                {% with varianta=form.fields.varianta.initial %}
+                                    {% if varianta %}
+                                        {{ varianty_dodavatele|get_instance:varianta.pk }}
+                                    {% else %}
+                                        <span class="text-danger">Varianta nenalezena</span>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <span class="text-danger">Varianta není inicializována</span>
+                            {% endif %}
                         </td>
-                        <td>{{ form.mnozstvi }}</td>
+                        <td>
+                            {{ form.mnozstvi }}
+                        </td>
                         <td class="pt-2">
                             {{ form.jednotky }}
-                            {{ form.fields.jednotky.initial }}                            
+                            {% if form.fields.jednotky.initial %}
+                                {{ form.fields.jednotky.initial }}
+                            {% else %}
+                                <span class="text-danger">Jednotky nejsou inicializovány</span>
+                            {% endif %}
                         </td>
                         <td class="pt-2">{{ form.should_save }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in formset.non_form_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}        
         <div class="d-flex justify-content-center my-2">
             <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill">Vytvořit poptávku</button>
         </div>

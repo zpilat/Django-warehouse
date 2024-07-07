@@ -709,16 +709,31 @@ def create_poptavka(request, dodavatel_id):
     if request.method == 'POST':
         formset = PoptavkaVariantyFormSet(request.POST, form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         if formset.is_valid():
-            poptavka = Poptavky.objects.create(
-                dodavatel=dodavatel,
-                stav='Tvorba',
-            )
+            any_should_save = False
             for form in formset:
                 if form.cleaned_data.get('should_save'):
-                    poptavka_varianty = form.save(commit=False)
-                    poptavka_varianty.poptavka = poptavka
-                    poptavka_varianty.save()
-            return redirect('poptavky')
+                    any_should_save = True
+                    break
+                
+            if any_should_save:
+                poptavka = Poptavky.objects.create(
+                    dodavatel=dodavatel,
+                    stav='Tvorba',
+                )
+                for form in formset:
+                    if form.cleaned_data.get('should_save'):
+                        poptavka_varianty = form.save(commit=False)
+                        poptavka_varianty.poptavka = poptavka
+                        poptavka_varianty.save()
+                return redirect('poptavky')
+            else:
+                for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
+                    form.fields['varianta'].initial = varianta_dodavatele
+                    form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky
+                formset.non_form_errors().append('Musíte vybrat alespoň jednu položku k uložení.')
+        else:
+            # Debugging output for formset errors
+            print("Formset errors:", formset.errors)
     else:
         formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
@@ -730,7 +745,8 @@ def create_poptavka(request, dodavatel_id):
             if difference > 0:
                 form.fields['should_save'].initial = True
         
-    context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel, 'varianty_dodavatele': varianty_dodavatele}
+    context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel,
+               'varianty_dodavatele': varianty_dodavatele}
     return render(request, 'hpm_sklad/create_poptavka.html', context)
 
 
