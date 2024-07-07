@@ -5,20 +5,20 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
 
+JEDNOTKY_CHOICES = [
+        ('ks', 'kus'),
+        ('kg', 'kilogram'),
+        ('pár', 'pár'),
+        ('l', 'litr'),
+        ('m', 'metr'),
+        ('balení', 'balení'),
+    ]
+
 
 class Sklad(models.Model):
     class Meta:
         ordering = ["-evidencni_cislo"]
         verbose_name_plural = "Skladové položky"
-
-    JEDNOTKY_CHOICES = [
-        ('ks', 'kus'),
-        ('kg', 'kilogram'),
-        ('par', 'pár'),
-        ('l', 'litr'),
-        ('m', 'metr'),
-        ('baleni', 'balení'),
-    ]
 
     evidencni_cislo = models.AutoField(primary_key=True, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")  
@@ -188,16 +188,7 @@ class Poptavky(models.Model):
         return f"Poptávka #{self.id} u dodavatele: {self.dodavatel.dodavatel}"
     
 
-class PoptavkaVarianty(models.Model):
-    JEDNOTKY_CHOICES = [
-        ('ks', 'kus'),
-        ('kg', 'kilogram'),
-        ('par', 'pár'),
-        ('l', 'litr'),
-        ('m', 'metr'),
-        ('baleni', 'balení'),
-    ]
-    
+class PoptavkaVarianty(models.Model):   
     poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE, verbose_name="Poptávka")
     varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE, verbose_name="Varianta")
     mnozstvi = models.PositiveIntegerField(verbose_name="Množství")

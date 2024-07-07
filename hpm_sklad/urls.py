@@ -27,6 +27,7 @@ urlpatterns = [
     path('sklad/poptavky/', views.PoptavkaListView.as_view(), name='poptavky'),
     path('sklad/poptavky/<int:dodavatel_id>/create/', views.create_poptavka, name='create_poptavka'),
     path('sklad/poptavky/<int:pk>/detail/', views.PoptavkaDetailView.as_view(), name='detail_poptavky'),
+    path('sklad/poptavky/<int:pk>/poptavka_varianty/', views.PoptavkaVariantyListView.as_view(), name='poptavka_varianty'),
     path('account/', include('django.contrib.auth.urls')),
     path("signup/", views.SignUp.as_view(), name="signup"),
     path("logout/", views.logout_request, name= "logout"),

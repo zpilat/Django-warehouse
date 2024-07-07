@@ -55,21 +55,16 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th class=" ">Varianty</th>
                     {% endwith %}
                 </tr>
             </thead>
             <tbody class="show-pointer">
                 {% for item in object_list %}
-                    <tr data-id="{{ item.id }}" data-detail-url="{% url 'detail_poptavky' item.id %}" onclick="loadDetail('{% url 'detail_poptavky' item.id %}', '{{ item.id }}')"
-                    {% if item.id == selected_item.id %} class="table-info"{% endif %}>  
+                    <tr data-id="{{ item.id }}" data-detail-url="{% url 'poptavka_varianty' item.id%}" onclick="loadDetail('{% url 'poptavka_varianty' item.id %}', '{{ item.id }}')">  
                         <td>{{ item.id }}</td>   
                         <td>{{ item.dodavatel|truncatechars:30 }}</td>                        
                         <td>{{ item.datum_vytvoreni }}</td>
-                        <td>{{ item.stav }}</td>    
-
-                            <td>{{ item.varianty }}</td>
-                
+                        <td>{{ item.stav }}</td>                
                     </tr>
                 {% endfor %}
             </tbody>

@@ -718,7 +718,7 @@ def create_poptavka(request, dodavatel_id):
                     poptavka_varianty = form.save(commit=False)
                     poptavka_varianty.poptavka = poptavka
                     poptavka_varianty.save()
-            return redirect('detail_poptavky', pk=poptavka.pk)
+            return redirect('poptavky')
     else:
         formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
@@ -809,7 +809,25 @@ class PoptavkaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['detail_item_fields'] = self.model._meta.get_fields()
-        return context    
+        return context
+
+
+class PoptavkaVariantyListView(LoginRequiredMixin, ListView):
+    model = PoptavkaVarianty
+    template_name = 'hpm_sklad/poptavka_varianty.html'
+
+    def get(self, request, *args, **kwargs):
+        self.poptavka_id = self.kwargs.get('pk')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['poptavka_id'] = self.poptavka_id
+        return context
+
+    def get_queryset(self):
+        queryset = PoptavkaVarianty.objects.filter(poptavka_id=self.poptavka_id)
+        return queryset     
 
     
 class SignUp(CreateView):
