@@ -280,10 +280,10 @@ class PoptavkaVariantyForm(forms.ModelForm):
     class Meta:
         model = PoptavkaVarianty
         fields = ['varianta', 'mnozstvi', 'jednotky']
-        widgets = {
-            'varianta': forms.HiddenInput(),
-            'jednotky': forms.HiddenInput(),
-        }
+##        widgets = {
+##            'varianta': forms.HiddenInput(),
+##            'jednotky': forms.HiddenInput(),
+##        }
 
     def __init__(self, *args, **kwargs):
         varianty_dodavatele = kwargs.pop('varianty_dodavatele', None)

@@ -727,13 +727,11 @@ def create_poptavka(request, dodavatel_id):
                         poptavka_varianty.save()
                 return redirect('poptavky')
             else:
-                for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
-                    form.fields['varianta'].initial = varianta_dodavatele
-                    form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky
                 formset.non_form_errors().append('Musíte vybrat alespoň jednu položku k uložení.')
         else:
-            # Debugging output for formset errors
-            print("Formset errors:", formset.errors)
+            # Debugging output for errors
+            print(f"{formset.errors=}")
+            print(f"{formset.non_form_errors=}")
     else:
         formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):

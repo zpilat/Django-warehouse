@@ -26,14 +26,14 @@
                             {{ form.varianta }}
                             {% if form.fields.varianta.initial %}
                                 {% with varianta=form.fields.varianta.initial %}
-                                    {% if varianta %}
-                                        {{ varianty_dodavatele|get_instance:varianta.pk }}
-                                    {% else %}
-                                        <span class="text-danger">Varianta nenalezena</span>
-                                    {% endif %}
+                                    {{ varianty_dodavatele|get_instance:varianta.pk }}
                                 {% endwith %}
+                            {% elif form.cleaned_data.varianta %}
+                                {% with varianta=form.cleaned_data.varianta %}
+                                    {{ varianty_dodavatele|get_instance:varianta.pk }}
+                                {% endwith %}                                                        
                             {% else %}
-                                <span class="text-danger">Varianta není inicializována</span>
+                                <span class="text-danger">Varianta není zadána</span>
                             {% endif %}
                         </td>
                         <td>
@@ -43,8 +43,10 @@
                             {{ form.jednotky }}
                             {% if form.fields.jednotky.initial %}
                                 {{ form.fields.jednotky.initial }}
+                            {% elif form.cleaned_data.jednotky %}
+                                {{ form.cleaned_data.jednotky }}
                             {% else %}
-                                <span class="text-danger">Jednotky nejsou inicializovány</span>
+                                <span class="text-danger">Jednotky nejsou zadány</span>
                             {% endif %}
                         </td>
                         <td class="pt-2">{{ form.should_save }}</td>
