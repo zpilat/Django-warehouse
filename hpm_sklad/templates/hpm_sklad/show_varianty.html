@@ -19,7 +19,7 @@
             {% if varianty %}
                 {% for varianta in varianty %}
                     <tr>
-                        <td class="width-nowrap align-middle">{{ varianta.id_dodavatele|truncatechars:20 }}</td>                    
+                        <td class="width-nowrap align-middle">{{ varianta.dodavatel|truncatechars:20 }}</td>                    
                         <td class="container-fluid align-middle">{{ varianta.nazev_varianty|truncatechars:40 }}</td>
                         {% if perms.hpm_sklad.update_varianty %}            
                             <td>

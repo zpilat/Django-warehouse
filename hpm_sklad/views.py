@@ -684,7 +684,36 @@ class DodavateleListView(LoginRequiredMixin, ListView):
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
         else:
-            return super().render_to_response(context, **response_kwargs)        
+            return super().render_to_response(context, **response_kwargs)
+
+
+class DodavateleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Dodavatele
+    form_class = DodavateleCreateForm
+    template_name = 'hpm_sklad/create_dodavatele.html'
+    success_url = reverse_lazy('dodavatele')
+    permission_required = 'hpm_sklad.add_dodavatele'
+       
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('pk', None)
+        context['dodavatel'] = get_object_or_404(Dodavatele, id=selected_id)
+        return context       
+
+
+class DodavateleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Dodavatele
+    form_class = DodavateleUpdateForm    
+    template_name = 'hpm_sklad/update_dodavatele.html'
+    permission_required = 'hpm_sklad.change_dodavatele'
+    success_url = reverse_lazy('dodavatele')
+
+    
+class DodavateleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Dodavatele
+    template_name = 'hpm_sklad/delete_dodavatele.html'
+    success_url = reverse_lazy('dodavatele')
+    permission_required = 'hpm_sklad.delete_dodavatele'        
 
 
 class DodavateleDetailView(LoginRequiredMixin, DetailView):
@@ -695,6 +724,7 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)               
         context['varianty'] = self.object.varianty_dodavatele.all()
         return context
+
 
 @login_required
 ##@permission_required('hpm_sklad.add_poptavky')
@@ -738,7 +768,6 @@ def create_poptavka(request, dodavatel_id):
     else:
         formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
-            print(form)
             form.fields['varianta'].initial = varianta_dodavatele
             difference = (varianta_dodavatele.sklad.min_mnozstvi_ks -
                           varianta_dodavatele.sklad.mnozstvi)
