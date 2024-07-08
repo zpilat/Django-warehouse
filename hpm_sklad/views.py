@@ -703,7 +703,7 @@ def create_poptavka(request, dodavatel_id):
     varianty_dodavatele = Varianty.objects.filter(dodavatel_id=dodavatel_id)
     
     PoptavkaVariantyFormSet = inlineformset_factory(
-        Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=varianty_dodavatele.count(),
+        Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=varianty_dodavatele.count(), can_delete=False
         )    
 
     if request.method == 'POST':
@@ -727,7 +727,10 @@ def create_poptavka(request, dodavatel_id):
                         poptavka_varianty.save()
                 return redirect('poptavky')
             else:
-                formset.non_form_errors().append('Musíte vybrat alespoň jednu položku k uložení.')
+                for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
+                    form.fields['varianta'].initial = varianta_dodavatele
+                    form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky             
+                formset.non_form_errors().append('Musíte vybrat alespoň jednu položku k uložení do poptávky.')
         else:
             # Debugging output for errors
             print(f"{formset.errors=}")
@@ -735,6 +738,7 @@ def create_poptavka(request, dodavatel_id):
     else:
         formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
+            print(form)
             form.fields['varianta'].initial = varianta_dodavatele
             difference = (varianta_dodavatele.sklad.min_mnozstvi_ks -
                           varianta_dodavatele.sklad.mnozstvi)

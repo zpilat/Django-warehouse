@@ -28,25 +28,17 @@
                                 {% with varianta=form.fields.varianta.initial %}
                                     {{ varianty_dodavatele|get_instance:varianta.pk }}
                                 {% endwith %}
-                            {% elif form.cleaned_data.varianta %}
-                                {% with varianta=form.cleaned_data.varianta %}
-                                    {{ varianty_dodavatele|get_instance:varianta.pk }}
-                                {% endwith %}                                                        
                             {% else %}
-                                <span class="text-danger">Varianta není zadána</span>
+                                <span class="text-danger">Varianta není inicializována</span>
                             {% endif %}
                         </td>
-                        <td>
-                            {{ form.mnozstvi }}
-                        </td>
+                        <td>{{ form.mnozstvi }}</td>
                         <td class="pt-2">
                             {{ form.jednotky }}
                             {% if form.fields.jednotky.initial %}
                                 {{ form.fields.jednotky.initial }}
-                            {% elif form.cleaned_data.jednotky %}
-                                {{ form.cleaned_data.jednotky }}
                             {% else %}
-                                <span class="text-danger">Jednotky nejsou zadány</span>
+                                <span class="text-danger">Jednotky nejsou inicializovány</span>
                             {% endif %}
                         </td>
                         <td class="pt-2">{{ form.should_save }}</td>
