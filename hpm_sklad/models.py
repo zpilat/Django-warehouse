@@ -179,7 +179,7 @@ class Poptavky(models.Model):
         ('Uzavřeno', 'Uzavřeno'),
         ]
 
-    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='poptavky', verbose_name="Dodavatel")
+    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='poptavky_dodavatele', verbose_name="Dodavatel")
     datum_vytvoreni = models.DateTimeField(auto_now_add=True, verbose_name="Datum vytvoření")
     stav = models.CharField(max_length=10, choices=STAVY_CHOICES, default='Tvorba', verbose_name="Stav poptávky")
     varianty = models.ManyToManyField('Varianty', through='PoptavkaVarianty')

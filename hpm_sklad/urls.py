@@ -24,6 +24,7 @@ urlpatterns = [
     path('sklad/dodavatele/', views.DodavateleListView.as_view(), name='dodavatele'),   
     path('sklad/dodavatele/<int:pk>/detail/', views.DodavateleDetailView.as_view(template_name='hpm_sklad/detail_dodavatele.html'), name='detail_dodavatele'),
     path('sklad/dodavatele/<int:pk>/varianty/', views.DodavateleDetailView.as_view(template_name='hpm_sklad/show_varianty_dodavatele.html'), name='show_varianty_dodavatele'),
+    path('sklad/dodavatele/<int:pk>/poptavky/', views.DodavateleDetailView.as_view(template_name='hpm_sklad/show_poptavky_dodavatele.html'), name='show_poptavky_dodavatele'),    
     path('sklad/dodavatele/new/', views.DodavateleCreateView.as_view(), name='create_dodavatele'),
     path('sklad/dodavatele/<int:pk>/update/', views.DodavateleUpdateView.as_view(), name='update_dodavatele'),
     path('sklad/dodavatele/<int:pk>/delete/', views.DodavateleDeleteView.as_view(), name='delete_dodavatele'),

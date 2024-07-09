@@ -726,6 +726,7 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         varianty = self.object.varianty_dodavatele.all()
+        poptavky = self.object.poptavky_dodavatele.all()
         detail_item_fields = [
             field for field in self.model._meta.get_fields()
             if not (field.many_to_many or field.one_to_many or field.one_to_one)
@@ -733,6 +734,7 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
         
         context['detail_item_fields'] = detail_item_fields
         context['varianty'] = varianty      
+        context['poptavky'] = poptavky
         return context
 
 
