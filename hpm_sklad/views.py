@@ -29,7 +29,8 @@ from PIL import Image
 from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
-                    VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm)
+                    VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm, DodavateleCreateForm,
+                    DodavateleUpdateForm)
 
 logger = logging.getLogger(__name__)
 
@@ -314,11 +315,17 @@ class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 
 class SkladDetailView(LoginRequiredMixin, DetailView):
     model = Sklad
-    template_name = 'hpm_sklad/detail_sklad.html'
+
+    def get_template_names(self):
+        if self.template_name:
+            return [self.template_name]
+        else:
+            raise ValueError("Template name not provided")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         object_instance = self.get_object()
+        varianty = self.object.varianty_skladu.all()        
 
         equipment_fields_true = [
             field for field in Sklad._meta.fields
@@ -336,19 +343,9 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         context['equipment_fields_true'] = equipment_fields_true
         context['info_fields'] = info_fields
         context['detail_item_fields'] = detail_item_fields
+        context['varianty'] = varianty      
         return context
 
-
-class SkladVariantyDetailView(LoginRequiredMixin, DetailView):
-    model = Sklad
-    template_name = 'hpm_sklad/show_varianty.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        varianty = self.object.varianty_skladu.all()
-        context['varianty'] = varianty
-        return context
-    
 
 class AuditLogListView(LoginRequiredMixin, ListView):
     model = AuditLog
@@ -716,13 +713,26 @@ class DodavateleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
     permission_required = 'hpm_sklad.delete_dodavatele'        
 
 
+
 class DodavateleDetailView(LoginRequiredMixin, DetailView):
     model = Dodavatele
-    template_name = 'hpm_sklad/detail_dodavatele.html'
+
+    def get_template_names(self):
+        if self.template_name:
+            return [self.template_name]
+        else:
+            raise ValueError("Šablona není zadána")
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)               
-        context['varianty'] = self.object.varianty_dodavatele.all()
+        context = super().get_context_data(**kwargs)
+        varianty = self.object.varianty_dodavatele.all()
+        detail_item_fields = [
+            field for field in self.model._meta.get_fields()
+            if not (field.many_to_many or field.one_to_many or field.one_to_one)
+            ]
+        
+        context['detail_item_fields'] = detail_item_fields
+        context['varianty'] = varianty      
         return context
 
 

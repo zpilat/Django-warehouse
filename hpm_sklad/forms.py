@@ -274,6 +274,56 @@ class VariantyUpdateForm(forms.ModelForm):
             )        
 
 
+class DodavateleCreateForm(forms.ModelForm):
+    class Meta:
+        model = Dodavatele
+        fields = [
+            "dodavatel", "kontakt", "email", "telefon", "jazyk",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(DodavateleCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'form-grid'
+
+        # Add form-label-sm class to all labels
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control form-control-sm'})
+            field.label_suffix = ""
+        
+        self.helper.layout = Layout(
+            Div(
+                Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
+                    css_class='d-flex justify-content-center mt-3'
+                    )
+                )
+            )  
+
+class DodavateleUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Dodavatele
+        fields = [
+            "kontakt", "email", "telefon", "jazyk",
+            ]
+
+    def __init__(self, *args, **kwargs):
+        super(DodavateleUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-grid'  
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Div(
+                Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
+                    css_class='d-flex justify-content-center mt-3'
+                    )
+                )
+            )  
+
+
 class PoptavkaVariantyForm(forms.ModelForm):
     should_save = forms.BooleanField(required=False, label='Do poptávky')
     

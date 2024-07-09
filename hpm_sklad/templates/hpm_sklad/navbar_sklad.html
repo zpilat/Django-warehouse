@@ -5,20 +5,20 @@
                 Skladové položky
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'detail_sklad' object.evidencni_cislo %}')">Detail položky</a>
+                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'detail_sklad' object.pk %}')">Detail položky</a>
                     <div class="dropdown-divider"></div>
                 {% if perms.hpm_sklad.add_sklad %}
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}?pk={{ object.evidencni_cislo }}')">Nová položka</a>
+                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}?pk={{ object.pk }}')">Nová položka</a>
                 {% endif %}          
                 {% if not perms.hpm_sklad.change_sklad %}
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.evidencni_cislo %}')">Objednáno?</a>    
+                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.pk %}')">Objednáno?</a>    
                 {% endif %}
                 {% if perms.hpm_sklad.change_sklad %}            
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.evidencni_cislo %}')">Úprava položky</a>       
+                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_sklad' object.pk %}')">Úprava položky</a>       
                 {% endif %}
                 {% if perms.hpm_sklad.delete_sklad %}  
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.evidencni_cislo %}')">Smazání položky</a>            
+                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'delete_sklad' object.pk %}')">Smazání položky</a>            
                 {% endif %}
             </div>
         </div>    
@@ -27,12 +27,12 @@
                 Pohyby
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton2">   
-                <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'show_audit_log' %}?pk={{ object.evidencni_cislo }}')">Pohyby položky</a>            
+                <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'show_audit_log' %}?pk={{ object.pk }}')">Pohyby položky</a>            
                 {% if perms.hpm_sklad.add_auditlog and perms.hpm_sklad.change_sklad %}   
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'receipt_audit_log' object.evidencni_cislo %}')">Příjem na sklad</a>
+                    <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'receipt_audit_log' object.pk %}')">Příjem na sklad</a>
                     {% if object.mnozstvi > 0 %}
-                        <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'dispatch_audit_log' object.evidencni_cislo %}')">Výdej ze skladu</a>
+                        <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'dispatch_audit_log' object.pk %}')">Výdej ze skladu</a>
                     {% endif %}
                 {% endif %}
             </div>
@@ -43,7 +43,7 @@
                 Varianty
             </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labeledby="dropdownMenuButton3">                         
-                <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'show_varianty' object.evidencni_cislo %}')">Varianty položky</a>
+                <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'show_varianty_sklad' object.pk %}')">Varianty položky</a>
                 <div class="dropdown-divider"></div>
                 {% if perms.hpm_sklad.add_varianty %}                
                     <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_varianty' object.pk %}')">Nová varianta</a>          

@@ -60,8 +60,8 @@
             </thead>
             <tbody class="show-pointer">
                 {% for item in object_list %}
-                    <tr data-id="{{ item.id }}" data-detail-url="{% url 'poptavka_varianty' item.id%}" onclick="loadDetail('{% url 'poptavka_varianty' item.id %}', '{{ item.id }}')">  
-                        <td>{{ item.id }}</td>   
+                    <tr data-id="{{ item.pk }}" data-detail-url="{% url 'poptavka_varianty' item.pk %}" onclick="loadDetail('{% url 'poptavka_varianty' item.pk %}', '{{ item.pk }}')">  
+                        <td>{{ item.pk }}</td>   
                         <td>{{ item.dodavatel|truncatechars:30 }}</td>                        
                         <td>{{ item.datum_vytvoreni }}</td>
                         <td>{{ item.stav }}</td>                

@@ -1,0 +1,18 @@
+{% load static %} 
+{% load crispy_forms_tags %}
+
+{% include "hpm_sklad/navbar_dodavatele.html" %}
+<div class="navbar navbar-dark bg-dark my-3 pb-0">
+    <div class="">
+        <p class="h6 text-white">Smazání dodavatele</p>
+        <p class="text-white">{{ object }}</p>
+    </div>
+</div>
+
+<form class="mt-2" method="post" action="{% url 'delete_dodavatele' object.pk %}">
+    {% csrf_token %}
+    <p class="h6 text-center">Opravdu chcete tohoto dodavatele smazat?</p>
+    <div class="d-flex justify-content-center mt-3">
+        <button type="submit" class="btn btn-dark btn-sm rounded-pill">Smazat</button>
+    </div>
+</form>

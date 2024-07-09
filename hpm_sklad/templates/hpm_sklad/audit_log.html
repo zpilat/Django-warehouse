@@ -162,9 +162,9 @@
             </thead>
             <tbody class="show-pointer">
                 {% for item in object_list %}
-                    <tr data-id="{{ item.id }}" data-detail-url="{% url 'detail_audit_log' item.id %}" onclick="loadDetail('{% url 'detail_audit_log' item.id %}', '{{ item.id }}')"
-                    {% if item.id == selected_item.id %} class="table-info"{% endif %}>  
-                        <td>{{ item.id }}</td>
+                    <tr data-id="{{ item.pk }}" data-detail-url="{% url 'detail_audit_log' item.pk %}" onclick="loadDetail('{% url 'detail_audit_log' item.pk %}', '{{ item.pk }}')"
+                    {% if item.pk == selected_item.pk %} class="table-info"{% endif %}>  
+                        <td>{{ item.pk }}</td>
                         <td>{{ item.typ_operace }}</td>
                         <td>{{ item.nazev_dilu|truncatechars:58 }}</td>                   
                         <td>{{ item.zmena_mnozstvi }}</td>
@@ -185,5 +185,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'js/scripts_other.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

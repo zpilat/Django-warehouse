@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll('tr').forEach(row => {
                 row.classList.remove('table-info');
             });
-            document.querySelector('tr[data-evidencni-cislo="' + evidencniCislo + '"]').classList.add('table-info');
+            document.querySelector('tr[data-id="' + evidencniCislo + '"]').classList.add('table-info');
         })
         .catch(err => console.error('Chyba při načítání detailů:', err));
     }
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function selectFirstRow() {
         const firstRow = document.querySelector('table tbody tr:nth-child(1)'); // První řádek v těle tabulky
         if (firstRow) {
-            const evidencniCislo = firstRow.getAttribute('data-evidencni-cislo');
+            const evidencniCislo = firstRow.getAttribute('data-id');
             const detailUrl = firstRow.getAttribute('data-detail-url');
             loadDetail(detailUrl, evidencniCislo);
         }
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Přidání onclick události ke všem řádkům
     document.querySelectorAll('table tbody tr').forEach(row => {
         row.addEventListener('click', function() {
-            const evidencniCislo = this.getAttribute('data-evidencni-cislo');
+            const evidencniCislo = this.getAttribute('data-id');
             const detailUrl = this.getAttribute('data-detail-url');
             loadDetail(detailUrl, evidencniCislo);
         });
