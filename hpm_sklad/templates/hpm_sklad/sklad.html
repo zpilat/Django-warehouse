@@ -162,7 +162,7 @@
             <tbody class="show-pointer">
                 {% for item in object_list %}
                     <tr data-id="{{ item.pk }}" data-detail-url="{% url 'detail_sklad' item.pk %}" onclick="loadDetail('{% url 'detail_sklad' item.pk %}', '{{ item.pk }}')"
-                    {% if item.pk == selected_item.pk %} class="table-info"{% endif %} {% if item.pod_minimem %} class="pod-minimem-row"{% endif %}>
+                    {% if item.pk == selected_sklad.pk %} class="table-info"{% endif %} {% if item.pod_minimem %} class="pod-minimem-row"{% endif %}>
                         <td scope="row">{{ item.pk }}</td>
                         <td scope="row">{{ item.interne_cislo }}</td>
                         <td scope="row">{{ item.nazev_dilu|truncatechars:60 }}</td>
