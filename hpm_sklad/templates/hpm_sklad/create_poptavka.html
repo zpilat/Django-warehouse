@@ -4,16 +4,16 @@
 <div class="bg-dark text-white mt-3">
     <p class="h6 py-2 px-2">Vytvoření poptávky pro: {{ dodavatel.dodavatel }}</p>
 </div>
-<form method="post">
+<form method="post" action="{% url 'create_poptavka' dodavatel_id=dodavatel.pk %}">
     {% csrf_token %}
     {{ formset.management_form }}
-        <table class="table table-sm table-hover table-striped table-bordered">
+    <table class="table table-sm table-hover table-striped table-bordered">
         <thead class="thead-dark">
             <tr>
                 <th>Varianta</th>
                 <th>Množství</th>
-                <th>Jedn.</th>
-                <th>Přidat</th>
+                <th>Jednotky</th>
+                <th>Do poptávky</th>
             </tr>
         </thead>
         <tbody>
@@ -56,5 +56,3 @@
         <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill">Vytvořit poptávku</button>
     </div>
 </form>
-
-

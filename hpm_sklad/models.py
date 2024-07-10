@@ -189,8 +189,8 @@ class Poptavky(models.Model):
     
 
 class PoptavkaVarianty(models.Model):   
-    poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE, verbose_name="Poptávka")
-    varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE, verbose_name="Varianta")
+    poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE, related_name='poptavka', verbose_name="Poptávka")
+    varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE, related_name='varianta', verbose_name="Varianta")
     mnozstvi = models.PositiveIntegerField(verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, verbose_name="Jednotky")
 
