@@ -1,8 +1,8 @@
 {% load custom_filters %}
 
 {% include "hpm_sklad/navbar_dodavatele.html" with object=dodavatel %}
-<div class="navbar navbar-dark bg-dark mt-3 pb-0">
-    <p class="h6 text-white">Vytvoření poptávky pro: {{ dodavatel.dodavatel }}</p>
+<div class="bg-dark text-white mt-3">
+    <p class="h6 py-2 px-2">Vytvoření poptávky pro: {{ dodavatel.dodavatel }}</p>
 </div>
 <form method="post">
     {% csrf_token %}

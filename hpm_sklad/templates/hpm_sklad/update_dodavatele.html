@@ -2,10 +2,8 @@
 {% load crispy_forms_tags %}
 
 {% include "hpm_sklad/navbar_dodavatele.html" %}
-<div class="navbar navbar-dark bg-dark my-3 pb-0 align-items-center">
-    <div>
-        <p class="h6 text-white">Úprava dodavatele: {{ object|truncatechars:50 }}</p>
-    </div>
+<div class="bg-dark text-white mt-3">
+    <p class="h6 py-2 px-2">Úprava dodavatele: {{ object|truncatechars:50 }}</p>
 </div>
 
 <form class="mt-2" method="post" action="{% url 'update_dodavatele' object.pk %}">

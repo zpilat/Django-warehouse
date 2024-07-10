@@ -2,8 +2,8 @@
 {% load crispy_forms_tags %}
 
 {% include "hpm_sklad/navbar_sklad.html" with object=skladova_polozka %}
-<div class="navbar navbar-dark bg-dark my-3 pb-0 align-items-center">
-    <p class="h6 text-white">Vytvoření skladové položky</p>
+<div class="bg-dark text-white mt-3">
+    <p class="h6 py-2 px-2">Vytvoření skladové položky</p>
 </div>
 
 <form class="mt-2" method="post" action="{% url 'create_sklad' %}">

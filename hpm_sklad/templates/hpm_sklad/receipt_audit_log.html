@@ -2,11 +2,8 @@
 {% load crispy_forms_tags %}
 
 {% include "hpm_sklad/navbar_sklad.html" %}
-<div class="navbar navbar-dark bg-dark my-3 pb-0 align-items-center">
-    <div>
-        <p class="h6 text-white">Příjem zboží na sklad: {{ object.pk }}<p>
-        <p class="text-white">{{ object|truncatechars:50 }}</p>
-    </div>
+<div class="bg-dark text-white mt-3">
+    <p class="h6 py-2 px-2">Příjem zboží na sklad: {{ object|truncatechars:50 }}<p>
 </div>
 
 <form class="small mt-2" method="post" action="{% url 'receipt_audit_log' object.pk %}">
