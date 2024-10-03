@@ -1,3 +1,34 @@
+from django import forms
+from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty, JEDNOTKY_CHOICES
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, Submit
+from crispy_forms.bootstrap import FormActions
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils import timezone
+from datetime import date
+
+
+all_sklad_fields = [
+    "evidencni_cislo", "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks",
+    "objednano", "nazev_dilu", "mnozstvi", "jednotky", "umisteni", "dodavatel",
+    "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
+    "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1",
+    "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1",
+    "kw2", "kw3", "mikrof",
+    ]
+
+all_auditlog_fields = [
+    "id", "ucetnictvi", "evidencni_cislo", "interne_cislo", "objednano", "nazev_dilu", "zmena_mnozstvi",  
+    "mnozstvi", "jednotky", "typ_operace", "pouzite_zarizeni", "umisteni", "dodavatel",
+    "datum_vydeje", "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", 
+    "cas_vytvoreni", "operaci_provedl", "poznamka",  
+    ]
+
+
 class SkladCreateForm(forms.ModelForm):
     """
     Formulář pro vytvoření nového záznamu ve skladu.
@@ -115,7 +146,7 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
 
 class SkladReceiptForm(forms.ModelForm):
     """
-    Formulář pro příjem nové položky na sklad.
+    Formulář pro příjem položky na sklad.
     Obsahuje pole pro datum nákupu, dodavatele, číslo objednávky, jednotkovou cenu a další informace spojené s příjmem na sklad.
     """
     datum_nakupu = forms.DateField(
