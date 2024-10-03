@@ -1,34 +1,9 @@
-from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty, JEDNOTKY_CHOICES
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, Submit
-from crispy_forms.bootstrap import FormActions
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
-from django.utils import timezone
-from datetime import date
-
-
-all_sklad_fields = [
-    "evidencni_cislo", "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks",
-    "objednano", "nazev_dilu", "mnozstvi", "jednotky", "umisteni", "dodavatel",
-    "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
-    "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1",
-    "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1",
-    "kw2", "kw3", "mikrof",
-    ]
-
-all_auditlog_fields = [
-    "id", "ucetnictvi", "evidencni_cislo", "interne_cislo", "objednano", "nazev_dilu", "zmena_mnozstvi",  
-    "mnozstvi", "jednotky", "typ_operace", "pouzite_zarizeni", "umisteni", "dodavatel",
-    "datum_vydeje", "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", 
-    "cas_vytvoreni", "operaci_provedl", "poznamka",  
-    ]
-
 class SkladCreateForm(forms.ModelForm):
+    """
+    Formulář pro vytvoření nového záznamu ve skladu.
+    Tento formulář zahrnuje pole pro zadávání interního čísla, minimálního množství, objednaných dílů,
+    názvu dílu, jednotek, umístění, dodavatele a dalších atributů specifických pro skladové položky.
+    """
     dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
 
     class Meta:
@@ -73,7 +48,12 @@ class SkladCreateForm(forms.ModelForm):
             )
         )
 
+
 class SkladUpdateForm(forms.ModelForm):
+    """
+    Formulář pro aktualizaci existujícího záznamu ve skladu.
+    Umožňuje úpravu položek jako je interní číslo, množství, název dílu, jednotky a další.
+    """
     class Meta:
         model = Sklad
         fields = [
@@ -109,6 +89,10 @@ class SkladUpdateForm(forms.ModelForm):
 
 
 class SkladUpdateObjednanoForm(forms.ModelForm):
+    """
+    Formulář pro aktualizaci pole 'objednáno' ve skladové položce.
+    Používá se pro zaznamenání objednaných dílů bez úpravy jiných atributů skladové položky.
+    """
     class Meta:
         model = Sklad
         fields = ["objednano", ]
@@ -128,7 +112,12 @@ class SkladUpdateObjednanoForm(forms.ModelForm):
                 )
             )  
 
+
 class SkladReceiptForm(forms.ModelForm):
+    """
+    Formulář pro příjem nové položky na sklad.
+    Obsahuje pole pro datum nákupu, dodavatele, číslo objednávky, jednotkovou cenu a další informace spojené s příjmem na sklad.
+    """
     datum_nakupu = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
         required=True,
@@ -163,6 +152,9 @@ class SkladReceiptForm(forms.ModelForm):
         self.fields['jednotkova_cena_eur'].required = True
 
     def clean_jednotkova_cena_eur(self):
+        """
+        Ověření, že jednotková cena je větší než nula.
+        """
         jednotkova_cena = self.cleaned_data.get('jednotkova_cena_eur')
         if jednotkova_cena <= 0.0:
             raise ValidationError('Jednotková cena musí být větší než nula.')
@@ -170,6 +162,10 @@ class SkladReceiptForm(forms.ModelForm):
 
 
 class SkladDispatchForm(forms.ModelForm):
+    """
+    Formulář pro výdej položky ze skladu.
+    Umožňuje zaznamenat umístění a poznámku k výdeji.
+    """
     class Meta:
         model = Sklad
         fields = ["umisteni", "poznamka",]
@@ -182,9 +178,13 @@ class SkladDispatchForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(*[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields], css_class='form-column small'),
         )
-        
+
 
 class AuditLogReceiptForm(forms.ModelForm):
+    """
+    Formulář pro zaznamenání příjmu zboží v audit logu.
+    Obsahuje pole pro zadání změny množství přijatého zboží.
+    """
     zmena_mnozstvi = forms.IntegerField(validators=[MinValueValidator(1)], label='Změna množství')
     
     class Meta:
@@ -205,6 +205,10 @@ class AuditLogReceiptForm(forms.ModelForm):
 
 
 class AuditLogDispatchForm(forms.ModelForm):
+    """
+    Formulář pro zaznamenání výdeje zboží v audit logu.
+    Obsahuje pole pro zadání data výdeje, použitého zařízení a změny množství.
+    """
     datum_vydeje = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
         required=True,
@@ -229,9 +233,13 @@ class AuditLogDispatchForm(forms.ModelForm):
         
         self.fields['datum_vydeje'].required = True
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
-      
+
 
 class VariantyCreateForm(forms.ModelForm):
+    """
+    Formulář pro vytvoření nové varianty produktu.
+    Obsahuje pole pro název, číslo varianty, jednotkovou cenu, dodací lhůtu, minimální objednací množství a dodavatele.
+    """
     class Meta:
         model = Varianty
         fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta",
@@ -239,6 +247,7 @@ class VariantyCreateForm(forms.ModelForm):
         widgets = {
             'jednotkova_cena_eur': forms.NumberInput(attrs={'min': '0'}),
             }
+
     def __init__(self, *args, **kwargs):
         super(VariantyCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
@@ -255,6 +264,10 @@ class VariantyCreateForm(forms.ModelForm):
 
 
 class VariantyUpdateForm(forms.ModelForm):   
+    """
+    Formulář pro aktualizaci existující varianty produktu.
+    Obsahuje pole pro název varianty, číslo varianty, jednotkovou cenu, dodací lhůtu a minimální objednací množství.
+    """
     class Meta:
         model = Varianty
         fields = ["nazev_varianty", "cislo_varianty", "jednotkova_cena_eur", "dodaci_lhuta", "min_obj_mnozstvi", ]
@@ -271,10 +284,14 @@ class VariantyUpdateForm(forms.ModelForm):
                     css_class='d-flex justify-content-center mt-3'
                     )
                 )
-            )        
+            )  
 
 
 class DodavateleCreateForm(forms.ModelForm):
+    """
+    Formulář pro vytvoření nového dodavatele.
+    Obsahuje pole pro zadání jména dodavatele, kontaktu, e-mailu, telefonního čísla a jazyka komunikace.
+    """
     class Meta:
         model = Dodavatele
         fields = [
@@ -301,12 +318,17 @@ class DodavateleCreateForm(forms.ModelForm):
                 )
             )  
 
+
 class DodavateleUpdateForm(forms.ModelForm):
+    """
+    Formulář pro aktualizaci existujícího dodavatele.
+    Obsahuje pole pro úpravu kontaktu, e-mailu, telefonního čísla a jazyka komunikace.
+    """
     class Meta:
         model = Dodavatele
         fields = [
             "kontakt", "email", "telefon", "jazyk",
-            ]
+        ]
 
     def __init__(self, *args, **kwargs):
         super(DodavateleUpdateForm, self).__init__(*args, **kwargs)
@@ -319,14 +341,18 @@ class DodavateleUpdateForm(forms.ModelForm):
                 Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
                 Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
                     css_class='d-flex justify-content-center mt-3'
-                    )
                 )
-            )  
+            )
+        )
 
 
 class PoptavkaVariantyForm(forms.ModelForm):
+    """
+    Formulář pro přidání varianty do poptávky.
+    Umožňuje vybrat variantu produktu, množství a jednotky.
+    """
     should_save = forms.BooleanField(required=False, label='Do poptávky')
-    
+
     class Meta:
         model = PoptavkaVarianty
         fields = ['varianta', 'mnozstvi', 'jednotky']
@@ -341,8 +367,11 @@ class PoptavkaVariantyForm(forms.ModelForm):
         if varianty_dodavatele is not None:
             self.fields['varianta'].queryset = varianty_dodavatele
         self.fields['mnozstvi'].widget.attrs.update({'class': 'form-control form-control-sm w-75'})
-   
+
     def clean_jednotky(self):
+        """
+        Ověření, že zadaná hodnota jednotek je platná.
+        """
         jednotky = self.cleaned_data.get('jednotky')
         valid_choices = dict(JEDNOTKY_CHOICES).keys()
         if jednotky not in valid_choices:
@@ -351,10 +380,12 @@ class PoptavkaVariantyForm(forms.ModelForm):
 
 
 class CustomUserCreationForm(UserCreationForm):
+    """
+    Vlastní formulář pro vytvoření nového uživatelského účtu.
+    Kromě uživatelského jména a hesla vyžaduje i zadání e-mailové adresy.
+    """
     email = forms.EmailField(required=True)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
-
-
