@@ -16,6 +16,38 @@ JEDNOTKY_CHOICES = [
 
 
 class Sklad(models.Model):
+    """
+    Model reprezentující skladovou položku.
+
+    Pole:
+    - evidencni_cislo: Primární klíč a evidenční číslo položky.
+    - interne_cislo: Interní číslo položky, identifikátor karty.
+    - objednano: Informace, zda je položka objednána.
+    - nazev_dilu: Název dílu/položky.
+    - min_mnozstvi_ks: Minimální požadované množství položky na skladě.
+    - mnozstvi: Aktuální množství položky na skladě.
+    - jednotky: Jednotky, ve kterých je množství položky měřeno (např. ks, kg, l).
+    - umisteni: Umístění položky na skladě.
+    - dodavatel: Dodavatel položky.
+    - datum_nakupu: Datum nákupu položky.
+    - cislo_objednavky: Číslo objednávky související s položkou.
+    - jednotkova_cena_eur: Jednotková cena položky v eurech.
+    - celkova_cena_eur: Celková cena položky v eurech.
+    - poznamka: Další poznámky k položce.
+    - ucetnictvi: Indikace, zda je položka v účetnictví.
+    - kriticky_dil: Indikace, zda jde o kritický díl.
+    - hsh, tq8, tqf_xl1, tqf_xl2, dc_xl, dac_xl1_2, dl_xl, dac, lac_1, lac_2, ipsen_ene, hsh_ene, xl_ene1,
+      xl_ene2, ipsen_w, hsh_w, kw, kw1, kw2, kw3, mikrof: Zařízení, pro které je ND určen.
+    - history: Historie změn položky.
+
+    Vlastnosti:
+    - pod_minimem: Vlastnost vracející True, pokud je položka pod minimálním množstvím.
+    - pod_minimem_display: Vrací řetězec 'ANO' nebo 'NE', podle toho, zda je položka pod minimem.
+
+    Meta:
+    - ordering: Záznamy jsou řazeny podle evidenčního čísla sestupně.
+    - verbose_name_plural: Množné číslo názvu modelu je "Skladové položky".
+    """
     class Meta:
         ordering = ["-evidencni_cislo"]
         verbose_name_plural = "Skladové položky"
@@ -74,6 +106,19 @@ class Sklad(models.Model):
 
 
 class Dodavatele(models.Model):
+    """
+    Model reprezentující dodavatele.
+
+    Pole:
+    - dodavatel: Název dodavatele.
+    - kontakt: Kontaktní osoba u dodavatele.
+    - email: E-mailová adresa kontaktní osoby.
+    - telefon: Telefonní číslo kontaktní osoby.
+    - jazyk: Preferovaný jazyk komunikace s dodavatelem (český, slovenský, německý, anglický).
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Dodavatelé".
+    """
     class Meta:
         verbose_name_plural = "Dodavatelé"
     
@@ -94,6 +139,18 @@ class Dodavatele(models.Model):
 
 
 class Zarizeni(models.Model):
+    """
+    Model reprezentující zařízení.
+
+    Pole:
+    - zarizeni: Kód zařízení.
+    - nazev_zarizeni: Název zařízení.
+    - umisteni: Umístění zařízení.
+    - typ_zarizeni: Typ zařízení.
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Zařízení".
+    """
     class Meta:
         verbose_name_plural = "Zařízení"
     
@@ -108,6 +165,35 @@ class Zarizeni(models.Model):
 
     
 class AuditLog(models.Model):
+    """
+    Model pro sledování pohybů (příjem a výdej) položek ve skladu.
+
+    Pole:
+    - ucetnictvi: Indikace, zda je skladová položka v účetnictví.
+    - evidencni_cislo: Odkaz na skladovou položku (cizí klíč na model Sklad).
+    - interne_cislo: Interní číslo položky.
+    - objednano: Informace, zda je položka objednána.
+    - nazev_dilu: Název dílu/položky.
+    - zmena_mnozstvi: Množství, o které se položka změnila (příjem/výdej).
+    - mnozstvi: Aktuální množství položky po změně.
+    - jednotky: Jednotky, ve kterých je změna měřena.
+    - typ_operace: Typ operace (příjem nebo výdej).
+    - pouzite_zarizeni: Zařízení, pro které byla položka použita.
+    - umisteni: Umístění položky.
+    - dodavatel: Dodavatel položky.
+    - datum_vydeje: Datum výdeje položky.
+    - datum_nakupu: Datum nákupu položky.
+    - cislo_objednavky: Číslo objednávky.
+    - jednotkova_cena_eur: Jednotková cena položky v eurech.
+    - celkova_cena_eur: Celková cena položky v eurech po operaci.
+    - cas_vytvoreni: Čas, kdy byla operace zaznamenána.
+    - operaci_provedl: Uživatel, který operaci provedl.
+    - poznamka: Další poznámky k operaci.
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Auditovací logy".
+    - ordering: Záznamy jsou řazeny podle ID sestupně (nejnovější nahoře).
+    """
     class Meta:
         verbose_name_plural = "Auditovací logy"
         ordering = ["-id"]
@@ -152,6 +238,21 @@ class AuditLog(models.Model):
 
 
 class Varianty(models.Model):
+    """
+    Model reprezentující variantu skladové položky.
+
+    Pole:
+    - sklad: Odkaz na skladovou položku (cizí klíč na model Sklad).
+    - dodavatel: Odkaz na dodavatele (cizí klíč na model Dodavatele).
+    - nazev_varianty: Název varianty.
+    - cislo_varianty: Číslo varianty.
+    - jednotkova_cena_eur: Jednotková cena varianty v eurech.
+    - dodaci_lhuta: Dodací lhůta varianty v dnech.
+    - min_obj_mnozstvi: Minimální objednatelné množství varianty.
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Varianty".
+    """
     class Meta:
         verbose_name_plural = 'Varianty'
         verbose_name = 'Varianta'
@@ -169,6 +270,18 @@ class Varianty(models.Model):
     
 
 class Poptavky(models.Model):
+    """
+    Model reprezentující poptávku.
+
+    Pole:
+    - dodavatel: Odkaz na dodavatele, kterého se poptávka týká.
+    - datum_vytvoreni: Datum vytvoření poptávky.
+    - stav: Stav poptávky (např. Ve tvorbě, Poptáno, Uzavřeno).
+    - varianty: Varianty, které jsou součástí poptávky.
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Poptávky".
+    """
     class Meta:
         verbose_name_plural = 'Poptávky'
         verbose_name = 'Poptávka'
@@ -189,6 +302,18 @@ class Poptavky(models.Model):
     
 
 class PoptavkaVarianty(models.Model):   
+    """
+    Propojovací model mezi poptávkami a variantami.
+
+    Pole:
+    - poptavka: Odkaz na poptávku (cizí klíč na model Poptavky).
+    - varianta: Odkaz na variantu (cizí klíč na model Varianty).
+    - mnozstvi: Množství poptávané varianty.
+    - jednotky: Jednotky, ve kterých je množství měřeno (např. ks, kg).
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Poptávky variant".
+    """
     poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE, related_name='poptavka', verbose_name="Poptávka")
     varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE, related_name='varianta', verbose_name="Varianta")
     mnozstvi = models.PositiveIntegerField(verbose_name="Množství")

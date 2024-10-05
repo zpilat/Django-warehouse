@@ -35,12 +35,39 @@ from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, 
 logger = logging.getLogger(__name__)
 
 def home_view(request):
+    """
+    Zobrazuje úvodní stránku aplikace.
+    
+    Parameters:
+    - request: HTTP request objekt.
+
+    Vrací:
+    - render: HTML stránku `home.html` s aktuálním přihlášeným uživatelem v kontextu.
+    """
     context = {'current_user': request.user}
     return render(request, "hpm_sklad/home.html", context)
 
 @login_required
 @permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
 def receipt_form_view(request, pk):
+    """
+    Zpracovává příjem položky na sklad.
+
+    Parameters:
+    - request: HTTP request objekt.
+    - pk: Primární klíč položky `Sklad`, která je příjímána.
+
+    POST:
+    - Zpracuje formulář příjmu položky na sklad (`SkladReceiptForm`) a audit logu (`AuditLogReceiptForm`).
+    - Aktualizuje stav skladové položky a zaznamená operaci do audit logu.
+    - Přesměruje uživatele na vytvoření varianty, pokud neexistuje varianta pro daného dodavatele.
+
+    GET:
+    - Zobrazí prázdné formuláře pro příjem položky a audit log.
+
+    Vrací:
+    - render: HTML stránku `receipt_audit_log.html` s formuláři a daty.
+    """    
     sklad_instance = get_object_or_404(Sklad, pk=pk)
     if request.method == 'POST':
         sklad_movement_form = SkladReceiptForm(request.POST, instance=sklad_instance)
@@ -102,6 +129,23 @@ def receipt_form_view(request, pk):
 @login_required
 @permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
 def dispatch_form_view(request, pk):
+    """
+    Zpracovává výdej položky ze skladu.
+
+    Parameters:
+    - request: HTTP request objekt.
+    - pk: Primární klíč položky `Sklad`, která je vydávána.
+
+    POST:
+    - Zpracuje formuláře pro výdej položky na skladě (`SkladDispatchForm`) a audit logu (`AuditLogDispatchForm`).
+    - Aktualizuje stav skladové položky a zaznamená operaci do audit logu.
+    
+    GET:
+    - Zobrazí prázdné formuláře pro výdej položky a audit log.
+
+    Vrací:
+    - render: HTML stránku `dispatch_audit_log.html` s formuláři a daty.
+    """
     sklad_instance = get_object_or_404(Sklad, pk=pk)
     if request.method == 'POST':
         sklad_movement_form = SkladDispatchForm(request.POST, instance=sklad_instance)
@@ -147,12 +191,30 @@ def dispatch_form_view(request, pk):
 
 
 class SkladListView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje seznam všech položek ve skladu.
+
+    - Povoleno pouze přihlášeným uživatelům.
+    - Stránkuje výsledky a umožňuje export do CSV.
+
+    Template:
+    - `sklad.html`
+
+    Kontext:
+    - Seznam položek skladů, možnosti filtrování a řazení.
+    """
     model = Sklad
     template_name = 'hpm_sklad/sklad.html'
     paginate_by = 20
     export_csv = False
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává další data do kontextu pro zobrazení v šabloně.
+
+        Vrací:
+        - Kontext obsahující filtry, řazení a vybranou položku skladu.
+        """
         context = super().get_context_data(**kwargs)
         selected_ev_cislo = self.request.GET.get('selected', None)
 
@@ -179,6 +241,12 @@ class SkladListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """
+        Získává seznam položek skladu na základě vyhledávání a filtrování.
+
+        Vrací:
+        - queryset: Filtrovaný a seřazený seznam skladových položek.
+        """
         queryset = Sklad.objects.all()
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'evidencni_cislo')
@@ -211,6 +279,12 @@ class SkladListView(LoginRequiredMixin, ListView):
         return queryset
 
     def export_to_csv(self, queryset):
+        """
+        Exportuje seznam skladových položek do CSV.
+
+        Vrací:
+        - HttpResponse s CSV souborem.
+        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="sklad_export.csv"'
 
@@ -267,6 +341,12 @@ class SkladListView(LoginRequiredMixin, ListView):
         return response
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        Určuje, zda vrátit CSV nebo HTML stránku, na základě parametrů.
+
+        Vrací:
+        - HttpResponse s HTML nebo CSV obsahem.
+        """
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
         else:
@@ -274,6 +354,17 @@ class SkladListView(LoginRequiredMixin, ListView):
 
 
 class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Vytváří novou položku ve skladu.
+
+    - Povoleno pouze uživatelům s oprávněním 'add_sklad'.
+    
+    Template:
+    - `create_sklad.html`
+
+    Po úspěšném vytvoření:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Sklad
     form_class = SkladCreateForm
     template_name = 'hpm_sklad/create_sklad.html'
@@ -281,10 +372,16 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     permission_required = 'hpm_sklad.add_sklad'
     
     def form_valid(self, form):
+        """
+        Validuje a uloží novou položku do skladu.
+        """
         response = super().form_valid(form)
         return response
     
     def get_context_data(self, **kwargs):
+        """
+        Přidává vybranou položku do kontextu šablony.
+        """
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('pk', None)
         context['skladova_polozka'] = get_object_or_404(Sklad, evidencni_cislo=selected_id)
@@ -292,6 +389,17 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
 
 class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Aktualizuje existující položku ve skladu.
+
+    - Povoleno pouze uživatelům s oprávněním 'change_sklad'.
+    
+    Template:
+    - `update_sklad.html`
+
+    Po úspěšné aktualizaci:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Sklad
     form_class = SkladUpdateForm    
     template_name = 'hpm_sklad/update_sklad.html'
@@ -300,6 +408,15 @@ class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     
 class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
+    """
+    Aktualizuje stav položky 'objednáno' ve skladu.
+
+    Template:
+    - `update_objednano_sklad.html`
+
+    Po úspěšné aktualizaci:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Sklad
     form_class = SkladUpdateObjednanoForm    
     template_name = 'hpm_sklad/update_objednano_sklad.html'
@@ -307,6 +424,17 @@ class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
 
 
 class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Maže existující položku ve skladu.
+
+    - Povoleno pouze uživatelům s oprávněním 'delete_sklad'.
+    
+    Template:
+    - `delete_sklad.html`
+
+    Po úspěšném smazání:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Sklad
     template_name = 'hpm_sklad/delete_sklad.html'
     success_url = reverse_lazy('sklad')
@@ -314,15 +442,38 @@ class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     
 
 class SkladDetailView(LoginRequiredMixin, DetailView):
+    """
+    Zobrazuje detailní informace o skladové položce.
+
+    Template:
+    - Určeno buď atributem `template_name`, nebo vyvolá chybu pokud není nastaveno.
+    
+    Kontext:
+    - Zahrnuje detaily skladové položky, seznam variant a polí pravdivých atributů zařízení.
+    """
+    model = Sklad
     model = Sklad
 
     def get_template_names(self):
+        """
+        Určuje šablonu pro zobrazení detailu položky.
+        Pokud není nastavena, vyvolá chybu.
+
+        Vrací:
+        - Název šablony (str).
+        """
         if self.template_name:
             return [self.template_name]
         else:
             raise ValueError("Template name not provided")
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává detaily skladové položky do kontextu šablony.
+
+        Vrací:
+        - Kontext obsahující pole položek, varianty a atributy zařízení.
+        """
         context = super().get_context_data(**kwargs)
         object_instance = self.get_object()
         varianty = self.object.varianty_skladu.all()        
@@ -348,6 +499,18 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 
 
 class AuditLogListView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje seznam záznamů audit logu.
+
+    - Povoleno pouze přihlášeným uživatelům.
+    - Umožňuje stránkování a export do CSV nebo grafu.
+
+    Template:
+    - `audit_log.html`
+
+    Kontext:
+    - Seznam záznamů logu, filtry a řazení.
+    """
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html' 
     paginate_by = 20
@@ -355,6 +518,12 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     graph = False
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává další data do kontextu pro zobrazení v šabloně.
+
+        Vrací:
+        - Kontext obsahující filtry, roky a další informace.
+        """
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('selected', None)
 
@@ -381,6 +550,12 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         return context    
 
     def get_queryset(self):
+        """
+        Získává seznam audit logů na základě vyhledávání, filtrování, ročních a měsíčních kritérií.
+
+        Vrací:
+        - queryset: Filtrovaný a seřazený seznam záznamů.
+        """
         queryset = AuditLog.objects.all()
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'id')
@@ -418,6 +593,12 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         return queryset
 
     def export_to_csv(self, queryset):
+        """
+        Exportuje seznam záznamů audit logu do CSV.
+
+        Vrací:
+        - HttpResponse s CSV souborem.
+        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="audit_log_export.csv"'
 
@@ -456,6 +637,12 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         return response
 
     def generate_graph_to_pdf(self, queryset):
+        """
+        Generuje graf z audit logu a ukládá ho do PDF souboru.
+
+        Vrací:
+        - FileResponse obsahující graf ve formátu PDF.
+        """
         # Připraví data pro graf
         data = {}
         for item in queryset:
@@ -500,6 +687,12 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_na_zarizeni.pdf')
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        Určuje, zda vrátit CSV, PDF nebo HTML stránku, na základě parametrů.
+
+        Vrací:
+        - HttpResponse s HTML, CSV nebo PDF obsahem.
+        """
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
         elif getattr(self, 'graph', False):
@@ -509,20 +702,52 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
 
 class AuditLogDetailView(LoginRequiredMixin, DetailView):
+    """
+    Zobrazuje detailní informace o záznamu v audit logu.
+
+    Template:
+    - `detail_audit_log.html`
+    
+    Kontext:
+    - Detaily vybraného záznamu v audit logu.
+    """
     model = AuditLog
     template_name = 'hpm_sklad/detail_audit_log.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává detaily záznamu do kontextu šablony.
+
+        Vrací:
+        - Kontext obsahující detailní položky audit logu.
+        """
         context = super().get_context_data(**kwargs)
         context['detail_item_fields'] = self.model._meta.get_fields()
         return context
 
 
 class AuditLogShowView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje omezený seznam záznamů audit logu pro vybranou položku skladu.
+
+    - Povoleno pouze přihlášeným uživatelům.
+
+    Template:
+    - `show_audit_log.html`
+
+    Kontext:
+    - Zahrnuje audit logy pro vybranou položku skladu a informaci o tom, zda existuje více než 22 záznamů.
+    """    
     model = AuditLog
     template_name = 'hpm_sklad/show_audit_log.html' 
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává do kontextu aktuální položku skladu a informaci, zda existuje více než 22 záznamů.
+
+        Vrací:
+        - Kontext obsahující zvolený záznam skladu a stav, zda existuje více položek než 22.
+        """
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('pk', None)
         context['object'] = get_object_or_404(Sklad, pk=selected_id)
@@ -530,6 +755,15 @@ class AuditLogShowView(LoginRequiredMixin, ListView):
         return context    
 
     def get_queryset(self):
+        """
+        Získává omezený seznam audit logů podle vybrané položky skladu.
+
+        - Pokud je v URL přítomný primární klíč (`pk`), filtrace proběhne podle evidenčního čísla (`evidencni_cislo_id`).
+        - Omezí počet vrácených záznamů na 22.
+
+        Vrací:
+        - queryset: Omezený seznam audit logů pro vybranou položku skladu.
+        """
         queryset = AuditLog.objects.all()
         selected_id = self.request.GET.get('pk', None)
         if selected_id:
@@ -539,6 +773,17 @@ class AuditLogShowView(LoginRequiredMixin, ListView):
     
     
 class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Vytváří novou variantu skladové položky.
+
+    - Povoleno pouze uživatelům s oprávněním 'add_varianty'.
+
+    Template:
+    - `create_varianty.html`
+
+    Po úspěšném vytvoření:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Varianty
     form_class = VariantyCreateForm
     template_name = 'hpm_sklad/create_varianty.html'
@@ -546,11 +791,17 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     permission_required = 'hpm_sklad.add_varianty'
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává skladovou položku do kontextu šablony.
+        """
         context = super().get_context_data(**kwargs)
         context['skladova_polozka'] = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return context
 
     def get_form(self, form_class=None):
+        """
+        Přizpůsobuje formulář tak, aby vyloučil dodavatele, kteří již mají přiřazenou variantu pro tuto skladovou položku.
+        """
         form = super().get_form(form_class)
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         
@@ -561,17 +812,35 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         return form    
 
     def form_valid(self, form):
+        """
+        Validuje a uloží novou variantu skladové položky.
+        """
         form.instance.skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return super().form_valid(form)
 
 
 class VariantyWithDodavatelCreateView(CreateView):
+    """
+    Vytváří novou variantu skladové položky s předdefinovaným dodavatelem.
+
+    Template:
+    - `create_varianty_with_dodavatel.html`
+
+    Kontext:
+    - Skladová položka a dodavatel z kontextu URL.
+
+    Po úspěšném vytvoření:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Varianty
     form_class = VariantyCreateForm
     template_name = 'hpm_sklad/create_varianty_with_dodavatel.html'
     success_url = reverse_lazy('sklad')
 
     def get_initial(self):
+        """
+        Inicializuje hodnoty pro pole formuláře, včetně dodavatele.
+        """
         initial = super().get_initial()
         dodavatel_id = self.kwargs.get('dodavatel')
         if dodavatel_id:
@@ -579,6 +848,9 @@ class VariantyWithDodavatelCreateView(CreateView):
         return initial
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává dodavatele a skladovou položku do kontextu šablony.
+        """
         context = super().get_context_data(**kwargs)
         dodavatel_id = self.kwargs.get('dodavatel')
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs.get('pk'))
@@ -590,6 +862,9 @@ class VariantyWithDodavatelCreateView(CreateView):
         return context
 
     def form_valid(self, form):
+        """
+        Přiřazuje skladovou položku k vytvořené variantě a validuje formulář.
+        """
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         form.instance.skladova_polozka = skladova_polozka
 
@@ -600,6 +875,17 @@ class VariantyWithDodavatelCreateView(CreateView):
 
 
 class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Aktualizuje existující variantu skladové položky.
+
+    - Povoleno pouze uživatelům s oprávněním 'change_varianty'.
+
+    Template:
+    - `update_varianty.html`
+
+    Po úspěšné aktualizaci:
+    - Přesměruje uživatele zpět na seznam skladů.
+    """
     model = Varianty
     form_class = VariantyUpdateForm
     template_name = 'hpm_sklad/update_varianty.html'
@@ -607,6 +893,9 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     permission_required = 'hpm_sklad.update_varianty'
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává skladovou položku do kontextu šablony.
+        """
         context = super().get_context_data(**kwargs)
         varianta = self.get_object()
         context['skladova_polozka'] = varianta.sklad
@@ -614,12 +903,27 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
 
 
 class DodavateleListView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje seznam dodavatelů.
+
+    Template:
+    - `dodavatele.html`
+
+    Kontext:
+    - Seznam dodavatelů a možnosti filtrování.
+    """
     model = Dodavatele
     template_name = 'hpm_sklad/dodavatele.html'
     paginate_by = 20
     export_csv = False
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává další data do kontextu pro zobrazení v šabloně.
+
+        Vrací:
+        - Kontext obsahující filtry, řazení a aktuálně vybraného dodavatele.
+        """
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('selected', None)
 
@@ -639,6 +943,12 @@ class DodavateleListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """
+        Získává seznam dodavatelů na základě vyhledávání a filtrování.
+
+        Vrací:
+        - queryset: Filtrovaný a seřazený seznam dodavatelů.
+        """
         queryset = Dodavatele.objects.all()
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'id')
@@ -657,6 +967,12 @@ class DodavateleListView(LoginRequiredMixin, ListView):
         return queryset
 
     def export_to_csv(self, queryset):
+        """
+        Exportuje seznam dodavatelů do CSV.
+
+        Vrací:
+        - HttpResponse s CSV souborem.
+        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="dodavatele_export.csv"'
 
@@ -678,6 +994,12 @@ class DodavateleListView(LoginRequiredMixin, ListView):
         return response
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        Určuje, zda vrátit CSV nebo HTML stránku, na základě parametrů.
+
+        Vrací:
+        - HttpResponse s HTML nebo CSV obsahem.
+        """
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
         else:
@@ -685,6 +1007,17 @@ class DodavateleListView(LoginRequiredMixin, ListView):
 
 
 class DodavateleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Vytváří nového dodavatele.
+
+    - Povoleno pouze uživatelům s oprávněním 'add_dodavatele'.
+
+    Template:
+    - `create_dodavatele.html`
+
+    Po úspěšném vytvoření:
+    - Přesměruje uživatele zpět na seznam dodavatelů.
+    """
     model = Dodavatele
     form_class = DodavateleCreateForm
     template_name = 'hpm_sklad/create_dodavatele.html'
@@ -699,6 +1032,17 @@ class DodavateleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 
 
 class DodavateleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Aktualizuje existujícího dodavatele.
+
+    - Povoleno pouze uživatelům s oprávněním 'change_dodavatele'.
+
+    Template:
+    - `update_dodavatele.html`
+
+    Po úspěšné aktualizaci:
+    - Přesměruje uživatele zpět na seznam dodavatelů.
+    """
     model = Dodavatele
     form_class = DodavateleUpdateForm    
     template_name = 'hpm_sklad/update_dodavatele.html'
@@ -707,6 +1051,17 @@ class DodavateleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
 
     
 class DodavateleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Maže existujícího dodavatele.
+
+    - Povoleno pouze uživatelům s oprávněním 'delete_dodavatele'.
+
+    Template:
+    - `delete_dodavatele.html`
+
+    Po úspěšném smazání:
+    - Přesměruje uživatele zpět na seznam dodavatelů.
+    """
     model = Dodavatele
     template_name = 'hpm_sklad/delete_dodavatele.html'
     success_url = reverse_lazy('dodavatele')
@@ -715,15 +1070,37 @@ class DodavateleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
 
 
 class DodavateleDetailView(LoginRequiredMixin, DetailView):
+    """
+    Zobrazuje detailní informace o dodavateli.
+
+    Template:
+    - Určeno buď atributem `template_name`, nebo vyvolá chybu pokud není nastaveno.
+
+    Kontext:
+    - Zahrnuje detaily dodavatele, varianty a poptávky spojené s dodavatelem.
+    """
     model = Dodavatele
 
     def get_template_names(self):
+        """
+        Určuje šablonu pro zobrazení detailu dodavatele.
+        Pokud není nastavena, vyvolá chybu.
+
+        Vrací:
+        - Název šablony (str).
+        """
         if self.template_name:
             return [self.template_name]
         else:
             raise ValueError("Šablona není zadána")
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává detaily dodavatele a jeho varianty a poptávky do kontextu šablony.
+
+        Vrací:
+        - Kontext obsahující detailní položky dodavatele, varianty a poptávky.
+        """
         context = super().get_context_data(**kwargs)
         varianty = self.object.varianty_dodavatele.all()
         poptavky = self.object.poptavky_dodavatele.all()
@@ -741,6 +1118,23 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
 @login_required
 ##@permission_required('hpm_sklad.add_poptavky')
 def create_poptavka(request, dodavatel_id):
+    """
+    Vytváří novou poptávku pro daného dodavatele.
+
+    Parameters:
+    - request: HTTP request objekt.
+    - dodavatel_id: Primární klíč dodavatele, pro kterého je poptávka vytvářena.
+
+    POST:
+    - Zpracuje inline formulář pro výběr variant dodavatele.
+    - Pokud jsou vybrány varianty, uloží poptávku.
+
+    GET:
+    - Zobrazí prázdný formulář pro výběr variant.
+
+    Vrací:
+    - render: HTML stránku `create_poptavka.html` s formuláři a daty.
+    """
     dodavatel = get_object_or_404(Dodavatele, id=dodavatel_id)
     varianty_dodavatele = Varianty.objects.filter(dodavatel_id=dodavatel_id)
     
@@ -794,12 +1188,30 @@ def create_poptavka(request, dodavatel_id):
 
 
 class PoptavkaListView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje seznam poptávek.
+
+    - Povoleno pouze přihlášeným uživatelům.
+    - Stránkuje výsledky a umožňuje export do CSV.
+
+    Template:
+    - `poptavky.html`
+
+    Kontext:
+    - Zahrnuje poptávky, možnosti filtrování, řazení a vyhledávání.
+    """
     model = Poptavky
     template_name = 'hpm_sklad/poptavky.html'
     paginate_by = 20
     export_csv = False
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává do kontextu informace o aktuálně vybrané poptávce a uživatelských filtrech.
+
+        Vrací:
+        - Kontext obsahující vybraného dodavatele, možnosti filtrování, řazení a uživatele.
+        """
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('selected', None)
 
@@ -819,6 +1231,12 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
+        """
+        Získává seznam poptávek na základě vyhledávání, filtrování a řazení.
+
+        Vrací:
+        - queryset: Filtrovaný a seřazený seznam poptávek.
+        """
         queryset = Poptavky.objects.all()
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'id')
@@ -835,6 +1253,12 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
         return queryset
 
     def export_to_csv(self, queryset):
+        """
+        Exportuje seznam poptávek do CSV.
+
+        Vrací:
+        - HttpResponse s CSV souborem.
+        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="poptavky_export.csv"'
 
@@ -855,6 +1279,12 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
         return response
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        Určuje, zda vrátit CSV nebo HTML stránku, na základě parametrů.
+
+        Vrací:
+        - HttpResponse s HTML nebo CSV obsahem.
+        """
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
         else:
@@ -862,39 +1292,98 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
 
 
 class PoptavkaDetailView(LoginRequiredMixin, DetailView):
+    """
+    Zobrazuje detailní informace o poptávce.
+
+    Template:
+    - `detail_poptavky.html`
+
+    Kontext:
+    - Zahrnuje detailní informace o poptávce.
+    """
     model = Poptavky
     template_name = 'hpm_sklad/detail_poptavky.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává do kontextu detailní položky poptávky.
+
+        Vrací:
+        - Kontext obsahující pole modelu poptávky.
+        """
         context = super().get_context_data(**kwargs)
         context['detail_item_fields'] = self.model._meta.get_fields()
         return context
 
 
 class PoptavkaVariantyListView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje seznam variant poptávky pro konkrétní poptávku.
+
+    - Povoleno pouze přihlášeným uživatelům.
+
+    Template:
+    - `poptavka_varianty.html`
+
+    Kontext:
+    - Zahrnuje varianty pro konkrétní poptávku.
+    """
     model = PoptavkaVarianty
     template_name = 'hpm_sklad/poptavka_varianty.html'
 
     def get(self, request, *args, **kwargs):
+        """
+        Získává ID poptávky z URL a ukládá ho pro použití v dalších metodách.
+        """
         self.poptavka_id = self.kwargs.get('pk')
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        """
+        Přidává ID poptávky do kontextu šablony.
+
+        Vrací:
+        - Kontext obsahující ID poptávky.
+        """
         context = super().get_context_data(**kwargs)
         context['poptavka_id'] = self.poptavka_id
         return context
 
     def get_queryset(self):
+        """
+        Získává seznam variant pro konkrétní poptávku na základě ID poptávky.
+
+        Vrací:
+        - queryset: Filtrovaný seznam variant pro konkrétní poptávku.
+        """
         queryset = PoptavkaVarianty.objects.filter(poptavka_id=self.poptavka_id)
         return queryset     
 
     
 class SignUp(CreateView):
-  form_class = CustomUserCreationForm
-  success_url = reverse_lazy("login")
-  template_name = "registration/signup.html"   
+    """
+    Vytváří nového uživatele pomocí registračního formuláře.
+
+    Template:
+    - `signup.html`
+
+    Po úspěšném vytvoření:
+    - Přesměruje uživatele na přihlašovací stránku.
+    """
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy("login")
+    template_name = "registration/signup.html"   
   
   
 def logout_request(request):
-  logout(request)
-  return redirect("home")
+    """
+    Odhlásí uživatele a přesměruje ho na úvodní stránku.
+
+    Parameters:
+    - request: HTTP request objekt.
+
+    Vrací:
+    - redirect: Přesměrování na úvodní stránku.
+    """
+    logout(request)
+    return redirect("home")
