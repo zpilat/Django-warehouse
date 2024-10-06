@@ -47,6 +47,7 @@ def home_view(request):
     context = {'current_user': request.user}
     return render(request, "hpm_sklad/home.html", context)
 
+
 @login_required
 @permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
 def receipt_form_view(request, pk):
@@ -106,13 +107,21 @@ def receipt_form_view(request, pk):
             dodavatel_object = Dodavatele.objects.get(dodavatel=dodavatel_form_value)
 
             # Kontrola, zda varianta existuje
-            varianty = Varianty.objects.filter(skladova_polozka=sklad_instance)
+            varianty = Varianty.objects.filter(sklad=sklad_instance)
             varianta_dodavatele = [var.dodavatel for var in varianty]
            
             if not varianty or dodavatel_object not in varianta_dodavatele:
                 return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
                                            
             return redirect('audit_log')
+        else:
+            # Pokud není validní, vrátíme formuláře zpět na stránku s chybami
+            context = {
+                'sklad_movement_form': sklad_movement_form,
+                'auditlog_receipt_form': auditlog_receipt_form,
+                'object': sklad_instance,
+            }
+            return render(request, 'hpm_sklad/receipt_audit_log.html', context)
         
     else: # GET 
         sklad_movement_form = SkladReceiptForm(instance=sklad_instance)
@@ -177,6 +186,14 @@ def dispatch_form_view(request, pk):
             updated_sklad.save()            
             created_auditlog.save()
             return redirect('audit_log')
+        else:
+            # Pokud není validní, vrátíme formuláře zpět na stránku s chybami
+            context = {
+                'sklad_movement_form': sklad_movement_form,
+                'auditlog_dispatch_form': auditlog_dispatch_form,
+                'object': sklad_instance,
+            }
+            return render(request, 'hpm_sklad/dispatch_audit_log.html', context)
                    
     else: # GET 
         sklad_movement_form = SkladDispatchForm(instance=sklad_instance)
@@ -782,7 +799,7 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     - `create_varianty.html`
 
     Po úspěšném vytvoření:
-    - Přesměruje uživatele zpět na seznam skladů.
+    - Přesměruje uživatele zpět na seznam skladových položek.
     """
     model = Varianty
     form_class = VariantyCreateForm
