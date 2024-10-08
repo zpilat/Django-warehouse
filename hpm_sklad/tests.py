@@ -883,9 +883,13 @@ class ReceiptFormViewTest(TestCase):
             'zmena_mnozstvi': 5,
             'datum_nakupu': '2024-10-01',
             'jednotkova_cena_eur': 120.0,
-            'dodavatel': self.dodavatel.dodavatel
+            'dodavatel': self.dodavatel.pk
         }
         response = self.client.post(self.url, data=post_data)
+
+        print(response.context['sklad_movement_form'].errors)  # Vypíše chyby ve formuláři, pokud nějaké existují
+        print(response.context['auditlog_receipt_form'].errors)  # Výpis chyb i pro druhý formulář
+
         self.assertRedirects(response, reverse('create_varianty_with_dodavatel', kwargs={'pk': self.sklad.pk, 'dodavatel': self.dodavatel.pk}))
 
     def test_context_data(self):
@@ -916,7 +920,7 @@ class ReceiptFormViewTest(TestCase):
             'zmena_mnozstvi': 10,
             'datum_nakupu': '2024-10-01',
             'jednotkova_cena_eur': 50.0,
-            'dodavatel': self.dodavatel.dodavatel
+            'dodavatel': self.dodavatel.pk
         }
         self.client.post(self.url, data=post_data)
 

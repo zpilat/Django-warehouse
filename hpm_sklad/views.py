@@ -49,7 +49,7 @@ def home_view(request):
 
 
 @login_required
-@permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
+@permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog', raise_exception=True)
 def receipt_form_view(request, pk):
     """
     Zpracovává příjem položky na sklad.
@@ -109,6 +109,10 @@ def receipt_form_view(request, pk):
             # Kontrola, zda varianta existuje
             varianty = Varianty.objects.filter(sklad=sklad_instance)
             varianta_dodavatele = [var.dodavatel for var in varianty]
+            
+            print("Varianty nalezené pro sklad:", varianty)
+            print("Dodavatel object:", dodavatel_object)
+            print("Podmínka varianty:", varianty or dodavatel_object not in varianta_dodavatele)
            
             if not varianty or dodavatel_object not in varianta_dodavatele:
                 return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
@@ -116,6 +120,9 @@ def receipt_form_view(request, pk):
             return redirect('audit_log')
         else:
             # Pokud není validní, vrátíme formuláře zpět na stránku s chybami
+            print("Sklad movement form errors:", sklad_movement_form.errors)
+            print("Audit log receipt form errors:", auditlog_receipt_form.errors)
+
             context = {
                 'sklad_movement_form': sklad_movement_form,
                 'auditlog_receipt_form': auditlog_receipt_form,
@@ -136,7 +143,7 @@ def receipt_form_view(request, pk):
 
 
 @login_required
-@permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog')
+@permission_required('hpm_sklad.change_sklad', 'hpm_sklad.add_auditlog', raise_exception=True)
 def dispatch_form_view(request, pk):
     """
     Zpracovává výdej položky ze skladu.
