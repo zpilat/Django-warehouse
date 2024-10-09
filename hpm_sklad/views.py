@@ -109,20 +109,12 @@ def receipt_form_view(request, pk):
             # Kontrola, zda varianta existuje
             varianty = Varianty.objects.filter(sklad=sklad_instance)
             varianta_dodavatele = [var.dodavatel for var in varianty]
-            
-            # print("Varianty nalezené pro sklad:", varianty)
-            # print("Dodavatel object:", dodavatel_object)
-            # print("Podmínka varianty:", varianty or dodavatel_object not in varianta_dodavatele)
            
             if not varianty or dodavatel_object not in varianta_dodavatele:
                 return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
                                            
             return redirect('audit_log')
         else:
-            # print("Form errors:")
-            # print(sklad_movement_form.errors)
-            # print(auditlog_receipt_form.errors)
-
             context = {
                 'sklad_movement_form': sklad_movement_form,
                 'auditlog_receipt_form': auditlog_receipt_form,
