@@ -110,18 +110,18 @@ def receipt_form_view(request, pk):
             varianty = Varianty.objects.filter(sklad=sklad_instance)
             varianta_dodavatele = [var.dodavatel for var in varianty]
             
-            print("Varianty nalezené pro sklad:", varianty)
-            print("Dodavatel object:", dodavatel_object)
-            print("Podmínka varianty:", varianty or dodavatel_object not in varianta_dodavatele)
+            # print("Varianty nalezené pro sklad:", varianty)
+            # print("Dodavatel object:", dodavatel_object)
+            # print("Podmínka varianty:", varianty or dodavatel_object not in varianta_dodavatele)
            
             if not varianty or dodavatel_object not in varianta_dodavatele:
                 return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
                                            
             return redirect('audit_log')
         else:
-            # Pokud není validní, vrátíme formuláře zpět na stránku s chybami
-            print("Sklad movement form errors:", sklad_movement_form.errors)
-            print("Audit log receipt form errors:", auditlog_receipt_form.errors)
+            # print("Form errors:")
+            # print(sklad_movement_form.errors)
+            # print(auditlog_receipt_form.errors)
 
             context = {
                 'sklad_movement_form': sklad_movement_form,
@@ -1191,10 +1191,6 @@ def create_poptavka(request, dodavatel_id):
                     form.fields['varianta'].initial = varianta_dodavatele
                     form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky             
                 formset.non_form_errors().append('Musíte vybrat alespoň jednu položku k uložení do poptávky.')
-        else:
-            # Debugging output for errors
-            print(f"{formset.errors=}")
-            print(f"{formset.non_form_errors=}")
     else:
         formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
