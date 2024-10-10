@@ -1,4 +1,5 @@
 from django.test import TestCase
+from unittest.mock import patch
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 
@@ -10,6 +11,8 @@ from django.utils import timezone
 from .models import Poptavky, Dodavatele, Sklad, Zarizeni, AuditLog, Varianty, PoptavkaVarianty
 
 from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
+
+from .views import SkladListView
 
 ######################## Testy Modelů ###########################
 
@@ -218,7 +221,7 @@ class PoptavkaVariantyModelTest(TestCase):
 
 
 ######################## Testy validace dat modelů ############
-
+ 
 class SkladModelValidationTest(TestCase):
     """
     Testuje validaci modelu Sklad.
@@ -1185,6 +1188,128 @@ class DispatchFormViewTest(TestCase):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(reverse('dispatch_audit_log', kwargs={'pk': 9999}))  # Neexistující skladová položka
         self.assertEqual(response.status_code, 404)
+
+
+class SkladListViewTest(TestCase):
+    """
+    Testovací třída pro `SkladListView`, která ověřuje funkčnost seznamu skladových položek.
+
+    Testuje následující scénáře:
+    -----------------------------
+    - Přístup k view vyžaduje přihlášení.
+    - View používá správnou šablonu.
+    - Filtrování podle názvu dílu a dalších parametrů funguje správně.
+    - Stránkování funguje správně a zobrazuje maximálně 20 položek na stránce.
+    - Export do CSV vrací správný formát a data.
+    - Řazení položek skladu podle zadaných kritérií.
+    - Kontrola vybrané položky skladu pomocí parametru `selected` v GET požadavku.
+    """
+
+    def setUp(self):
+        # Vytvoření uživatele
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+    def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+        """
+        url = reverse('sklad')
+        response = self.client.get(url)
+        self.assertRedirects(response, f'/account/login/?next={url}')
+
+    def test_logged_in_user_can_access(self):
+        """
+        Ověřuje, že přihlášený uživatel má přístup k view.
+        """
+        self.client.login(username='testuser', password='testpassword')
+        url = reverse('sklad')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'hpm_sklad/sklad.html')
+
+    def test_filtering_and_sorting(self):
+        """
+        Ověřuje správné filtrování a řazení položek skladu.
+        """
+        # Vytvoření testovacích položek ve skladu
+        Sklad.objects.create(interne_cislo=100, nazev_dilu="Test1", mnozstvi=10)
+        Sklad.objects.create(interne_cislo=101, nazev_dilu="Test2", mnozstvi=5)
+
+        self.client.login(username='testuser', password='testpassword')
+        url = reverse('sklad')
+
+        # Test filtrování podle názvu dílu
+        response = self.client.get(url, {'query': 'Test1'})
+        self.assertContains(response, 'Test1')
+        self.assertNotContains(response, 'Test2')
+
+        # Test řazení podle množství vzestupně
+        response = self.client.get(url, {'sort': 'mnozstvi', 'order': 'up'})
+        sklad_items = response.context['object_list']
+        self.assertEqual(sklad_items[0].nazev_dilu, 'Test2')
+        self.assertEqual(sklad_items[1].nazev_dilu, 'Test1')
+
+    def test_pagination(self):
+        """
+        Ověřuje správné stránkování.
+        """
+        # Vytvoření více než 20 položek
+        for i in range(25):
+            Sklad.objects.create(interne_cislo=i, nazev_dilu=f"Test{i}", mnozstvi=10)
+
+        self.client.login(username='testuser', password='testpassword')
+        url = reverse('sklad')
+
+        # Zkontrolujeme, že je zobrazeno pouze 20 položek na první stránce
+        response = self.client.get(url)
+        sklad_items = response.context['object_list']
+        self.assertEqual(len(sklad_items), 20)
+
+        # Ověříme, že na druhé stránce je zbývajících 5 položek
+        response = self.client.get(url, {'page': 2})
+        sklad_items = response.context['object_list']
+        self.assertEqual(len(sklad_items), 5)
+
+    def test_export_to_csv(self):
+        """
+        Ověřuje správný export do CSV bez úpravy view.
+        """
+        self.client.login(username='testuser', password='testpassword')
+        url = reverse('sklad')
+
+        # Vytvoření testovací položky ve skladu
+        Sklad.objects.create(
+            evidencni_cislo='12345',
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            mnozstvi=10,
+            jednotkova_cena_eur=100.0,
+            celkova_cena_eur=1000.0,
+            umisteni='Sklad A',
+            dodavatel='Test Dodavatel',
+            cislo_objednavky='2024-001',
+        )
+
+        # Mockuje `render_to_response` metodu, aby byl export aktivován
+        with patch.object(SkladListView, 'export_csv', True):
+            response = self.client.get(url)
+
+        # Ověř, že response je CSV formát
+        self.assertEqual(response['Content-Type'], 'text/csv')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="sklad_export.csv"')
+
+        # Kontrola obsahu CSV
+        content = response.content.decode('utf-8')
+        lines = content.splitlines()
+        
+        # Ověř, že první řádek je záhlaví
+        self.assertTrue(lines[0].startswith('Evidenční číslo'))
+
+        # Ověř, že druhý řádek obsahuje data testovací položky
+        self.assertIn('12345', lines[1])
+        self.assertIn('Testovací díl', lines[1])
+        self.assertIn('10', lines[1])  # Množství
+        self.assertIn('100.0', lines[1])  # Jednotková cena EUR
 
 
 class PoptavkaDetailViewTest(TestCase):
