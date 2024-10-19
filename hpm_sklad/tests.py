@@ -1312,6 +1312,363 @@ class SkladListViewTest(TestCase):
         self.assertIn('100.0', lines[1])  # Jednotková cena EUR
 
 
+class SkladCreateViewTest(TestCase):
+    """
+    Testy pro SkladCreateView:
+    
+    - Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+    - Ověřuje, že uživatel bez oprávnění 'add_sklad' dostane chybu 403.
+    - Ověřuje, že přihlášený uživatel s oprávněním může vytvořit novou položku.
+    """
+    def setUp(self):
+        """
+        Nastavení testovacího prostředí:
+        - Vytvoření uživatele a přiřazení oprávnění.
+        """
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user.user_permissions.add(Permission.objects.get(codename='add_sklad'))
+        self.client.login(username='testuser', password='testpassword')
+        self.url = reverse('create_sklad')
+
+    def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+        """
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f'/account/login/?next={self.url}')
+
+    def test_permission_required(self):
+        """
+        Ověřuje, že uživatel bez oprávnění 'add_sklad' dostane chybu 403.
+        """
+        self.user.user_permissions.clear()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_create_sklad(self):
+        """
+        Ověřuje, že přihlášený uživatel s oprávněním může vytvořit novou položku ve skladu.
+        """
+        # Nejprve vytvořte jednu skladovou položku, aby bylo možné ji použít jako vybraný sklad (pk)
+        existing_sklad = Sklad.objects.create(
+            nazev_dilu='Předchozí díl',
+            min_mnozstvi_ks=2,
+            mnozstvi=5,
+            jednotky='ks',
+            umisteni='Sklad B',
+            jednotkova_cena_eur=30.0,
+            celkova_cena_eur=150.0
+        )
+
+        # URL pro vytvoření nové položky s parametrem pk z existující položky
+        create_url_with_pk = f"{self.url}?pk={existing_sklad.pk}"
+        
+        # Data pro vytvoření nové položky
+        post_data = {
+            'interne_cislo': 123,  # Přidejte povinné pole
+            'nazev_dilu': 'Nový díl',
+            'min_mnozstvi_ks': 5,
+            'mnozstvi': 10,
+            'jednotky': 'ks',  
+            'umisteni': 'Sklad A',
+            'jednotkova_cena_eur': 50.0,
+            'celkova_cena_eur': 500.0,
+        }
+
+        # Odeslání POST požadavku s parametrem pk
+        response = self.client.post(create_url_with_pk, post_data)
+        
+        # Ověření, že došlo k přesměrování na seznam skladů
+        self.assertRedirects(response, reverse('sklad'))
+
+        # Ověření, že nová položka byla vytvořena
+        self.assertTrue(Sklad.objects.filter(nazev_dilu='Nový díl').exists())
+
+
+class SkladUpdateViewTest(TestCase):
+    """
+    Testy pro SkladUpdateView:
+    
+    - Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+    - Ověřuje, že uživatel bez oprávnění 'change_sklad' dostane chybu 403.
+    - Ověřuje, že přihlášený uživatel s oprávněním může aktualizovat položku.
+    """
+    def setUp(self):
+        """
+        Nastavení testovacího prostředí:
+        - Vytvoření uživatele, položky ve skladu a přiřazení oprávnění.
+        """
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user.user_permissions.add(Permission.objects.get(codename='change_sklad'))
+        self.client.login(username='testuser', password='testpassword')
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            min_mnozstvi_ks=5,
+            mnozstvi=10,
+            jednotky='ks',
+            umisteni='Sklad A',
+            jednotkova_cena_eur=50.0,
+            celkova_cena_eur=500.0
+        )
+        self.url = reverse('update_sklad', kwargs={'pk': self.sklad.pk})
+
+    def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+        """
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f'/account/login/?next={self.url}')
+
+    def test_permission_required(self):
+        """
+        Ověřuje, že uživatel bez oprávnění 'change_sklad' dostane chybu 403.
+        """
+        self.user.user_permissions.clear()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_update_sklad(self):
+        """
+        Ověřuje, že přihlášený uživatel s oprávněním může aktualizovat položku ve skladu.
+        """
+        post_data = {
+            'interne_cislo': 124,
+            'min_mnozstvi_ks': 3,
+            'nazev_dilu': 'Aktualizovaný díl',
+            'jednotky': 'ks',
+            'umisteni': 'Sklad B',
+            'poznamka': 'Změněná poznámka',
+            'ucetnictvi': True,
+            'kriticky_dil': False,
+            'hsh': True,
+            'tq8': False,
+            'tqf_xl1': True,
+            'tqf_xl2': True,
+            'dc_xl': False,
+            'dac_xl1_2': True,
+            'dl_xl': False,
+            'dac': True,
+            'lac_1': True,
+            'lac_2': False,
+            'ipsen_ene': False,
+            'hsh_ene': True,
+            'xl_ene1': True,
+            'xl_ene2': False,
+            'ipsen_w': True,
+            'hsh_w': False,
+            'kw': True,
+            'kw1': True,
+            'kw2': False,
+            'kw3': False,
+            'mikrof': True,
+        }
+
+        # Odeslání POST požadavku s aktualizovanými daty
+        response = self.client.post(self.url, post_data)
+
+        # Ověření přesměrování po úspěšné aktualizaci
+        self.assertRedirects(response, reverse('sklad'))
+
+        # Ověření, že se položka správně aktualizovala
+        self.sklad.refresh_from_db()
+        self.assertEqual(self.sklad.interne_cislo, 124)
+        self.assertEqual(self.sklad.nazev_dilu, 'Aktualizovaný díl')
+        self.assertEqual(self.sklad.umisteni, 'Sklad B')
+        self.assertEqual(self.sklad.poznamka, 'Změněná poznámka')
+        self.assertTrue(self.sklad.ucetnictvi)
+        self.assertFalse(self.sklad.kriticky_dil)
+        self.assertTrue(self.sklad.hsh)
+        self.assertFalse(self.sklad.kw3)
+        self.assertTrue(self.sklad.mikrof)
+
+
+class SkladUpdateObjednanoViewTest(TestCase):
+    """
+    Testy pro SkladUpdateObjednanoView:
+    
+    - Ověřuje, že přihlášený uživatel může aktualizovat stav 'objednáno' u položky ve skladu.
+    """
+    def setUp(self):
+        """
+        Nastavení testovacího prostředí:
+        - Vytvoření uživatele a položky ve skladu.
+        """
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            min_mnozstvi_ks=5,
+            mnozstvi=10,
+            jednotky='ks',
+            umisteni='Sklad A',
+            jednotkova_cena_eur=50.0,
+            celkova_cena_eur=500.0,
+            objednano='Není'
+        )
+        self.url = reverse('update_objednano_sklad', kwargs={'pk': self.sklad.pk})
+
+    def test_update_objednano(self):
+        """
+        Ověřuje, že přihlášený uživatel může aktualizovat stav 'objednáno' u položky ve skladu.
+        """
+        post_data = {
+            'objednano': 'Už je objednáno'
+        }
+        response = self.client.post(self.url, post_data)
+        self.assertRedirects(response, reverse('sklad'))
+        self.sklad.refresh_from_db()
+        self.assertEqual(self.sklad.objednano, 'Už je objednáno')
+
+
+class SkladDeleteViewTest(TestCase):
+    """
+    Testy pro SkladDeleteView:
+    
+    - Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+    - Ověřuje, že uživatel bez oprávnění 'delete_sklad' dostane chybu 403.
+    - Ověřuje, že přihlášený uživatel s oprávněním může smazat položku ze skladu.
+    """
+    def setUp(self):
+        """
+        Nastavení testovacího prostředí:
+        - Vytvoření uživatele, položky ve skladu a přiřazení oprávnění.
+        """
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user.user_permissions.add(Permission.objects.get(codename='delete_sklad'))
+        self.client.login(username='testuser', password='testpassword')
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            min_mnozstvi_ks=5,
+            mnozstvi=10,
+            jednotky='ks',
+            umisteni='Sklad A',
+            jednotkova_cena_eur=50.0,
+            celkova_cena_eur=500.0,
+        )
+        self.url = reverse('delete_sklad', kwargs={'pk': self.sklad.pk})
+
+    def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+        """
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f'/account/login/?next={self.url}')
+
+    def test_permission_required(self):
+        """
+        Ověřuje, že uživatel bez oprávnění 'delete_sklad' dostane chybu 403.
+        """
+        self.user.user_permissions.clear()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_sklad(self):
+        """
+        Ověřuje, že přihlášený uživatel s oprávněním může smazat položku ze skladu.
+        """
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse('sklad'))
+        self.assertFalse(Sklad.objects.filter(pk=self.sklad.pk).exists())
+
+
+class SkladDetailViewTest(TestCase):
+    """
+    Testy pro SkladDetailView:
+    
+    - Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+    - Ověřuje, že přihlášený uživatel může zobrazit detail skladové položky.
+    - Ověřuje, že správná šablona je použita.
+    - Ověřuje, že kontext obsahuje správné informace o skladové položce.
+    """
+    
+    def setUp(self):
+        """
+        Nastavení testovacího prostředí:
+        - Vytvoření uživatele a skladové položky.
+        """
+        # Vytvoření uživatele
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+
+        # Vytvoření skladové položky
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            min_mnozstvi_ks=5,
+            mnozstvi=10,
+            jednotky='ks',
+            umisteni='Sklad A',
+            jednotkova_cena_eur=50.0,
+            celkova_cena_eur=500.0,
+            ucetnictvi=True,
+            kriticky_dil=False,
+            hsh=True, 
+            tq8=False, 
+            tqf_xl1=True
+        )
+
+        # URL pro detail položky
+        self.url = reverse('detail_sklad', kwargs={'pk': self.sklad.pk})
+    
+    def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+        """
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f'/account/login/?next={self.url}')
+    
+    def test_detail_view_accessible_by_logged_in_user(self):
+        """
+        Ověřuje, že přihlášený uživatel může zobrazit detail skladové položky.
+        """
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_uses_correct_template(self):
+        """
+        Ověřuje, že správná šablona je použita pro zobrazení detailu skladové položky.
+        """
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(self.url)
+        self.assertTemplateUsed(response, 'hpm_sklad/detail_sklad.html')
+    
+    def test_context_contains_sklad_data(self):
+        """
+        Ověřuje, že kontext obsahuje správné informace o skladové položce.
+        """
+        self.client.login(username='testuser', password='testpassword')
+        response = self.client.get(self.url)
+
+        # Ověření přítomnosti skladové položky v kontextu
+        sklad_item = response.context['object']
+        self.assertEqual(sklad_item.nazev_dilu, 'Testovací díl')
+        self.assertEqual(sklad_item.umisteni, 'Sklad A')
+        self.assertEqual(sklad_item.mnozstvi, 10)
+
+        # Ověření kontextových polí
+        self.assertIn('equipment_fields_true', response.context)
+        self.assertIn('info_fields', response.context)
+        self.assertIn('detail_item_fields', response.context)
+        self.assertIn('varianty', response.context)
+
+        # Ověření přítomnosti polí zařízení, které jsou True
+        equipment_fields_true = response.context['equipment_fields_true']
+        self.assertIn(Sklad._meta.get_field('hsh'), equipment_fields_true)
+        self.assertIn(Sklad._meta.get_field('tqf_xl1'), equipment_fields_true)
+
+        # Ověření, že pole pro informace jsou správně nastavená
+        info_fields = response.context['info_fields']
+        self.assertIn(Sklad._meta.get_field('ucetnictvi'), info_fields)
+        self.assertIn(Sklad._meta.get_field('kriticky_dil'), info_fields)
+        self.assertIn({'verbose_name': 'Pod minimem', 'name': 'pod_minimem'}, info_fields)
+
+
 class PoptavkaDetailViewTest(TestCase):
     """
     Testuje detailní pohled na poptávku (PoptavkaDetailView).
