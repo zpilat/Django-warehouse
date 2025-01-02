@@ -208,7 +208,7 @@ class AuditLog(models.Model):
         ('Reaktivní', 'Reaktivní'),
         ('Preventivní', 'Preventivní'),
         ('Prediktivní', 'Prediktivní'),
-        ('Ostatní', 'Ostatní'),
+        ('Inventura', 'Inventurní rozdíl'),
     ]
 
     ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
