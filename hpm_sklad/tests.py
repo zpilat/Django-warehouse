@@ -1094,8 +1094,9 @@ class DispatchFormViewTest(TestCase):
         'poznamka': 'Výdej zboží',  # Přidej poznámku
         'zmena_mnozstvi': 5,  # Výdej 5 kusů
         'datum_vydeje': '2024-10-01',
+        'typ_udrzby': 'Preventivní',
         'pouzite_zarizeni': self.zarizeni.pk
-    }
+        }
         response = self.client.post(self.url, data=post_data)
 
         sklad = Sklad.objects.get(pk=self.sklad.pk)
