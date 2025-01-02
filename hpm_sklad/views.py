@@ -164,9 +164,10 @@ def dispatch_form_view(request, pk):
             created_auditlog = auditlog_dispatch_form.save(commit=False)
            
             created_auditlog.jednotkova_cena_eur = sklad_instance.jednotkova_cena_eur
+            created_auditlog.zmena_mnozstvi = -created_auditlog.zmena_mnozstvi
             created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
-            updated_sklad.mnozstvi = sklad_instance.mnozstvi - created_auditlog.zmena_mnozstvi
-            updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur - created_auditlog.celkova_cena_eur
+            updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
+            updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
             created_auditlog.typ_operace = "VÝDEJ"
             created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
             created_auditlog.evidencni_cislo = updated_sklad
@@ -531,6 +532,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     paginate_by = 20
     export_csv = False
     graph = False
+    graph_type_of_maintenance = False
 
     def get_context_data(self, **kwargs):
         """
@@ -669,7 +671,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             if item.typ_operace == 'VÝDEJ':
                 if item.pouzite_zarizeni not in data:
                     data[item.pouzite_zarizeni] = 0
-                data[item.pouzite_zarizeni] -= item.celkova_cena_eur
+                data[item.pouzite_zarizeni] += abs(item.celkova_cena_eur)
         
         zarizeni = sorted(data.keys())
         naklady = [data[key] for key in zarizeni]
@@ -705,20 +707,75 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         pdf_buffer.seek(0)
 
         return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_na_zarizeni.pdf')
+    
+    def generate_graph_by_maintenance(self, queryset):
+        """
+        Generuje graf nákladů podle typu údržby za zvolený měsíc a rok a ukládá ho do PDF souboru.
+
+        Vrací:
+        - FileResponse obsahující graf ve formátu PDF.
+        """
+        # Připraví data pro graf
+        data = {}
+        for item in queryset:
+            if item.typ_udrzby not in data:
+                data[item.typ_udrzby] = 0
+            data[item.typ_udrzby] += abs(item.celkova_cena_eur)
+
+        typy_udrzby = sorted(data.keys())
+        naklady = [data[key] for key in typy_udrzby]
+
+        # Vytvoří graf pomocí matplotlib
+        plt.figure(figsize=(14, 8))  # Zvýšení velikosti obrázku
+        plt.bar(typy_udrzby, naklady, color='lightgreen')
+        plt.xlabel('Typ údržby')
+        plt.ylabel('EUR')
+        plt.title(f"Náklady podle typu údržby: měsíc {self.month}, rok {self.year}")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+
+        # Uloží graf do bufferu
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+
+        # Načte obrázek z bufferu pomocí Pillow
+        image = Image.open(buf)
+
+        # Připraví PDF pomocí reportlab
+        pdf_buffer = io.BytesIO()
+        p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+        p.drawString(100, 560, "Náklady podle typu údržby")  # Úprava pozice textu
+
+        # Použije ImageReader pro přidání obrázku do PDF
+        img_reader = ImageReader(image)
+        p.drawImage(img_reader, 50, 150, width=700, height=400)  # Úprava velikosti a pozice obrázku
+
+        p.showPage()
+        p.save()
+        pdf_buffer.seek(0)
+
+        return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_podle_typu_udrzby.pdf')
+
 
     def render_to_response(self, context, **response_kwargs):
         """
-        Určuje, zda vrátit CSV, PDF nebo HTML stránku, na základě parametrů.
+        Určuje, zda vrátit CSV, PDF nebo HTML stránku, na základě atributů.
 
         Vrací:
         - HttpResponse s HTML, CSV nebo PDF obsahem.
         """
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
+        elif getattr(self, 'graph_type_of_maintenance', False):
+            # Vykreslí graf nákladů dle typu údržby
+            return self.generate_graph_by_maintenance(self.get_queryset())
         elif getattr(self, 'graph', False):
-            return self.generate_graph_to_pdf(self.get_queryset())        
+            # Vykreslí výchozí graf
+            return self.generate_graph_to_pdf(self.get_queryset())
         else:
-            return super().render_to_response(context, **response_kwargs)        
+            return super().render_to_response(context, **response_kwargs)
+        
 
 
 class AuditLogDetailView(LoginRequiredMixin, DetailView):
