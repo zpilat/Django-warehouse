@@ -188,6 +188,7 @@ class AuditLog(models.Model):
     - celkova_cena_eur: Celková cena položky v eurech po operaci.
     - cas_vytvoreni: Čas, kdy byla operace zaznamenána.
     - operaci_provedl: Uživatel, který operaci provedl.
+    - typ_udrzby: Typ údržby (reaktivní, preventivní, prediktivní, ostatní).
     - poznamka: Další poznámky k operaci.
 
     Meta:
@@ -203,15 +204,13 @@ class AuditLog(models.Model):
         ('VÝDEJ', 'Výdej')
     ]
 
-    JEDNOTKY_CHOICES = [
-        ('ks', 'kus'),
-        ('kg', 'kilogram'),
-        ('par', 'pár'),
-        ('l', 'litr'),
-        ('m', 'metr'),
-        ('baleni', 'balení'),
+    UDRZBA_CHOICES = [
+        ('Reaktivní', 'Reaktivní'),
+        ('Preventivní', 'Preventivní'),
+        ('Prediktivní', 'Prediktivní'),
+        ('Ostatní', 'Ostatní'),
     ]
-    
+
     ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
     evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")
@@ -220,7 +219,7 @@ class AuditLog(models.Model):
     zmena_mnozstvi = models.IntegerField(verbose_name="Změna množství")
     mnozstvi = models.PositiveIntegerField(verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
-    typ_operace = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, verbose_name="Typ operace")
+    typ_operace = models.CharField(max_length=10, choices=MOVEMENT_CHOICES, null=True, verbose_name="Typ operace")
     pouzite_zarizeni = models.CharField(max_length=70, null=True, verbose_name="Pro zařízení")
     umisteni = models.CharField(max_length=25, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, verbose_name="Dodavatel")
@@ -231,6 +230,7 @@ class AuditLog(models.Model):
     celkova_cena_eur = models.FloatField(default=0.0, verbose_name="Celkem EUR")
     cas_vytvoreni = models.DateTimeField(auto_now_add=True, verbose_name="Čas vytvoření")
     operaci_provedl = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Operaci provedl")
+    typ_udrzby = models.CharField(max_length=20, choices=UDRZBA_CHOICES, null=True, verbose_name="Typ údržby")
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
 
     def __str__(self):

@@ -247,10 +247,15 @@ class AuditLogDispatchForm(forms.ModelForm):
         )
     pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True, empty_label="Vyberte zařízení", label="Pro zařízení")
     zmena_mnozstvi = forms.ChoiceField(label='Změna množství')
+    typ_udrzby = forms.ChoiceField(
+        choices=[('', 'Zadejte typ údržby')] + AuditLog.UDRZBA_CHOICES,
+        required=True,
+        label="Typ údržby"
+    )
    
     class Meta:
         model = AuditLog
-        fields = ["zmena_mnozstvi", "pouzite_zarizeni", "datum_vydeje"]
+        fields = ["zmena_mnozstvi", "pouzite_zarizeni", "typ_udrzby", "datum_vydeje"]
 
     def __init__(self, *args, **kwargs):
         max_mnozstvi = kwargs.pop('max_mnozstvi', 1)

@@ -395,6 +395,7 @@ class AuditLogModelValidationTest(TestCase):
             pouzite_zarizeni='Zařízení 1',
             umisteni='Sklad A',            
             dodavatel='Test Dodavatel',
+            typ_udrzby='Preventivní', 
             operaci_provedl=self.user
         )
         try:

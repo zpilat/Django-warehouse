@@ -87,7 +87,7 @@
                         </th>
                         <th>
                             <a href="?sort=zmena_mnozstvi&order={% if request.GET.sort == 'zmena_mnozstvi' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Změna množství
+                                Změna
                                 {% if request.GET.sort == 'zmena_mnozstvi' %}
                                     <i class="fas fa-sort-{{ request.GET.order }}"></i>
                                 {% endif %}
@@ -95,7 +95,7 @@
                         </th>
                         <th>
                             <a href="?sort=jednotky&order={% if request.GET.sort == 'jednotky' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Jednotky
+                                Jedn.
                                 {% if request.GET.sort == 'jednotky' %}
                                     <i class="fas fa-sort-{{ request.GET.order }}"></i>
                                 {% endif %}
@@ -148,10 +148,18 @@
                                     <i class="fas fa-sort-{{ request.GET.order }}"></i>
                                 {% endif %}
                             </a>
-                        </th>                        
+                        </th>        
+                        <th>
+                            <a href="?sort=typ_udrzby&order={% if request.GET.sort == 'typ_udrzby' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Typ údržby
+                                {% if request.GET.sort == 'typ_udrzby' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>                                        
                         <th>
                             <a href="?sort=operaci_provedl&order={% if request.GET.sort == 'operaci_provedl' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Operaci provedl
+                                Provedl
                                 {% if request.GET.sort == 'operaci_provedl' %}
                                     <i class="fas fa-sort-{{ request.GET.order }}"></i>
                                 {% endif %}
@@ -174,7 +182,8 @@
                         <td>{{ item.dodavatel|truncatechars:20 }}</td>
                         <td>{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td>{{ item.celkova_cena_eur|floatformat:2 }}</td>
-                        <td>{{ item.cas_vytvoreni|date:"d.m.Y" }}</td>                        
+                        <td>{{ item.cas_vytvoreni|date:"d.m.Y" }}</td>   
+                        <td>{{ item.typ_udrzby }}</td>                     
                         <td>{{ item.operaci_provedl.last_name }}</td>
                     </tr>
                 {% endfor %}

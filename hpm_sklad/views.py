@@ -623,7 +623,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             'Účetnictví', 'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Změna množství', 
             'Množství', 'Jednotky', 'Typ operace', 'Pro zařízení', 'Umístění', 'Dodavatel', 
             'Datum výdeje', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR', 
-            'Čas vytvoření', 'Operaci provedl', 'Poznámka'
+            'Čas vytvoření', 'Operaci provedl', 'Typ údržby', 'Poznámka'
         ])
 
         for item in queryset:
@@ -647,6 +647,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 item.celkova_cena_eur, 
                 item.cas_vytvoreni, 
                 item.operaci_provedl.username, 
+                item.typ_udrzby,
                 item.poznamka
             ])
 
