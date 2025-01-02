@@ -239,7 +239,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         else:
             context['selected_item'] = None
 
-        radio_filters = [("", "VŠE")] + [(z.zarizeni.lower(), z.zarizeni.replace('_', ' ')) for z in Zarizeni.objects.all()]
+        zarizeni_filters = [("", "VŠE")] + [(z.zarizeni.lower(), z.zarizeni.replace('_', ' ')) for z in Zarizeni.objects.all()]
 
         context.update({
             'db_table': 'sklad',
@@ -249,8 +249,8 @@ class SkladListView(LoginRequiredMixin, ListView):
             'kriticky_dil': self.request.GET.get('kriticky_dil', ''),
             'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
             'pod_minimem': self.request.GET.get('pod_minimem', ''),
-            'radio_filter': self.request.GET.get('radio_filter', ''),
-            'radio_filters': radio_filters,
+            'zarizeni_filter': self.request.GET.get('zarizeni_filter', 'VŠE'),
+            'zarizeni_filters': zarizeni_filters,
             'current_user': self.request.user,
         })
 
@@ -267,28 +267,27 @@ class SkladListView(LoginRequiredMixin, ListView):
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'evidencni_cislo')
         order = self.request.GET.get('order', 'down')
-
-        if query:
-            queryset = queryset.filter(nazev_dilu__icontains=query)
-
         filters = {
             'kriticky_dil': self.request.GET.get('kriticky_dil'),
             'ucetnictvi': self.request.GET.get('ucetnictvi'),
         }
+        zarizeni_filter = self.request.GET.get('zarizeni_filter','VŠE')
+        pod_minimem = self.request.GET.get('pod_minimem')
+
+        if query:
+            queryset = queryset.filter(nazev_dilu__icontains=query)
 
         for field, value in filters.items():
             if value == 'on':
                 queryset = queryset.filter(**{field: True})
 
-        radio_filter = self.request.GET.get('radio_filter')
-        if radio_filter:
-            queryset = queryset.filter(**{radio_filter: True})
+        if zarizeni_filter != 'VŠE':
+            queryset = queryset.filter(**{zarizeni_filter: True})    
 
         if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)
 
-        pod_minimem = self.request.GET.get('pod_minimem')
         if pod_minimem == 'on':
             queryset = [obj for obj in queryset if obj.pod_minimem]
 

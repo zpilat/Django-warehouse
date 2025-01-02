@@ -551,7 +551,7 @@ class PoptavkaVariantyModelValidationTest(TestCase):
             poptavka_varianta.full_clean()  # Should raise a ValidationError due to invalid jednotky choice
 
 
-####### Test pro vztahy mezi modely (Foreign Key a ManyToMany) #####
+####### Testy pro vztahy mezi modely (Foreign Key a ManyToMany) #####
 
 class SkladForeignKeyTest(TestCase):
     """
