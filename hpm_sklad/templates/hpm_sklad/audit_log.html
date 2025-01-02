@@ -16,6 +16,16 @@
                 <option value="VÝDEJ" {% if request.GET.typ_operace == 'VÝDEJ' %}selected{% endif %}>VÝDEJ</option>
             </select>
         </div>
+        <div class="form-group mx-sm-2 mb-2">
+            <label for="typ_udrzby" class="mr-sm-2">Typ údržby:</label>
+            <select name="typ_udrzby" class="form-select form-select-sm mr-sm-2" id="typ_udrzby">
+                <option value="VŠE" {% if request.GET.typ_udrzby == 'VŠE' or not request.GET.typ_udrzby %}selected{% endif %}>VŠE</option>
+                <option value="Reaktivní" {% if request.GET.typ_udrzby == 'Reaktivní' %}selected{% endif %}>Reaktivní</option>
+                <option value="Preventivní" {% if request.GET.typ_udrzby == 'Preventivní' %}selected{% endif %}>Preventivní</option>
+                <option value="Prediktivní" {% if request.GET.typ_udrzby == 'Prediktivní' %}selected{% endif %}>Prediktivní</option>
+                <option value="Ostatní" {% if request.GET.typ_udrzby == 'Ostatní' %}selected{% endif %}>Ostatní</option>
+            </select>
+        </div>        
         <div class="form-group ml-sm-2 mb-2">
             <label for="month" class="mr-sm-2">Vyberte měsíc a rok:</label>
             <select name="month" id="month" class="form-select form-select-sm mr-sm-2">

@@ -557,6 +557,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
             'typ_operace': self.request.GET.get('typ_operace', 'VŠE'),
+            'typ_udrzby': self.request.GET.get('typ_udrzby', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
             'year': self.request.GET.get('year', 'VŠE'),
             'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
@@ -576,6 +577,10 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'id')
         order = self.request.GET.get('order', 'down')
+        typ_operace = self.request.GET.get('typ_operace', 'VŠE')
+        typ_udrzby = self.request.GET.get('typ_udrzby', 'VŠE')
+        self.month = self.request.GET.get('month', 'VŠE')
+        self.year = self.request.GET.get('year', 'VŠE')
 
         if query:
             queryset = queryset.filter(
@@ -585,12 +590,11 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         if self.request.GET.get('ucetnictvi', '') == 'on':
             queryset = queryset.filter(ucetnictvi=True)
         
-        typ_operace = self.request.GET.get('typ_operace', 'VŠE')
         if typ_operace != 'VŠE':
             queryset = queryset.filter(typ_operace=typ_operace)
 
-        self.month = self.request.GET.get('month', 'VŠE')
-        self.year = self.request.GET.get('year', 'VŠE')
+        if typ_udrzby != 'VŠE':
+            queryset = queryset.filter(typ_udrzby=typ_udrzby)
 
         if self.month != 'VŠE':
             queryset = queryset.filter(
