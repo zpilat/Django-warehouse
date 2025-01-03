@@ -283,8 +283,8 @@ class SkladListView(LoginRequiredMixin, ListView):
             if value == 'on':
                 queryset = queryset.filter(**{field: True})
 
-        if zarizeni_filter != 'VŠE':
-            queryset = queryset.filter(**{zarizeni_filter: True})    
+        if zarizeni_filter and zarizeni_filter != 'VŠE':
+            queryset = queryset.filter(**{zarizeni_filter: True})   
 
         if order == 'down':
             sort = f"-{sort}"
