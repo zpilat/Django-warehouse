@@ -893,7 +893,7 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         """
         Validuje a uloží novou variantu skladové položky.
         """
-        form.instance.skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        form.instance.sklad = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         return super().form_valid(form)
 
 
@@ -944,12 +944,14 @@ class VariantyWithDodavatelCreateView(CreateView):
         Přiřazuje skladovou položku k vytvořené variantě a validuje formulář.
         """
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
-        form.instance.skladova_polozka = skladova_polozka
+        form.instance.sklad = skladova_polozka
 
         # Kontrola, zda varianta se stejným dodavatelem již existuje
         if Varianty.objects.filter(sklad=skladova_polozka, dodavatel=form.instance.dodavatel).exists():
             form.add_error('dodavatel', 'Varianta se stejným dodavatelem již existuje.')
-            return self.form_invalid(form)    
+            return self.form_invalid(form) 
+          
+        return super().form_valid(form)
 
 
 class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
