@@ -1104,7 +1104,7 @@ class DispatchFormViewTest(TestCase):
         self.assertAlmostEqual(sklad.celkova_cena_eur, 500.0)  # Cena se sníží
 
         audit_log = AuditLog.objects.latest('id')
-        self.assertEqual(audit_log.zmena_mnozstvi, 5)
+        self.assertEqual(audit_log.zmena_mnozstvi, -5)
         self.assertEqual(audit_log.jednotkova_cena_eur, 100.0)
         self.assertEqual(audit_log.typ_operace, "VÝDEJ")
         self.assertEqual(audit_log.evidencni_cislo, sklad)

@@ -5,32 +5,25 @@
                 {% if db_table == 'sklad' %}SKLAD{% elif db_table == 'audit_log' %}POHYBY{% elif db_table == 'dodavatele' %}DODAVATELÉ{% elif db_table == 'poptavky' %}POPTÁVKY{% else %}Výběr modulu{% endif %}
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
-                <a class="dropdown-item small" href="{% url 'sklad' %}">Sklad</a>
-                <a class="dropdown-item small" href="{% url 'audit_log' %}">Pohyby</a>
-                <a class="dropdown-item small" href="{% url 'dodavatele' %}">Dodavatelé</a>
-                <a class="dropdown-item small" href="{% url 'poptavky' %}">Poptávky</a>                
+                {% if db_table != 'sklad' %}<a class="dropdown-item small" href="{% url 'sklad' %}">Sklad</a>{% endif %}
+                {% if db_table != 'audit_log' %}<a class="dropdown-item small" href="{% url 'audit_log' %}">Pohyby</a>{% endif %}
+                {% if db_table != 'dodavatele' %}<a class="dropdown-item small" href="{% url 'dodavatele' %}">Dodavatelé</a>{% endif %}
+                {% if db_table != 'poptavky' %}<a class="dropdown-item small" href="{% url 'poptavky' %}">Poptávky</a>{% endif %}           
             </div>
         </div>
-        {% if db_table %}
+        {% if db_table == 'audit_log' %}
             <div class="btn-group btn-group-sm dropdown mr-1">
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Export
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                    <!-- Export do CSV -->
                     <a class="dropdown-item small" href="{% url 'audit_log_export_csv' %}?{{ request.GET.urlencode }}">
                         Export do CSV
-                    </a>
-                    
-                    <!-- Graf nákladů -->
-                    <a class="dropdown-item small {% if db_table != 'audit_log' %}disabled{% endif %}" 
-                    href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
+                    </a>                   
+                    <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
                         Graf nákladů
                     </a>
-                    
-                    <!-- Graf nákladů dle typu údržby -->
-                    <a class="dropdown-item small {% if db_table != 'audit_log' %}disabled{% endif %}" 
-                    href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
+                    <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
                         Graf nákladů dle typu údržby
                     </a>
                 </div>
