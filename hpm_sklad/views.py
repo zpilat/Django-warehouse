@@ -19,7 +19,8 @@ import io
 import logging
 import datetime
 
-
+import matplotlib
+matplotlib.use('Agg')  # Nastavení backendu na neinteraktivní
 import matplotlib.pyplot as plt
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
