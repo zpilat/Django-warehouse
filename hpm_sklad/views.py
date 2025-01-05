@@ -277,7 +277,9 @@ class SkladListView(LoginRequiredMixin, ListView):
         pod_minimem = self.request.GET.get('pod_minimem')
 
         if query:
-            queryset = queryset.filter(nazev_dilu__icontains=query)
+            queryset = queryset.filter(
+                Q(evidencni_cislo__icontains=query) | Q(nazev_dilu__icontains=query)
+            )
 
         for field, value in filters.items():
             if value == 'on':
