@@ -39,8 +39,9 @@
             <div>
                 <p class="h6 small text-center my-0 text-white">{{ current_user.first_name }} {{ current_user.last_name }}</p>
             </div>
-        </div>                            
+        </div>    
         <div class="col-auto">   
+            <a class="btn btn-light btn-sm" href="{% url 'custom_password_change' %}">Změnit heslo</a>
             <a class="btn btn-light btn-sm" href="{% url 'logout' %}">Odhlásit se</a>
         </div>
     {% else %}

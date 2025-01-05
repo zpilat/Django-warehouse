@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
 from django.core.exceptions import ValidationError
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -1449,6 +1449,20 @@ class SignUp(CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"   
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    """
+    Změní heslo uživatele pomocí formuláře.
+
+    Template:
+    - `password_change.html`
+
+    Po úspěšné změně:
+    - Přesměruje uživatele na stránku home.
+    """
+    success_url = reverse_lazy("home")  
+    template_name = "registration/password_change.html"
   
   
 def logout_request(request):
