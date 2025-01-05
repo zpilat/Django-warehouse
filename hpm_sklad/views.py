@@ -1435,23 +1435,8 @@ class PoptavkaVariantyListView(LoginRequiredMixin, ListView):
         queryset = PoptavkaVarianty.objects.filter(poptavka_id=self.poptavka_id)
         return queryset     
 
-    
-class SignUp(CreateView):
-    """
-    Vytváří nového uživatele pomocí registračního formuláře.
 
-    Template:
-    - `signup.html`
-
-    Po úspěšném vytvoření:
-    - Přesměruje uživatele na přihlašovací stránku.
-    """
-    form_class = CustomUserCreationForm
-    success_url = reverse_lazy("login")
-    template_name = "registration/signup.html"   
-
-
-class CustomPasswordChangeView(PasswordChangeView):
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     """
     Změní heslo uživatele pomocí formuláře.
 

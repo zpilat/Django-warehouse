@@ -39,6 +39,5 @@ urlpatterns = [
     path('sklad/poptavky/<int:pk>/poptavka_varianty/', views.PoptavkaVariantyListView.as_view(), name='poptavka_varianty'),
     path('account/', include('django.contrib.auth.urls')),
     path('account/custom_password_change/', views.CustomPasswordChangeView.as_view(), name='custom_password_change'),
-    path("signup/", views.SignUp.as_view(), name="signup"),
     path("logout/", views.logout_request, name= "logout"),
 ]
