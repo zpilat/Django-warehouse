@@ -1438,7 +1438,7 @@ class PoptavkaVariantyListView(LoginRequiredMixin, ListView):
         return queryset     
 
 
-class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+class CustomPasswordChangeView(PasswordChangeView):
     """
     Změní heslo uživatele pomocí formuláře.
 
