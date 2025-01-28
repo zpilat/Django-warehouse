@@ -8,9 +8,9 @@ from django.contrib.auth.models import User, Permission
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from .models import Poptavky, Dodavatele, Sklad, Zarizeni, AuditLog, Varianty, PoptavkaVarianty
+from .models import Poptavky, Dodavatele, Sklad, AuditLog, Varianty, PoptavkaVarianty
 
-from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
+from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm, ZARIZENI_CHOICES
 
 from .views import SkladListView
 
@@ -78,27 +78,6 @@ class DodavateleModelTest(TestCase):
     def test_dodavatel_creation(self):
         self.assertTrue(isinstance(self.dodavatel, Dodavatele))
         self.assertEqual(str(self.dodavatel), 'Test Dodavatel')
-
-
-class ZarizeniModelTest(TestCase):
-    """
-    Testuje základní funkce modelu Zarizeni.
-
-    Testy:
-    - test_zarizeni_creation: Ověřuje, že model Zarizeni je správně vytvořen a jeho stringová reprezentace odpovídá očekávání.
-    """
-
-    def setUp(self):
-        self.zarizeni = Zarizeni.objects.create(
-            zarizeni='Z001',
-            nazev_zarizeni='Test Zařízení',
-            umisteni='Sklad B',
-            typ_zarizeni='Typ 1'
-        )
-
-    def test_zarizeni_creation(self):
-        self.assertTrue(isinstance(self.zarizeni, Zarizeni))
-        self.assertEqual(str(self.zarizeni), 'Z001')
 
 
 class AuditLogModelTest(TestCase):
@@ -333,37 +312,6 @@ class DodavateleModelValidationTest(TestCase):
         )
         with self.assertRaises(ValidationError):
             dodavatel.full_clean()  # Should raise a ValidationError due to invalid jazyk choice
-
-
-class ZarizeniModelValidationTest(TestCase):
-    """
-    Testuje validaci modelu Zarizeni.
-
-    Testy:
-    - test_valid_zarizeni: Ověřuje, že platná data nevyvolají chybu validace.
-    - test_missing_nazev_zarizeni: Ověřuje, že chybějící název zařízení vyvolá chybu validace.
-    """
-
-    def test_valid_zarizeni(self):
-        zarizeni = Zarizeni(
-            zarizeni='Z001',
-            nazev_zarizeni='Test Zařízení',
-            umisteni='Sklad B',
-            typ_zarizeni='Typ 1'
-        )
-        try:
-            zarizeni.full_clean()  # Should not raise a ValidationError
-        except ValidationError:
-            self.fail("Zarizeni model validation failed for valid data.")
-
-    def test_missing_nazev_zarizeni(self):
-        zarizeni = Zarizeni(
-            zarizeni='Z001',
-            umisteni='Sklad B',
-            typ_zarizeni='Typ 1'
-        )
-        with self.assertRaises(ValidationError):
-            zarizeni.full_clean()  # Should raise a ValidationError due to missing nazev_zarizeni
 
 
 class AuditLogModelValidationTest(TestCase):
@@ -1046,12 +994,7 @@ class DispatchFormViewTest(TestCase):
             dodavatel=self.dodavatel.dodavatel
         )
 
-        self.zarizeni = Zarizeni.objects.create(
-        zarizeni='Z001',
-        nazev_zarizeni='Testovací zařízení',
-        umisteni='Sklad A',
-        typ_zarizeni='Typ 1'
-        )
+        self.zarizeni = ZARIZENI_CHOICES[0]
 
         self.url = reverse('dispatch_audit_log', kwargs={'pk': self.sklad.pk})
 
@@ -1095,7 +1038,7 @@ class DispatchFormViewTest(TestCase):
         'zmena_mnozstvi': 5,  # Výdej 5 kusů
         'datum_vydeje': '2024-10-01',
         'typ_udrzby': 'Preventivní',
-        'pouzite_zarizeni': self.zarizeni.pk
+        'pouzite_zarizeni': self.zarizeni
         }
         response = self.client.post(self.url, data=post_data)
 
@@ -1122,7 +1065,7 @@ class DispatchFormViewTest(TestCase):
             'poznamka': 'Výdej zboží',  # Přidej poznámku
             'zmena_mnozstvi': 20,  # Výdej více než dostupné množství
             'datum_vydeje': '2024-10-01',
-            'pouzite_zarizeni': self.zarizeni.pk,
+            'pouzite_zarizeni': self.zarizeni,
         }
         response = self.client.post(self.url, data=post_data)
 
@@ -1141,7 +1084,7 @@ class DispatchFormViewTest(TestCase):
         post_data = {
             'zmena_mnozstvi': -5,  # Záporné množství
             'datum_vydeje': '2024-10-01',
-            'pouzite_zarizeni': self.zarizeni.pk
+            'pouzite_zarizeni': self.zarizeni
         }
         response = self.client.post(self.url, data=post_data)
 

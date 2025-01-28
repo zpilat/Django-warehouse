@@ -27,11 +27,11 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
                     VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm, DodavateleCreateForm,
-                    DodavateleUpdateForm)
+                    DodavateleUpdateForm, ZARIZENI_CHOICES)
 
 logger = logging.getLogger(__name__)
 
@@ -241,7 +241,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         else:
             context['selected_item'] = None
 
-        zarizeni_filters = [("", "VŠE")] + [(z.zarizeni.lower(), z.zarizeni.replace('_', ' ')) for z in Zarizeni.objects.all()]
+        zarizeni_filters = [("", "VŠE")] + [(z[0].lower(), z[1]) for z in ZARIZENI_CHOICES]
 
         context.update({
             'db_table': 'sklad',

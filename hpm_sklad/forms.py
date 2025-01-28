@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty, JEDNOTKY_CHOICES
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, JEDNOTKY_CHOICES
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -12,22 +12,29 @@ from django.utils import timezone
 from datetime import date
 
 
-all_sklad_fields = [
-    "evidencni_cislo", "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks",
-    "objednano", "nazev_dilu", "mnozstvi", "jednotky", "umisteni", "dodavatel",
-    "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", "poznamka",
-    "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1",
-    "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1",
-    "kw2", "kw3", "mikrof",
+ZARIZENI_CHOICES = [
+    ("HSH", "Kalicí pec HSH"),
+    ("TQ8", "Kalicí pec TQ8"),
+    ("TQF_XL1", "Kalicí pec TQF XL1"),
+    ("TQF_XL2", "Kalicí pec TQF XL2"),
+    ("DC_XL", "Popouštěčka DC XL"),
+    ("DAC_XL1_2", "Popouštěčky DAC XL1-2"),
+    ("DL_XL", "Předehřev DL XL"),
+    ("DAC", "Popouštěčka DAC"),
+    ("LAC_1", "Popouštěčka LAC 1"),
+    ("LAC_2", "Popouštěčka LAC 2"),
+    ("IPSEN_ENE", "Endogenerátor IPSEN"),
+    ("HSH_ENE", "Endogenerátor HSH"),
+    ("XL_ENE1", "Endogenerátor XL1"),
+    ("XL_ENE2", "Endogenerátor XL2"),
+    ("IPSEN_W", "Pračka IPSEN"),
+    ("HSH_W", "Pračka HSH"),
+    ("KW", "Oplach KW"),
+    ("KW1", "Pračka KW1"),
+    ("KW2", "Pračka KW2"),
+    ("KW3", "Pračka KW3"),
+    ("MIKROF", "Mikrofiltrace"),
     ]
-
-all_auditlog_fields = [
-    "id", "ucetnictvi", "evidencni_cislo", "interne_cislo", "objednano", "nazev_dilu", "zmena_mnozstvi",  
-    "mnozstvi", "jednotky", "typ_operace", "pouzite_zarizeni", "umisteni", "dodavatel",
-    "datum_vydeje", "datum_nakupu", "cislo_objednavky", "jednotkova_cena_eur", "celkova_cena_eur", 
-    "cas_vytvoreni", "operaci_provedl", "poznamka",  
-    ]
-
 
 class SkladCreateForm(forms.ModelForm):
     """
@@ -249,7 +256,11 @@ class AuditLogDispatchForm(forms.ModelForm):
         required=True,
         label='Datum výdeje'
         )
-    pouzite_zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=True, empty_label="Vyberte zařízení", label="Pro zařízení")
+    pouzite_zarizeni = forms.ChoiceField(
+        choices=[('', 'Vyberte zařízení')] + ZARIZENI_CHOICES,
+        required=True,
+        label="Pro zařízení"
+        )
     zmena_mnozstvi = forms.ChoiceField(label='Změna množství')
     typ_udrzby = forms.ChoiceField(
         choices=[('', 'Zadejte typ údržby')] + AuditLog.UDRZBA_CHOICES,

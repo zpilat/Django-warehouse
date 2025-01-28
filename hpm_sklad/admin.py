@@ -1,11 +1,10 @@
 from django.contrib import admin
-from .models import Sklad, AuditLog, Dodavatele, Zarizeni, Varianty, Poptavky, PoptavkaVarianty
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty
 from simple_history.admin import SimpleHistoryAdmin
 
 # Register your models here.
 admin.site.register(AuditLog)
 admin.site.register(Dodavatele)
-admin.site.register(Zarizeni)
 admin.site.register(Varianty)
 admin.site.register(Poptavky)
 admin.site.register(PoptavkaVarianty)

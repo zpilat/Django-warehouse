@@ -137,33 +137,7 @@ class Dodavatele(models.Model):
     def __str__(self):
         return f"{self.dodavatel}"
 
-
-class Zarizeni(models.Model):
-    """
-    Model reprezentující zařízení.
-
-    Pole:
-    - zarizeni: Kód zařízení.
-    - nazev_zarizeni: Název zařízení.
-    - umisteni: Umístění zařízení.
-    - typ_zarizeni: Typ zařízení.
-
-    Meta:
-    - verbose_name_plural: Množné číslo názvu modelu je "Zařízení".
-    """
-    class Meta:
-        verbose_name_plural = "Zařízení"
-    
-    zarizeni = models.CharField(max_length=10, verbose_name="Zařízení")
-    nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
-    umisteni = models.CharField(max_length=20, verbose_name="Umístění")
-    typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
-
-
-    def __str__(self):
-        return f"{self.zarizeni}"
-
-    
+  
 class AuditLog(models.Model):
     """
     Model pro sledování pohybů (příjem a výdej) položek ve skladu.
