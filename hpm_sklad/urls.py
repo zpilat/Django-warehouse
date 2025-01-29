@@ -29,7 +29,7 @@ urlpatterns = [
     path('sklad/dodavatele/new/', views.DodavateleCreateView.as_view(), name='create_dodavatele'),
     path('sklad/dodavatele/<int:pk>/update/', views.DodavateleUpdateView.as_view(), name='update_dodavatele'),
     path('sklad/dodavatele/<int:pk>/delete/', views.DodavateleDeleteView.as_view(), name='delete_dodavatele'),
-    path('sklad/dodavatele/export/', views.DodavateleListView.as_view(export_csv=True), name='dodavatele_export_csv'),
+    path('sklad/dodavatele/export/csv/', views.DodavateleListView.as_view(export_csv=True), name='dodavatele_export_csv'),
     path('sklad/poptavky/', views.PoptavkaListView.as_view(), name='poptavky'),
     path('sklad/poptavky/<int:dodavatel_id>/create/', views.create_poptavka, name='create_poptavka'),
     path('sklad/poptavky/<int:pk>/update/', views.SkladUpdateView.as_view(), name='update_sklad'),

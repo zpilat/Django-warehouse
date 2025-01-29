@@ -11,25 +11,32 @@
                 {% if db_table != 'poptavky' %}<a class="dropdown-item small" href="{% url 'poptavky' %}">Poptávky</a>{% endif %}           
             </div>
         </div>
-        {% if db_table == 'audit_log' %}
+        {% if db_table == 'sklad' or db_table == 'audit_log' or db_table == 'dodavatele' %}
             <div class="btn-group btn-group-sm dropdown mr-1">
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Export
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                    {% if db_table == 'audit_log' %}
                     <a class="dropdown-item small" href="{% url 'audit_log_export_csv' %}?{{ request.GET.urlencode }}">
+                    {% elif db_table == 'sklad' %}
+                    <a class="dropdown-item small" href="{% url 'sklad_export_csv' %}?{{ request.GET.urlencode }}">
+                    {% elif db_table == 'dodavatele' %}
+                    <a class="dropdown-item small" href="{% url 'dodavatele_export_csv' %}?{{ request.GET.urlencode }}">
+                    {% endif %}
                         Export do CSV
-                    </a>                   
-                    <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
-                        Graf nákladů
-                    </a>
-                    <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
-                        Graf nákladů dle typu údržby
-                    </a>
+                    </a>     
+                    {% if db_table == 'audit_log' %}              
+                        <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
+                            Graf nákladů
+                        </a>
+                        <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
+                            Graf nákladů dle typu údržby
+                        </a>
+                    {% endif %}
                 </div>
             </div>
-        {% endif %}
-            
+        {% endif %}          
     </div>
     {% if user.is_authenticated %}
         <div class="col-auto">
