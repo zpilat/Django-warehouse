@@ -30,18 +30,18 @@
             <label for="month" class="mr-sm-2">Vyberte měsíc a rok:</label>
             <select name="month" id="month" class="form-select form-select-sm mr-sm-2">
                 <option value="VŠE" {% if request.GET.month == 'VŠE' or not request.GET.month %}selected{% endif %}>VŠE</option>
-                <option value="01" {% if request.GET.month == '01' %}selected{% endif %}>Leden</option>
-                <option value="02" {% if request.GET.month == '02' %}selected{% endif %}>Únor</option>
-                <option value="03" {% if request.GET.month == '03' %}selected{% endif %}>Březen</option>
-                <option value="04" {% if request.GET.month == '04' %}selected{% endif %}>Duben</option>
-                <option value="05" {% if request.GET.month == '05' %}selected{% endif %}>Květen</option>
-                <option value="06" {% if request.GET.month == '06' %}selected{% endif %}>Červen</option>
-                <option value="07" {% if request.GET.month == '07' %}selected{% endif %}>Červenec</option>
-                <option value="08" {% if request.GET.month == '08' %}selected{% endif %}>Srpen</option>
-                <option value="09" {% if request.GET.month == '09' %}selected{% endif %}>Září</option>
-                <option value="10" {% if request.GET.month == '10' %}selected{% endif %}>Říjen</option>
-                <option value="11" {% if request.GET.month == '11' %}selected{% endif %}>Listopad</option>
-                <option value="12" {% if request.GET.month == '12' %}selected{% endif %}>Prosinec</option>
+                <option value="01" {% if request.GET.month == '01' %}selected{% endif %}>01 | Leden</option>
+                <option value="02" {% if request.GET.month == '02' %}selected{% endif %}>02 | Únor</option>
+                <option value="03" {% if request.GET.month == '03' %}selected{% endif %}>03 | Březen</option>
+                <option value="04" {% if request.GET.month == '04' %}selected{% endif %}>04 | Duben</option>
+                <option value="05" {% if request.GET.month == '05' %}selected{% endif %}>05 | Květen</option>
+                <option value="06" {% if request.GET.month == '06' %}selected{% endif %}>06 | Červen</option>
+                <option value="07" {% if request.GET.month == '07' %}selected{% endif %}>07 | Červenec</option>
+                <option value="08" {% if request.GET.month == '08' %}selected{% endif %}>08 | Srpen</option>
+                <option value="09" {% if request.GET.month == '09' %}selected{% endif %}>09 | Září</option>
+                <option value="10" {% if request.GET.month == '10' %}selected{% endif %}>10 | Říjen</option>
+                <option value="11" {% if request.GET.month == '11' %}selected{% endif %}>11 | Listopad</option>
+                <option value="12" {% if request.GET.month == '12' %}selected{% endif %}>12 | Prosinec</option>
             </select>
         </div>
         <div class="form-group mr-sm-2 mb-2">
