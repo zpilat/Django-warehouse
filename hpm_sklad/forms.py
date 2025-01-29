@@ -13,10 +13,10 @@ from datetime import date
 
 
 ZARIZENI_CHOICES = [
-    ("HSH", "Kalicí pec HSH"),
-    ("TQ8", "Kalicí pec TQ8"),
-    ("TQF_XL1", "Kalicí pec TQF XL1"),
-    ("TQF_XL2", "Kalicí pec TQF XL2"),
+    ("HSH", "Víceúčelová pec HSH"),
+    ("TQ8", "Víceúčelová pec TQ8"),
+    ("TQF_XL1", "Víceúčelová pec TQF XL1"),
+    ("TQF_XL2", "Víceúčelová pec TQF XL2"),
     ("DC_XL", "Popouštěčka DC XL"),
     ("DAC_XL1_2", "Popouštěčky DAC XL1-2"),
     ("DL_XL", "Předehřev DL XL"),
