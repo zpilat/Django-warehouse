@@ -78,7 +78,7 @@
                                     <i class="fas fa-sort-down"></i>
                                 {% endif %} 
                             </a>
-                        </th>
+                        </th>                   
                         <th>
                             <a href="?sort=typ_operace&order={% if request.GET.sort == 'typ_operace' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Typ operace
@@ -87,6 +87,14 @@
                                 {% endif %}
                             </a>
                         </th>
+                        <th>
+                            <a href="?sort=id&order={% if request.GET.sort == 'evidencni_cislo_id' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Ev.č.
+                                {% if request.GET.sort == 'evidencni_cislo_id' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>                           
                         <th>
                             <a href="?sort=nazev_dilu&order={% if request.GET.sort == 'nazev_dilu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Název dílu
@@ -184,6 +192,7 @@
                     {% if item.pk == selected_item.pk %} class="table-info"{% endif %}>  
                         <td>{{ item.pk }}</td>
                         <td>{{ item.typ_operace }}</td>
+                        <td>{{ item.evidencni_cislo_id }}                        
                         <td>{{ item.nazev_dilu|truncatechars:58 }}</td>                   
                         <td>{{ item.zmena_mnozstvi }}</td>
                         <td>{{ item.jednotky }}</td>
