@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from .models import Poptavky, Dodavatele, Sklad, AuditLog, Varianty, PoptavkaVarianty
 
-from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm, ZARIZENI_CHOICES
+from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
 
 from .views import SkladListView
 
@@ -976,7 +976,6 @@ class DispatchFormViewTest(TestCase):
         - Vytvoření uživatele s oprávněními `change_sklad` a `add_auditlog`.
         - Vytvoření skladové položky.
         - Vytvoření dodavatele.
-        - Vytvoření zařízení (zarizeni).
         - Vytvoření URL pro testování.
         """
         self.user = User.objects.create_user(username='testuser', password='testpassword')
@@ -993,8 +992,6 @@ class DispatchFormViewTest(TestCase):
             celkova_cena_eur=1000.0,
             dodavatel=self.dodavatel.dodavatel
         )
-
-        self.zarizeni = ZARIZENI_CHOICES[0]
 
         self.url = reverse('dispatch_audit_log', kwargs={'pk': self.sklad.pk})
 
@@ -1038,7 +1035,7 @@ class DispatchFormViewTest(TestCase):
         'zmena_mnozstvi': 5,  # Výdej 5 kusů
         'datum_vydeje': '2024-10-01',
         'typ_udrzby': 'Preventivní',
-        'pouzite_zarizeni': self.zarizeni
+        'pouzite_zarizeni': "HSH",
         }
         response = self.client.post(self.url, data=post_data)
 
@@ -1065,7 +1062,7 @@ class DispatchFormViewTest(TestCase):
             'poznamka': 'Výdej zboží',  # Přidej poznámku
             'zmena_mnozstvi': 20,  # Výdej více než dostupné množství
             'datum_vydeje': '2024-10-01',
-            'pouzite_zarizeni': self.zarizeni,
+            'pouzite_zarizeni': "HSH",
         }
         response = self.client.post(self.url, data=post_data)
 
@@ -1084,7 +1081,7 @@ class DispatchFormViewTest(TestCase):
         post_data = {
             'zmena_mnozstvi': -5,  # Záporné množství
             'datum_vydeje': '2024-10-01',
-            'pouzite_zarizeni': self.zarizeni
+            'pouzite_zarizeni': "HSH",
         }
         response = self.client.post(self.url, data=post_data)
 

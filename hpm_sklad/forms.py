@@ -223,11 +223,7 @@ class AuditLogReceiptForm(forms.ModelForm):
     Formulář pro zaznamenání příjmu zboží v audit logu.
     Obsahuje pole pro zadání změny množství přijatého zboží.
     """
-    zmena_mnozstvi = forms.IntegerField(
-        validators=[MinValueValidator(1)],
-        min_value=1,
-        label='Změna množství'
-        )
+    zmena_mnozstvi = forms.IntegerField(min_value=1, label='Změna množství')
     
     class Meta:
         model = AuditLog
