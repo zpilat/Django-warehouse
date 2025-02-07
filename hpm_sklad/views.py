@@ -222,7 +222,7 @@ class SkladListView(LoginRequiredMixin, ListView):
     - Seznam položek skladů, možnosti filtrování a řazení.
     """
     model = Sklad
-    template_name = 'hpm_sklad/sklad.html'
+    template_name = 'hpm_sklad/sklad.html' if request.user_agent.is_pc else 'hpm_sklad/sklad_mobile.html'
     paginate_by = 20
     export_csv = False
 

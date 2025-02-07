@@ -6,9 +6,11 @@
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
                 {% if db_table != 'sklad' %}<a class="dropdown-item small" href="{% url 'sklad' %}">Sklad</a>{% endif %}
-                {% if db_table != 'audit_log' %}<a class="dropdown-item small" href="{% url 'audit_log' %}">Pohyby</a>{% endif %}
-                {% if db_table != 'dodavatele' %}<a class="dropdown-item small" href="{% url 'dodavatele' %}">Dodavatelé</a>{% endif %}
-                {% if db_table != 'poptavky' %}<a class="dropdown-item small" href="{% url 'poptavky' %}">Poptávky</a>{% endif %}           
+                {% if request.user_agent.is_pc %}
+                    {% if db_table != 'audit_log' %}<a class="dropdown-item small" href="{% url 'audit_log' %}">Pohyby</a>{% endif %}
+                    {% if db_table != 'dodavatele' %}<a class="dropdown-item small" href="{% url 'dodavatele' %}">Dodavatelé</a>{% endif %}
+                    {% if db_table != 'poptavky' %}<a class="dropdown-item small" href="{% url 'poptavky' %}">Poptávky</a>{% endif %}           
+                {% endif %}
             </div>
         </div>
         {% if db_table == 'sklad' or db_table == 'audit_log' or db_table == 'dodavatele' %}
@@ -48,7 +50,6 @@
             </div>
         </div>    
         <div class="col-auto">   
-            <a class="btn btn-light btn-sm" href="{% url 'custom_password_change' %}">Změnit heslo</a>
             <a class="btn btn-light btn-sm" href="{% url 'logout' %}">Odhlásit se</a>
         </div>
     {% else %}

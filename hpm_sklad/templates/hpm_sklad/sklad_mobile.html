@@ -1,0 +1,126 @@
+{% extends "hpm_sklad/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block left_content %}
+    <form method="GET" action="" class="form-inline justify-content-center align-items-center small my-2">
+        <div class="form-group mx-sm-3 mb-2">
+            <div class="form-row justify-content-center align-items-center">
+                <div class="form-check form-check-inline mb-2">
+                    <input type="checkbox" class="form-check-input" name="kriticky_dil" id="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="kriticky_dil">Kritický díl</label>
+                </div>
+                <div class="form-check form-check-inline mb-2">
+                    <input type="checkbox" class="form-check-input" name="ucetnictvi" id="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="ucetnictvi">Účetnictví</label>
+                </div>
+                <div class="form-check form-check-inline mb-2">
+                    <input type="checkbox" class="form-check-input" name="pod_minimem" id="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="pod_minimem">Pod minimem</label>
+                </div>
+                <div class="form-group mx-sm-2 mb-2">
+                    <label for="zarizeni_filter" class="mr-sm-2">Pro zařízení:</label>
+                    <select name="zarizeni_filter" class="form-select form-select-sm mr-sm-2" id="zarizeni_filter">
+                        {% for value, label in zarizeni_filters %}
+                        <option value="{{ value }}" {% if request.GET.zarizeni_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div> 
+                <div class="form-group mx-sm-3 mb-2">
+                    <input class="form-control form-control-sm" type="text" name="query" placeholder="Hledat název dílu / ev. číslo" value="{{ request.GET.query }}">
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill" type="submit">Filtrovat</button>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
+        <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
+    </form>
+    
+    <div class="container-fluid">
+        <table class="table table-sm table-hover table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    {% with request.GET.urlencode as querystring %}
+                        <th scope="col">
+                            <a href="?sort=evidencni_cislo&order={% if request.GET.sort == 'evidencni_cislo' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Ev. číslo
+                                {% if request.GET.sort == 'evidencni_cislo' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                                {% if not request.GET.sort %}
+                                    <i class="fas fa-sort-down"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="?sort=interne_cislo&order={% if request.GET.sort == 'interne_cislo' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Č. karty
+                                {% if request.GET.sort == 'interne_cislo' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="?sort=nazev_dilu&order={% if request.GET.sort == 'nazev_dilu' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Název dílu
+                                {% if request.GET.sort == 'nazev_dilu' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="?sort=mnozstvi&order={% if request.GET.sort == 'mnozstvi' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Množství
+                                {% if request.GET.sort == 'mnozstvi' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="?sort=jednotky&order={% if request.GET.sort == 'jednotky' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Jedn.
+                                {% if request.GET.sort == 'jednotky' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="?sort=umisteni&order={% if request.GET.sort == 'umisteni' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Umístění
+                                {% if request.GET.sort == 'umisteni' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a href="?sort=poznamka&order={% if request.GET.sort == 'poznamka' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Poznámka
+                                {% if request.GET.sort == 'poznamka' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                    {% endwith %}
+                </tr>
+            </thead>
+            <tbody class="show-pointer">
+                {% for item in object_list %}
+                    <tr data-id="{{ item.pk }}" data-detail-url="{% url 'detail_sklad' item.pk %}" onclick="loadDetail('{% url 'detail_sklad' item.pk %}', '{{ item.pk }}')"
+                    {% if item.pk == selected_sklad.pk %} class="table-info"{% endif %} {% if item.pod_minimem %} class="pod-minimem-row"{% endif %}>
+                        <td scope="row">{{ item.pk }}</td>
+                        <td scope="row">{{ item.interne_cislo }}</td>
+                        <td scope="row">{{ item.nazev_dilu|truncatechars:60 }}</td>
+                        <td scope="row">{{ item.mnozstvi }}</td>
+                        <td scope="row">{{ item.jednotky }}</td>
+                        <td scope="row">{{ item.umisteni }}</td>
+                        <td scope="row">{{ item.poznamka|truncatechars:25 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>    
+    {% include "hpm_sklad/pagination.html" %}
+{% endblock %}

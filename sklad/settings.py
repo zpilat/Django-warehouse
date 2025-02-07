@@ -43,6 +43,7 @@ LOGOUT_REDIRECT_URL = 'login'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django-user-agents',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
 ]
