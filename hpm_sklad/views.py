@@ -214,7 +214,7 @@ class SkladListView(LoginRequiredMixin, ListView):
     Zobrazuje seznam všech položek ve skladu.
 
     - Povoleno pouze přihlášeným uživatelům.
-    - Stránkuje výsledky a umožňuje export do CSV.
+    - Stránkuje výsledky (na PC) a umožňuje export do CSV.
 
     Template:
     - `sklad.html` pro PC, `sklad_mobile.html` pro mobilní zařízení.
@@ -223,9 +223,17 @@ class SkladListView(LoginRequiredMixin, ListView):
     - Seznam položek skladů, možnosti filtrování a řazení.
     """
     model = Sklad
-    paginate_by = 20
     export_csv = False
     
+    def get_paginate_by(self, queryset):
+        """
+        Určuje, zda se má použít stránkování, nebo ne.
+        Na PC bude stránkování po 20 záznamech, na mobilu se zobrazí vše.
+        """
+        if get_user_agent(self.request).is_pc:
+            return 20
+        return None
+
     def get_template_names(self):
         """
         Dynamicky volí šablonu podle toho, zda je uživatel na PC nebo mobilu.
