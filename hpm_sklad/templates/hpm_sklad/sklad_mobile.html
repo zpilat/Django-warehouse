@@ -4,11 +4,12 @@
 
 {% block left_content %}
     <form method="GET" action="" class="form-inline justify-content-center align-items-center small my-2 w-100">
-        <div class="form-group mx-sm-3 mb-2">
-            <div class="form-row justify-content-center align-items-center">
+        <div class="w-100">
+            <!-- První řádek: Filtr zařízení -->
+            <div class="form-row justify-content-center align-items-center mb-2">
                 <div class="form-group mx-sm-2 mb-2">
                     <label for="zarizeni_filter" class="mr-sm-2">Pro zařízení:</label>
-                    <select name="zarizeni_filter" class="form-select form-select-sm mr-sm-2" id="zarizeni_filter">
+                    <select name="zarizeni_filter" class="form-select form-select-sm" id="zarizeni_filter">
                         {% for value, label in zarizeni_filters %}
                         <option value="{{ value }}" {% if request.GET.zarizeni_filter == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
@@ -16,11 +17,12 @@
                 </div> 
             </div>
 
-            <div class="form-row justify-content-center align-items-center small">
-                <div class="form-group mx-sm-3 mb-2">
+            <!-- Druhý řádek: Vyhledávání + tlačítko Filtrovat -->
+            <div class="form-row justify-content-center align-items-center mb-2">
+                <div class="form-group mx-sm-3">
                     <input class="form-control form-control-sm" type="text" name="query" placeholder="Hledat název dílu / ev. číslo" value="{{ request.GET.query }}">
                 </div>
-                <div class="form-group mx-sm-3 mb-2">
+                <div class="form-group mx-sm-3">
                     <button class="btn btn-outline-dark btn-sm rounded-pill" type="submit">Filtrovat</button>
                 </div>
             </div>
@@ -29,8 +31,7 @@
         <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
         <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
     </form>
-
-    
+   
     <div class="container-fluid">
         <table class="table table-sm table-hover table-striped table-bordered">
             <thead class="thead-dark">
