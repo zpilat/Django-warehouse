@@ -17,6 +17,10 @@
                 <div class="form-group mx-sm-3 mb-2">
                     <input class="form-control form-control-sm" type="text" name="query" placeholder="Hledat název dílu / ev. číslo" value="{{ request.GET.query }}">
                 </div>
+            </div>
+
+            <!-- Nový řádek pro tlačítko -->
+            <div class="form-row justify-content-center align-items-center w-100">
                 <div class="form-group mx-sm-3 mb-2">
                     <button class="btn btn-outline-dark btn-sm rounded-pill" type="submit">Filtrovat</button>
                 </div>
@@ -26,6 +30,7 @@
         <input type="hidden" name="sort" value="{% if request.GET.sort %}{{ request.GET.sort }}{% else %}evidencni_cislo{% endif %}">
         <input type="hidden" name="order" value="{% if request.GET.order %}{{ request.GET.order }}{% else %}down{% endif %}">
     </form>
+
     
     <div class="container-fluid">
         <table class="table table-sm table-hover table-striped table-bordered">
