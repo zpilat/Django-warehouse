@@ -6,18 +6,6 @@
     <form method="GET" action="" class="form-inline justify-content-center align-items-center small my-2">
         <div class="form-group mx-sm-3 mb-2">
             <div class="form-row justify-content-center align-items-center">
-                <div class="form-check form-check-inline mb-2">
-                    <input type="checkbox" class="form-check-input" name="kriticky_dil" id="kriticky_dil" {% if request.GET.kriticky_dil == 'on' %}checked{% endif %}>
-                    <label class="form-check-label" for="kriticky_dil">Kritický díl</label>
-                </div>
-                <div class="form-check form-check-inline mb-2">
-                    <input type="checkbox" class="form-check-input" name="ucetnictvi" id="ucetnictvi" {% if request.GET.ucetnictvi == 'on' %}checked{% endif %}>
-                    <label class="form-check-label" for="ucetnictvi">Účetnictví</label>
-                </div>
-                <div class="form-check form-check-inline mb-2">
-                    <input type="checkbox" class="form-check-input" name="pod_minimem" id="pod_minimem" {% if request.GET.pod_minimem == 'on' %}checked{% endif %}>
-                    <label class="form-check-label" for="pod_minimem">Pod minimem</label>
-                </div>
                 <div class="form-group mx-sm-2 mb-2">
                     <label for="zarizeni_filter" class="mr-sm-2">Pro zařízení:</label>
                     <select name="zarizeni_filter" class="form-select form-select-sm mr-sm-2" id="zarizeni_filter">
@@ -112,7 +100,7 @@
                     {% if item.pk == selected_sklad.pk %} class="table-info"{% endif %} {% if item.pod_minimem %} class="pod-minimem-row"{% endif %}>
                         <td scope="row">{{ item.pk }}</td>
                         <td scope="row">{{ item.interne_cislo }}</td>
-                        <td scope="row">{{ item.nazev_dilu|truncatechars:60 }}</td>
+                        <td scope="row">{{ item.nazev_dilu|truncatechars:80 }}</td>
                         <td scope="row">{{ item.mnozstvi }}</td>
                         <td scope="row">{{ item.jednotky }}</td>
                         <td scope="row">{{ item.umisteni }}</td>
