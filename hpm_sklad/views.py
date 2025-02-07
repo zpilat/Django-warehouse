@@ -14,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.db.models import Q
 from django.db import models
 from django.forms import inlineformset_factory
+from django_user_agents.utils import get_user_agent
 
 import io
 import logging
@@ -216,15 +217,23 @@ class SkladListView(LoginRequiredMixin, ListView):
     - Stránkuje výsledky a umožňuje export do CSV.
 
     Template:
-    - `sklad.html`
+    - `sklad.html` pro PC, `sklad_mobile.html` pro mobilní zařízení.
 
     Kontext:
     - Seznam položek skladů, možnosti filtrování a řazení.
     """
     model = Sklad
-    template_name = 'hpm_sklad/sklad.html' if request.user_agent.is_pc else 'hpm_sklad/sklad_mobile.html'
     paginate_by = 20
     export_csv = False
+    
+    def get_template_names(self):
+        """
+        Dynamicky volí šablonu podle toho, zda je uživatel na PC nebo mobilu.
+        """
+        if get_user_agent(self.request).is_pc:
+            return ['hpm_sklad/sklad.html']
+        else:
+            return ['hpm_sklad/sklad_mobile.html']
 
     def get_context_data(self, **kwargs):
         """

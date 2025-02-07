@@ -43,7 +43,7 @@ LOGOUT_REDIRECT_URL = 'login'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'django-user-agents',
+    'django_user_agents',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
