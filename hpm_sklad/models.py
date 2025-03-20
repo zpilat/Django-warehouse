@@ -37,7 +37,7 @@ class Zarizeni(models.Model):
     typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
 
     def __str__(self):
-        return f"{self.zarizeni}"
+        return f"{self.typ_zarizeni} {self.nazev_zarizeni}"
 
 
 class Sklad(models.Model):
