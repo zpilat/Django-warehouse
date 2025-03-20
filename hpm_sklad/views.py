@@ -488,7 +488,6 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
     - Zahrnuje detaily skladové položky, seznam variant a polí pravdivých atributů zařízení.
     """
     model = Sklad
-    model = Sklad
 
     def get_template_names(self):
         """
