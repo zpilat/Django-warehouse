@@ -15,6 +15,31 @@ JEDNOTKY_CHOICES = [
     ]
 
 
+class Zarizeni(models.Model):
+    """
+    Model reprezentující zařízení.
+
+    Pole:
+    - zarizeni: Kód zařízení.
+    - nazev_zarizeni: Název zařízení.
+    - umisteni: Umístění zařízení.
+    - typ_zarizeni: Typ zařízení.
+
+    Meta:
+    - verbose_name_plural: Množné číslo názvu modelu je "Zařízení".
+    """
+    class Meta:
+        verbose_name_plural = "Zařízení"
+
+    zarizeni = models.CharField(max_length=10, verbose_name="Zařízení")
+    nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
+    umisteni = models.CharField(max_length=20, verbose_name="Umístění")
+    typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
+
+    def __str__(self):
+        return f"{self.zarizeni}"
+
+
 class Sklad(models.Model):
     """
     Model reprezentující skladovou položku.
@@ -89,13 +114,14 @@ class Sklad(models.Model):
     kw2 = models.BooleanField(default=False, verbose_name="KW 2")
     kw3 = models.BooleanField(default=False, verbose_name="KW 3")
     mikrof = models.BooleanField(default=False, verbose_name="MIKROF")
+    zarizeni = models.ManyToManyField(Zarizeni, blank=True)
     history = HistoricalRecords()
 
     def get_absolute_url(self):
         return reverse("sklad")
     
     def __str__(self):
-        return "Evid. č. " + str(self.evidencni_cislo) + ", " + self.nazev_dilu
+        return f"Evid. č. {str(self.evidencni_cislo)}, {self.nazev_dilu}"
 
     @property
     def pod_minimem(self):
@@ -138,31 +164,6 @@ class Dodavatele(models.Model):
         return f"{self.dodavatel}"
     
 
-class Zarizeni(models.Model):
-    """
-    Model reprezentující zařízení.
-
-    Pole:
-    - zarizeni: Kód zařízení.
-    - nazev_zarizeni: Název zařízení.
-    - umisteni: Umístění zařízení.
-    - typ_zarizeni: Typ zařízení.
-
-    Meta:
-    - verbose_name_plural: Množné číslo názvu modelu je "Zařízení".
-    """
-    class Meta:
-        verbose_name_plural = "Zařízení"
-
-    zarizeni = models.CharField(max_length=10, verbose_name="Zařízení")
-    nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
-    umisteni = models.CharField(max_length=20, verbose_name="Umístění")
-    typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
-
-    def __str__(self):
-        return f"{self.zarizeni}"
-
-  
 class AuditLog(models.Model):
     """
     Model pro sledování pohybů (příjem a výdej) položek ve skladu.
