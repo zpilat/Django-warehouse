@@ -73,7 +73,7 @@ class Sklad(models.Model):
     tqf_xl1 = models.BooleanField(default=False, verbose_name="TQF XL1")
     tqf_xl2 = models.BooleanField(default=False, verbose_name="TQF XL2")
     dc_xl = models.BooleanField(default=False, verbose_name="DC XL")
-    dac_xl1_2 = models.BooleanField(default=False, verbose_name="DAC XL1-2")
+    dac_xl1_2 = models.BooleanField(default=False, verbose_name="DAC XL1 a XL2")
     dl_xl = models.BooleanField(default=False, verbose_name="DL XL")
     dac = models.BooleanField(default=False, verbose_name="DAC")
     lac_1 = models.BooleanField(default=False, verbose_name="LAC 1")

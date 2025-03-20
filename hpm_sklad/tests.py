@@ -7,6 +7,7 @@ from django.contrib.auth.models import User, Permission
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django_user_agents.utils import get_user_agent
 
 from .models import Poptavky, Dodavatele, Sklad, Zarizeni, AuditLog, Varianty, PoptavkaVarianty
 
@@ -1219,7 +1220,10 @@ class SkladListViewTest(TestCase):
         """
         self.client.login(username='testuser', password='testpassword')
         url = reverse('sklad')
-        response = self.client.get(url)
+        pc_user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                         'AppleWebKit/537.36 (KHTML, like Gecko) '
+                         'Chrome/92.0.4515.131 Safari/537.36')
+        response = self.client.get(url, HTTP_USER_AGENT=pc_user_agent)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'hpm_sklad/sklad.html')
 
@@ -1255,14 +1259,17 @@ class SkladListViewTest(TestCase):
 
         self.client.login(username='testuser', password='testpassword')
         url = reverse('sklad')
+        pc_user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                         'AppleWebKit/537.36 (KHTML, like Gecko) '
+                         'Chrome/92.0.4515.131 Safari/537.36')        
 
         # Zkontrolujeme, že je zobrazeno pouze 20 položek na první stránce
-        response = self.client.get(url)
+        response = self.client.get(url, HTTP_USER_AGENT=pc_user_agent)
         sklad_items = response.context['object_list']
         self.assertEqual(len(sklad_items), 20)
 
         # Ověříme, že na druhé stránce je zbývajících 5 položek
-        response = self.client.get(url, {'page': 2})
+        response = self.client.get(url, {'page': 2}, HTTP_USER_AGENT=pc_user_agent)
         sklad_items = response.context['object_list']
         self.assertEqual(len(sklad_items), 5)
 
