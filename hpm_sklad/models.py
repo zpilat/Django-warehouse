@@ -63,6 +63,7 @@ class Sklad(models.Model):
     - kriticky_dil: Indikace, zda jde o kritický díl.
     - hsh, tq8, tqf_xl1, tqf_xl2, dc_xl, dac_xl1_2, dl_xl, dac, lac_1, lac_2, ipsen_ene, hsh_ene, xl_ene1,
       xl_ene2, ipsen_w, hsh_w, kw, kw1, kw2, kw3, mikrof: Zařízení, pro které je ND určen.
+    - zarizeni: many to many pole k tabulce Zarizeni, nahradí soubor předchozích polí - zařízení, pro které je ND určen.  
     - history: Historie změn položky.
 
     Vlastnosti:

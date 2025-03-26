@@ -91,14 +91,14 @@ class ZarizeniModelTest(TestCase):
     def setUp(self):
         self.zarizeni = Zarizeni.objects.create(
             zarizeni='Z001',
-            nazev_zarizeni='Test Zařízení',
+            nazev_zarizeni='Ipsen W',
             umisteni='Sklad B',
-            typ_zarizeni='Typ 1'
+            typ_zarizeni='Pračka'
         )
 
     def test_zarizeni_creation(self):
         self.assertTrue(isinstance(self.zarizeni, Zarizeni))
-        self.assertEqual(str(self.zarizeni), 'Z001')
+        self.assertEqual(str(self.zarizeni), 'Pračka Ipsen W')
 
 
 class AuditLogModelTest(TestCase):
