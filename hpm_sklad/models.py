@@ -61,9 +61,7 @@ class Sklad(models.Model):
     - poznamka: Další poznámky k položce.
     - ucetnictvi: Indikace, zda je položka v účetnictví.
     - kriticky_dil: Indikace, zda jde o kritický díl.
-    - hsh, tq8, tqf_xl1, tqf_xl2, dc_xl, dac_xl1_2, dl_xl, dac, lac_1, lac_2, ipsen_ene, hsh_ene, xl_ene1,
-      xl_ene2, ipsen_w, hsh_w, kw, kw1, kw2, kw3, mikrof: Zařízení, pro které je ND určen.
-    - zarizeni: many to many pole k tabulce Zarizeni, nahradí soubor předchozích polí - zařízení, pro které je ND určen.  
+    - zarizeni: many to many pole k tabulce Zarizeni - zařízení, pro které je ND určen.  
     - history: Historie změn položky.
 
     Vlastnosti:
@@ -94,27 +92,6 @@ class Sklad(models.Model):
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
     ucetnictvi = models.BooleanField(default=True, verbose_name="Účetnictví")
     kriticky_dil = models.BooleanField(default=False, verbose_name="Kritický díl") 
-    hsh = models.BooleanField(default=False, verbose_name="HSH")
-    tq8 = models.BooleanField(default=False, verbose_name="TQ8")
-    tqf_xl1 = models.BooleanField(default=False, verbose_name="TQF XL1")
-    tqf_xl2 = models.BooleanField(default=False, verbose_name="TQF XL2")
-    dc_xl = models.BooleanField(default=False, verbose_name="DC XL")
-    dac_xl1_2 = models.BooleanField(default=False, verbose_name="DAC XL1-2")
-    dl_xl = models.BooleanField(default=False, verbose_name="DL XL")
-    dac = models.BooleanField(default=False, verbose_name="DAC")
-    lac_1 = models.BooleanField(default=False, verbose_name="LAC 1")
-    lac_2 = models.BooleanField(default=False, verbose_name="LAC 2")
-    ipsen_ene = models.BooleanField(default=False, verbose_name="IPSEN ENE")
-    hsh_ene = models.BooleanField(default=False, verbose_name="HSH ENE")
-    xl_ene1 = models.BooleanField(default=False, verbose_name="XL ENE1")
-    xl_ene2 = models.BooleanField(default=False, verbose_name="XL ENE2")
-    ipsen_w = models.BooleanField(default=False, verbose_name="IPSEN W")
-    hsh_w = models.BooleanField(default=False, verbose_name="HSH W")
-    kw = models.BooleanField(default=False, verbose_name="KW")
-    kw1 = models.BooleanField(default=False, verbose_name="KW 1")
-    kw2 = models.BooleanField(default=False, verbose_name="KW 2")
-    kw3 = models.BooleanField(default=False, verbose_name="KW 3")
-    mikrof = models.BooleanField(default=False, verbose_name="MIKROF")
     zarizeni = models.ManyToManyField(Zarizeni, blank=True)
     history = HistoricalRecords()
 
