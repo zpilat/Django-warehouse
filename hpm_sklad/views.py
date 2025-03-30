@@ -114,7 +114,7 @@ def receipt_form_view(request, pk):
             varianta_dodavatele = [var.dodavatel for var in varianty]
            
             if not varianty or dodavatel_object not in varianta_dodavatele:
-                return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
+                return redirect('create_varianty_with_dodavatel', pk=pk, dodavatel=dodavatel_object.id)
                                            
             return redirect('audit_log')
         
