@@ -117,13 +117,6 @@ def receipt_form_view(request, pk):
                 return redirect(reverse('create_varianty_with_dodavatel', kwargs={'pk': pk, 'dodavatel': dodavatel_object.id}))
                                            
             return redirect('audit_log')
-        else:
-            context = {
-                'sklad_movement_form': sklad_movement_form,
-                'auditlog_receipt_form': auditlog_receipt_form,
-                'object': sklad_instance,
-            }
-            return render(request, 'hpm_sklad/receipt_audit_log.html', context)
         
     else: # GET 
         sklad_movement_form = SkladReceiptForm(instance=sklad_instance)
@@ -189,14 +182,6 @@ def dispatch_form_view(request, pk):
             updated_sklad.save()            
             created_auditlog.save()
             return redirect('audit_log')
-        else:
-            # Pokud není validní, vrátíme formuláře zpět na stránku s chybami
-            context = {
-                'sklad_movement_form': sklad_movement_form,
-                'auditlog_dispatch_form': auditlog_dispatch_form,
-                'object': sklad_instance,
-            }
-            return render(request, 'hpm_sklad/dispatch_audit_log.html', context)
                    
     else: # GET 
         sklad_movement_form = SkladDispatchForm(instance=sklad_instance)
