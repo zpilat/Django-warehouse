@@ -6,7 +6,7 @@
     <p class="h6 py-2 px-2">Vytvoření skladové položky</p>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'create_sklad' %}">
+<form class="mt-2" method="post" action="{% url 'create_sklad' %}" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {% crispy form %}
 </form>

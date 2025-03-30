@@ -6,7 +6,7 @@
     <p class="h6 text-white">Vytvoření nového dodavatele:</p>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'create_dodavatele' %}">
+<form class="mt-2" method="post" action="{% url 'create_dodavatele' %}" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {% crispy form %}
 </form>

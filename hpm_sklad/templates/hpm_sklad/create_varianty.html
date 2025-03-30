@@ -6,7 +6,9 @@
     <p class="h6 py-2 px-2">Vytvoření varianty pro: {{ skladova_polozka|truncatechars:50 }}</p>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'create_varianty' skladova_polozka.pk %}">
+<form class="mt-2" method="post"
+    action="{% url 'create_varianty' skladova_polozka.pk %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {% crispy form %}
 </form>

@@ -9,7 +9,9 @@
     </div>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'update_varianty' object.pk %}">
+<form class="mt-2" method="post"
+    action="{% url 'update_varianty' object.pk %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {% crispy form %}
 </form>

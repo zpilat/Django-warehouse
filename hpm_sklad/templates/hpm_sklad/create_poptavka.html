@@ -4,7 +4,7 @@
 <div class="bg-dark text-white mt-3">
     <p class="h6 py-2 px-2">Vytvoření poptávky pro: {{ dodavatel.dodavatel }}</p>
 </div>
-<form method="post" action="{% url 'create_poptavka' dodavatel_id=dodavatel.pk %}">
+<form method="post" action="{% url 'create_poptavka' dodavatel_id=dodavatel.pk %}" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {{ formset.management_form }}
     <table class="table table-sm table-hover table-striped table-bordered">

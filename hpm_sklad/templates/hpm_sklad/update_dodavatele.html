@@ -6,7 +6,9 @@
     <p class="h6 py-2 px-2">Úprava dodavatele: {{ object|truncatechars:50 }}</p>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'update_dodavatele' object.pk %}">
+<form class="mt-2" method="post"
+    action="{% url 'update_dodavatele' object.pk %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {% crispy form %}
 </form>
