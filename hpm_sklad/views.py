@@ -87,29 +87,24 @@ def receipt_form_view(request, pk):
             updated_sklad.celkova_cena_eur = round(sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur, 2)
             updated_sklad.jednotkova_cena_eur = round(updated_sklad.celkova_cena_eur / updated_sklad.mnozstvi, 2)
             created_auditlog.typ_operace = "PŘÍJEM"
-            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
-            created_auditlog.evidencni_cislo = updated_sklad
-            created_auditlog.interne_cislo = updated_sklad.interne_cislo
-            created_auditlog.objednano = updated_sklad.objednano
-            created_auditlog.nazev_dilu = updated_sklad.nazev_dilu
-            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
-            created_auditlog.mnozstvi = updated_sklad.mnozstvi
-            created_auditlog.jednotky = updated_sklad.jednotky
-            created_auditlog.umisteni = updated_sklad.umisteni
-            created_auditlog.dodavatel = updated_sklad.dodavatel
-            created_auditlog.datum_nakupu = updated_sklad.datum_nakupu
-            created_auditlog.cislo_objednavky = updated_sklad.cislo_objednavky
             created_auditlog.operaci_provedl = request.user
-            created_auditlog.poznamka = updated_sklad.poznamka
+            created_auditlog.evidencni_cislo = updated_sklad
+
+            fields_to_copy = [
+                'ucetnictvi', 'interne_cislo', 'objednano', 'nazev_dilu', 'mnozstvi',
+                'jednotky', 'umisteni', 'dodavatel', 'datum_nakupu',
+                'cislo_objednavky', 'poznamka'                
+            ]
+
+            for field in fields_to_copy:
+                setattr(created_auditlog, field, getattr(updated_sklad, field))
+
             
             updated_sklad.save()            
             created_auditlog.save()
 
-            # Získání dodavatele z formuláře
-            dodavatel_form_value = sklad_movement_form.cleaned_data['dodavatel']
-            dodavatel_object = Dodavatele.objects.get(dodavatel=dodavatel_form_value)
-
             # Kontrola, zda varianta existuje
+            dodavatel_object = updated_sklad.dodavatel
             varianty = Varianty.objects.filter(sklad=sklad_instance)
             varianta_dodavatele = [var.dodavatel for var in varianty]
            
@@ -165,20 +160,17 @@ def dispatch_form_view(request, pk):
             updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
             updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
             created_auditlog.typ_operace = "VÝDEJ"
-            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
             created_auditlog.evidencni_cislo = updated_sklad
-            created_auditlog.interne_cislo = updated_sklad.interne_cislo
-            created_auditlog.objednano = updated_sklad.objednano
-            created_auditlog.nazev_dilu = updated_sklad.nazev_dilu
-            created_auditlog.ucetnictvi = updated_sklad.ucetnictvi
-            created_auditlog.mnozstvi = updated_sklad.mnozstvi
-            created_auditlog.jednotky = updated_sklad.jednotky
-            created_auditlog.umisteni = updated_sklad.umisteni
-            created_auditlog.dodavatel = updated_sklad.dodavatel
-            created_auditlog.cislo_objednavky = updated_sklad.cislo_objednavky
             created_auditlog.operaci_provedl = request.user
-            created_auditlog.poznamka = updated_sklad.poznamka
-            
+
+            fields_to_copy = [
+                'ucetnictvi', 'interne_cislo', 'objednano', 'nazev_dilu', 'mnozstvi',
+                'jednotky', 'umisteni', 'dodavatel', 'cislo_objednavky', 'poznamka'                
+            ]
+
+            for field in fields_to_copy:
+                setattr(created_auditlog, field, getattr(updated_sklad, field))            
+
             updated_sklad.save()            
             created_auditlog.save()
             return redirect('audit_log')
