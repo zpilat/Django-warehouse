@@ -260,7 +260,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         Vrací:
         - queryset: Filtrovaný a seřazený seznam skladových položek.
         """
-        queryset = Sklad.objects.all()
+        queryset = Sklad.objects.fetch_related()
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'evidencni_cislo')
         order = self.request.GET.get('order', 'down')
@@ -281,7 +281,7 @@ class SkladListView(LoginRequiredMixin, ListView):
                 queryset = queryset.filter(**{field: True})
 
         if zarizeni_filter and zarizeni_filter != 'VŠE':
-            queryset = queryset.filter(**{zarizeni_filter: True})   
+            queryset = queryset.filter(zarizeni__zarizeni__iexact=zarizeni_filter)   
 
         if order == 'down':
             sort = f"-{sort}"
@@ -306,9 +306,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         writer.writerow([
             'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Minimum', 'Množství', 'Jednotky', 
             'Umístění', 'Dodavatel', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR', 
-            'Poznámka', 'Účetnictví', 'Kritický díl', 'HSH', 'TQ8', 'TQF XL1', 'TQF XL2', 'DC XL', 
-            'DAC XL1-2', 'DL XL', 'DAC', 'LAC 1', 'LAC 2', 'IPSEN ENE', 'HSH ENE', 'XL ENE1', 
-            'XL ENE2', 'IPSEN W', 'HSH W', 'KW', 'KW 1', 'KW 2', 'KW 3', 'MIKROF'
+            'Poznámka', 'Účetnictví', 'Kritický díl'
         ])
 
         for item in queryset:
@@ -329,27 +327,6 @@ class SkladListView(LoginRequiredMixin, ListView):
                 item.poznamka, 
                 item.ucetnictvi, 
                 item.kriticky_dil, 
-                item.hsh, 
-                item.tq8, 
-                item.tqf_xl1, 
-                item.tqf_xl2, 
-                item.dc_xl, 
-                item.dac_xl1_2, 
-                item.dl_xl, 
-                item.dac, 
-                item.lac_1, 
-                item.lac_2, 
-                item.ipsen_ene, 
-                item.hsh_ene, 
-                item.xl_ene1, 
-                item.xl_ene2, 
-                item.ipsen_w, 
-                item.hsh_w, 
-                item.kw, 
-                item.kw1, 
-                item.kw2, 
-                item.kw3, 
-                item.mikrof
             ])
 
         return response
