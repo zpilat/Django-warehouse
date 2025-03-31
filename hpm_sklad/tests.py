@@ -91,7 +91,7 @@ class ZarizeniModelTest(TestCase):
 
     def setUp(self):
         self.zarizeni = Zarizeni.objects.create(
-            zarizeni='Z001',
+            kod_zarizeni='Z001',
             nazev_zarizeni='Ipsen W',
             umisteni='Sklad B',
             typ_zarizeni='Pračka'

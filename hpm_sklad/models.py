@@ -31,7 +31,7 @@ class Zarizeni(models.Model):
     class Meta:
         verbose_name_plural = "Zařízení"
 
-    zarizeni = models.CharField(max_length=10, verbose_name="Zařízení")
+    kod_zarizeni = models.CharField(max_length=10, verbose_name="Kód zařízení")
     nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
     umisteni = models.CharField(max_length=20, verbose_name="Umístění")
     typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
@@ -118,7 +118,7 @@ class SkladZarizeni(models.Model):
     - zarizeni: Odkaz na zařízení (cizí klíč na model Zarizeni).
 
     Omezení:
-    - Zarizeni a Sklad musí být jedinečné v rámci této tabulky (kombinace).
+    - Kombinace Sklad / Zarizeni musí být jedinečné v rámci této tabulky
     """
 
     class Meta:

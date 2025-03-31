@@ -235,8 +235,8 @@ class SkladListView(LoginRequiredMixin, ListView):
         else:
             context['selected_item'] = None
 
-        zarizeni = Zarizeni.objects.all()
-        zarizeni_choices = [("", "VŠE")] + [(z.zarizeni, z.nazev_zarizeni) for z in zarizeni]
+        zarizeni_qs = Zarizeni.objects.all()
+        zarizeni_choices = [("", "VŠE")] + [(z.kod_zarizeni, z.nazev_zarizeni) for z in zarizeni_qs]
 
         context.update({
             'db_table': 'sklad',

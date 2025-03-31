@@ -230,7 +230,6 @@ class AuditLogDispatchForm(forms.ModelForm):
         label='Datum výdeje'
         )
     pouzite_zarizeni = forms.ChoiceField(
-        choices=[('', 'Vyberte zařízení')] + ZARIZENI_CHOICES,
         required=True,
         label="Pro zařízení"
         )
@@ -257,6 +256,10 @@ class AuditLogDispatchForm(forms.ModelForm):
         
         self.fields['datum_vydeje'].required = True
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
+
+        zarizeni_qs = Zarizeni.objects.all()
+        zarizeni_choices = [('', 'Vyberte zařízení')] + [(z.kod_zarizeni.upper(), z.nazev_zarizeni) for z in zarizeni_qs]        
+        self.fields['pouzite_zarizeni'].choices = zarizeni_choices
 
 
 class VariantyCreateForm(forms.ModelForm):
