@@ -21,7 +21,7 @@
                 <div class="form-group mx-sm-2 mb-2">
                     <label for="zarizeni_filter" class="mr-sm-2">Pro zařízení:</label>
                     <select name="zarizeni_filter" class="form-select form-select-sm mr-sm-2" id="zarizeni_filter">
-                        {% for value, label in zarizeni_filters %}
+                        {% for value, label in zarizeni_choices %}
                         <option value="{{ value }}" {% if request.GET.zarizeni_filter == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>

@@ -28,11 +28,11 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 
-from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
                     VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm, DodavateleCreateForm,
-                    DodavateleUpdateForm, ZARIZENI_CHOICES)
+                    DodavateleUpdateForm)
 
 logger = logging.getLogger(__name__)
 
@@ -240,8 +240,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         """
         if get_user_agent(self.request).is_pc:
             return ['hpm_sklad/sklad.html']
-        else:
-            return ['hpm_sklad/sklad_mobile.html']
+        return ['hpm_sklad/sklad_mobile.html']
 
     def get_context_data(self, **kwargs):
         """
@@ -258,7 +257,8 @@ class SkladListView(LoginRequiredMixin, ListView):
         else:
             context['selected_item'] = None
 
-        zarizeni_filters = [("", "VŠE")] + [(z[0].lower(), z[1]) for z in ZARIZENI_CHOICES]
+        zarizeni = Zarizeni.objects.all()
+        zarizeni_choices = [("", "VŠE")] + [(z.zarizeni, z.nazev_zarizeni) for z in zarizeni]
 
         context.update({
             'db_table': 'sklad',
@@ -269,7 +269,7 @@ class SkladListView(LoginRequiredMixin, ListView):
             'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
             'pod_minimem': self.request.GET.get('pod_minimem', ''),
             'zarizeni_filter': self.request.GET.get('zarizeni_filter', 'VŠE'),
-            'zarizeni_filters': zarizeni_filters,
+            'zarizeni_choices': zarizeni_choices,
             'current_user': self.request.user,
         })
 
@@ -385,8 +385,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         """
         if getattr(self, 'export_csv', False):
             return self.export_to_csv(self.get_queryset())
-        else:
-            return super().render_to_response(context, **response_kwargs)    
+        return super().render_to_response(context, **response_kwargs)    
 
 
 class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

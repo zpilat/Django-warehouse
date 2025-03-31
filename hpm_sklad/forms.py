@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, JEDNOTKY_CHOICES
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni, JEDNOTKY_CHOICES
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -12,29 +12,7 @@ from django.utils import timezone
 from datetime import date
 
 
-ZARIZENI_CHOICES = [
-    ("HSH", "Víceúčelová pec HSH"),
-    ("TQ8", "Víceúčelová pec TQ8"),
-    ("TQF_XL1", "Víceúčelová pec TQF XL1"),
-    ("TQF_XL2", "Víceúčelová pec TQF XL2"),
-    ("DC_XL", "Popouštěčka DC XL"),
-    ("DAC_XL1_2", "Popouštěčky DAC XL1-2"),
-    ("DL_XL", "Předehřev DL XL"),
-    ("DAC", "Popouštěčka DAC"),
-    ("LAC_1", "Popouštěčka LAC 1"),
-    ("LAC_2", "Popouštěčka LAC 2"),
-    ("IPSEN_ENE", "Endogenerátor IPSEN"),
-    ("HSH_ENE", "Endogenerátor HSH"),
-    ("XL_ENE1", "Endogenerátor XL1"),
-    ("XL_ENE2", "Endogenerátor XL2"),
-    ("IPSEN_W", "Pračka IPSEN"),
-    ("HSH_W", "Pračka HSH"),
-    ("KW", "Oplach KW"),
-    ("KW1", "Pračka KW1"),
-    ("KW2", "Pračka KW2"),
-    ("KW3", "Pračka KW3"),
-    ("MIKROF", "Mikrofiltrace"),
-    ]
+# ZARIZENI_CHOICES = [("HSH", "Víceúčelová pec HSH"),]
 
 class SkladCreateForm(forms.ModelForm):
     """
@@ -43,14 +21,13 @@ class SkladCreateForm(forms.ModelForm):
     názvu dílu, jednotek, umístění, dodavatele a dalších atributů specifických pro skladové položky.
     """
     dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
+    zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=False, empty_label="Vyberte zařízení")
 
     class Meta:
         model = Sklad
         fields = [
             "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", "dodavatel",
-            "poznamka", "ucetnictvi", "kriticky_dil", "hsh", "tq8", "tqf_xl1", "tqf_xl2", "dc_xl", "dac_xl1_2",
-            "dl_xl", "dac", "lac_1", "lac_2", "ipsen_ene", "hsh_ene", "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w",
-            "kw", "kw1", "kw2", "kw3", "mikrof"
+            "poznamka", "ucetnictvi", "kriticky_dil", "zarizeni"
         ]
 
     def __init__(self, *args, **kwargs):
