@@ -437,10 +437,10 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
     Zobrazuje detailní informace o skladové položce.
 
     Template:
-    - Určeno buď atributem `template_name`, nebo vyvolá chybu pokud není nastaveno.
+    - 'detail_sklad.html'
     
     Kontext:
-    - Zahrnuje detaily skladové položky, seznam variant a polí pravdivých atributů zařízení.
+    - Zahrnuje detaily skladové položky, seznam variant a pole přiřazených zařízení.
     """
     model = Sklad
     template_name = 'hpm_sklad/detail_sklad.html'
