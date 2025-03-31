@@ -10,7 +10,9 @@
     </div>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'create_varianty_with_dodavatel' skladova_polozka.pk dodavatel_id %}">
+<form class="mt-2" method="post"
+    action="{% url 'create_varianty_with_dodavatel' skladova_polozka.pk dodavatel_id %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {% crispy form %}
 </form>

@@ -6,7 +6,9 @@
     <p class="h6 py-2 px-2">Smazání dodavatele: {{ object }}</p>
 </div>
 
-<form class="mt-2" method="post" action="{% url 'delete_dodavatele' object.pk %}">
+<form class="mt-2" method="post"
+    action="{% url 'delete_dodavatele' object.pk %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     <p class="h6 text-center">Opravdu chcete tohoto dodavatele smazat?</p>
     <div class="d-flex justify-content-center mt-3">

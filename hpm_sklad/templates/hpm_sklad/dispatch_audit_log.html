@@ -6,7 +6,9 @@
     <p class="h6 py-2 px-2">Výdej zboží ze skladu: {{ object|truncatechars:50 }}<p>
 </div>
 
-<form class="small mt-2" method="post" action="{% url 'dispatch_audit_log' object.pk %}">
+<form class="small mt-2" method="post"
+    action="{% url 'dispatch_audit_log' object.pk %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
     {% csrf_token %}
     {{ sklad_movement_form|crispy }}
     {{ auditlog_dispatch_form|crispy }}
