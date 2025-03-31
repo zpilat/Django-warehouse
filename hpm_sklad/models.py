@@ -92,7 +92,7 @@ class Sklad(models.Model):
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
     ucetnictvi = models.BooleanField(default=True, verbose_name="Účetnictví")
     kriticky_dil = models.BooleanField(default=False, verbose_name="Kritický díl") 
-    zarizeni = models.ManyToManyField(Zarizeni, blank=True)
+    zarizeni = models.ManyToManyField(Zarizeni, blank=True, through='SkladZarizeni', verbose_name="Zařízení")
     history = HistoricalRecords()
 
     def get_absolute_url(self):
@@ -108,6 +108,29 @@ class Sklad(models.Model):
     def pod_minimem_display(self):
         return "ANO" if self.pod_minimem else "NE"
 
+
+class SkladZarizeni(models.Model):
+    """
+    Propojovací model mezi skladovými položkami a zařízeními.
+
+    Pole:
+    - sklad: Odkaz na skladovou položku (cizí klíč na model Sklad).
+    - zarizeni: Odkaz na zařízení (cizí klíč na model Zarizeni).
+
+    Omezení:
+    - Zarizeni a Sklad musí být jedinečné v rámci této tabulky (kombinace).
+    """
+
+    class Meta:
+        unique_together = ('sklad', 'zarizeni')
+        verbose_name_plural = "Skladové položky - Zařízení"
+    
+    sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Skladová položka")
+    zarizeni = models.ForeignKey(Zarizeni, on_delete=models.CASCADE, verbose_name="Zařízení")
+
+    def __str__(self):
+        return f"{self.sklad} - {self.zarizeni}"
+    
 
 class Dodavatele(models.Model):
     """
