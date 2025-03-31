@@ -12,8 +12,6 @@ from django.utils import timezone
 from datetime import date
 
 
-# ZARIZENI_CHOICES = [("HSH", "Víceúčelová pec HSH"),]
-
 class SkladCreateForm(forms.ModelForm):
     """
     Formulář pro vytvoření nového záznamu ve skladu.

@@ -443,19 +443,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
     - Zahrnuje detaily skladové položky, seznam variant a polí pravdivých atributů zařízení.
     """
     model = Sklad
-
-    def get_template_names(self):
-        """
-        Určuje šablonu pro zobrazení detailu položky.
-        Pokud není nastavena, vyvolá chybu.
-
-        Vrací:
-        - Název šablony (str).
-        """
-        if self.template_name:
-            return [self.template_name]
-        else:
-            raise ValueError("Template name not provided")
+    template_name = 'hpm_sklad/detail_sklad.html'
 
     def get_context_data(self, **kwargs):
         """
