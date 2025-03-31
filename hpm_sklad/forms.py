@@ -29,7 +29,7 @@ class SkladCreateForm(forms.ModelForm):
             "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", "dodavatel",
             "poznamka", "ucetnictvi", "kriticky_dil", "zarizeni"
         ]
-
+            
     def __init__(self, *args, **kwargs):
         super(SkladCreateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
