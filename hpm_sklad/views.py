@@ -260,7 +260,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         Vrací:
         - queryset: Filtrovaný a seřazený seznam skladových položek.
         """
-        queryset = Sklad.objects.fetch_related()
+        queryset = Sklad.objects.prefetch_related('zarizeni')
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'evidencni_cislo')
         order = self.request.GET.get('order', 'down')
@@ -306,7 +306,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         writer.writerow([
             'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Minimum', 'Množství', 'Jednotky', 
             'Umístění', 'Dodavatel', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR', 
-            'Poznámka', 'Účetnictví', 'Kritický díl'
+            'Poznámka', 'Účetnictví', 'Kritický díl', 'Zařízení'
         ])
 
         for item in queryset:
@@ -327,6 +327,7 @@ class SkladListView(LoginRequiredMixin, ListView):
                 item.poznamka, 
                 item.ucetnictvi, 
                 item.kriticky_dil, 
+                ', '.join([z.kod_zarizeni.upper() for z in item.zarizeni.all()])
             ])
 
         return response
