@@ -281,7 +281,7 @@ class SkladListView(LoginRequiredMixin, ListView):
                 queryset = queryset.filter(**{field: True})
 
         if zarizeni_filter and zarizeni_filter != 'VŠE':
-            queryset = queryset.filter(zarizeni__zarizeni__iexact=zarizeni_filter)   
+            queryset = queryset.filter(zarizeni__kod_zarizeni__iexact=zarizeni_filter)   
 
         if order == 'down':
             sort = f"-{sort}"
