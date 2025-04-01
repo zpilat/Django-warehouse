@@ -38,21 +38,21 @@
 
 <table class="table table-sm table-striped table-bordered">    
     <tbody>
+        <tr>
+            <th colspan=10 scope="col">Pro zařízení</th>
+        </tr>
         {% if equipment_fields %}
             <tr>
-                <th colspan=10 scope="col">Pro zařízení</th>
-            </tr>
-            <tr>
                 {% for field in equipment_fields %}
-                    <td>{{ field.kod_zarizeni|upper}}</td>
+                    <td>{{ field|upper}}</td>
+                    {% if forloop.counter|divisibleby:5 and not forloop.last %}
+            </tr><tr>
+                    {% endif %}        
                 {% endfor %}
             </tr>
         {% else %}
             <tr>
-            <th>Pro zařízení</th>
-            </tr>
-            <tr>
-                <td>Žádné konkrétní zařízení.</td>
+                <td>Žádné vybrané konkrétní zařízení.</td>
             </tr>
         {% endif %}
     </tbody>

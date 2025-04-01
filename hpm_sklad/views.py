@@ -456,7 +456,7 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         varianty = self.object.varianty_skladu.all()      
         zarizeni = self.object.zarizeni.all()  
 
-        equipment_fields = [z for z in zarizeni]
+        equipment_fields = [z.kod_zarizeni for z in zarizeni]
 
         info_fields = [field for field in Sklad._meta.fields if field.name in ("ucetnictvi", "kriticky_dil")]
         info_fields.append({'verbose_name': 'Pod minimem', 'name': 'pod_minimem'})
