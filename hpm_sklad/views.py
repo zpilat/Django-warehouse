@@ -273,7 +273,7 @@ class SkladListView(LoginRequiredMixin, ListView):
 
         if query:
             queryset = queryset.filter(
-                Q(evidencni_cislo__icontains=query) | Q(nazev_dilu__icontains=query)
+                Q(evidencni_cislo__icontains=query) | Q(interne_cislo__icontains=query) | Q(nazev_dilu__icontains=query)
             )
 
         for field, value in filters.items():
