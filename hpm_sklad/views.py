@@ -103,8 +103,10 @@ def receipt_form_view(request, pk):
             updated_sklad.save()            
             created_auditlog.save()
 
+             # Získání dodavatele z formuláře
+            dodavatel_object = Dodavatele.objects.get(dodavatel=updated_sklad.dodavatel)
+
             # Kontrola, zda varianta existuje
-            dodavatel_object = updated_sklad.dodavatel
             varianty = Varianty.objects.filter(sklad=sklad_instance)
             varianta_dodavatele = [var.dodavatel for var in varianty]
            
