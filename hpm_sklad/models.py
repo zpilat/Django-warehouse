@@ -124,6 +124,7 @@ class SkladZarizeni(models.Model):
     class Meta:
         unique_together = ('sklad', 'zarizeni')
         verbose_name_plural = "Skladové položky - Zařízení"
+        db_table = 'hpm_sklad_sklad_zarizeni'
     
     sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Skladová položka")
     zarizeni = models.ForeignKey(Zarizeni, on_delete=models.CASCADE, verbose_name="Zařízení")

@@ -38,13 +38,13 @@
 
 <table class="table table-sm table-striped table-bordered">    
     <tbody>
-        {% if equipment_fields_true %}
+        {% if equipment_fields %}
             <tr>
                 <th colspan=10 scope="col">Pro zařízení</th>
             </tr>
             <tr>
-                {% for field in equipment_fields_true %}
-                    <td>{{ field.verbose_name }}</td>
+                {% for field in equipment_fields %}
+                    <td>{{ field.kod_zarizeni|upper}}</td>
                 {% endfor %}
             </tr>
         {% else %}

@@ -453,10 +453,10 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
         - Kontext obsahující pole položek, varianty a atributy zařízení.
         """
         context = super().get_context_data(**kwargs)
-        varianty = self.object.varianty_skladu.all()        
-        zarizeni = self.object.zarizeni.all()
+        varianty = self.object.varianty_skladu.all()      
+        zarizeni = self.object.zarizeni.all()  
 
-        equipment_fields = [field for field in zarizeni]
+        equipment_fields = [z for z in zarizeni]
 
         info_fields = [field for field in Sklad._meta.fields if field.name in ("ucetnictvi", "kriticky_dil")]
         info_fields.append({'verbose_name': 'Pod minimem', 'name': 'pod_minimem'})

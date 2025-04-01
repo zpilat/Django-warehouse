@@ -71,10 +71,11 @@ class SkladUpdateForm(forms.ModelForm):
         model = Sklad
         fields = [
             "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", 
-            "poznamka", "ucetnictvi", "kriticky_dil", "hsh", "tq8", "tqf_xl1", "tqf_xl2",
-            "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1", "lac_2", "ipsen_ene", "hsh_ene",
-            "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1", "kw2", "kw3", "mikrof"
-            ]
+            "poznamka", "ucetnictvi", "kriticky_dil", "zarizeni" ]
+            # "hsh", "tq8", "tqf_xl1", "tqf_xl2",
+            # "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1", "lac_2", "ipsen_ene", "hsh_ene",
+            # "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1", "kw2", "kw3", "mikrof"
+            # ]
 
     def __init__(self, *args, **kwargs):
         super(SkladUpdateForm, self).__init__(*args, **kwargs)
