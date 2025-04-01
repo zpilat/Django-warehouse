@@ -103,11 +103,7 @@ def receipt_form_view(request, pk):
             updated_sklad.save()            
             created_auditlog.save()
 
-<<<<<<< HEAD
             # Získání dodavatele z formuláře
-=======
-             # Získání dodavatele z formuláře
->>>>>>> main
             dodavatel_object = Dodavatele.objects.get(dodavatel=updated_sklad.dodavatel)
 
             # Kontrola, zda varianta existuje
