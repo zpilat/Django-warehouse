@@ -458,12 +458,12 @@ class SkladDetailView(LoginRequiredMixin, DetailView):
 
         equipment_fields = [z.kod_zarizeni for z in zarizeni]
 
-        info_fields = [field for field in Sklad._meta.fields if field.name in ("ucetnictvi", "kriticky_dil")]
+        info_fields = [field for field in Sklad._meta.fields if field.name in ('ucetnictvi', 'kriticky_dil')]
         info_fields.append({'verbose_name': 'Pod minimem', 'name': 'pod_minimem'})
 
         detail_item_fields = [
             field for field in Sklad._meta.fields
-            if field.get_internal_type() != 'BooleanField' and field.name not in ('nazev_dilu', 'zarizeni')
+            if field.name not in ('nazev_dilu', 'ucetnictvi', 'kriticky_dil')
         ]
 
         context['equipment_fields'] = equipment_fields
