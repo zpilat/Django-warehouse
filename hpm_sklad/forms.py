@@ -16,11 +16,20 @@ class SkladCreateForm(forms.ModelForm):
     """
     Formulář pro vytvoření nového záznamu ve skladu.
     Tento formulář zahrnuje pole pro zadávání interního čísla, minimálního množství, objednaných dílů,
-    názvu dílu, jednotek, umístění, dodavatele a dalších atributů specifických pro skladové položky.
+    názvu dílu, jednotek, umístění, dodavatele a přiřazených zařízení.
     """
-    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=False, empty_label="Vyberte dodavatele")
-    zarizeni = forms.ModelChoiceField(queryset=Zarizeni.objects.all(), required=False, empty_label="Vyberte zařízení")
-
+    dodavatel = forms.ModelChoiceField(
+        queryset=Dodavatele.objects.all(),
+        required=False,
+        empty_label="Vyberte dodavatele"
+    )
+    zarizeni = forms.ModelMultipleChoiceField(
+        queryset=Zarizeni.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Zařízení"
+    )
+    
     class Meta:
         model = Sklad
         fields = [
