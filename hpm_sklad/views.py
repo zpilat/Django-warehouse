@@ -363,14 +363,7 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     template_name = 'hpm_sklad/create_sklad.html'
     success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.add_sklad'
-    
-    def form_valid(self, form):
-        """
-        Validuje a uloží novou položku do skladu.
-        """
-        response = super().form_valid(form)
-        return response
-    
+      
     def get_context_data(self, **kwargs):
         """
         Přidává vybranou položku do kontextu šablony.
