@@ -83,7 +83,7 @@ class Sklad(models.Model):
     min_mnozstvi_ks = models.PositiveIntegerField(default=0, verbose_name="Minimum")
     mnozstvi = models.PositiveIntegerField(default=0, verbose_name="Množství")
     jednotky = models.CharField(max_length=10, choices=JEDNOTKY_CHOICES, default='ks', verbose_name="Jednotky")
-    umisteni = models.CharField(max_length=25, null=True, verbose_name="Umístění")
+    umisteni = models.CharField(max_length=25, null=True, blank=True, verbose_name="Umístění")
     dodavatel = models.CharField(max_length=70, null=True, blank=True, verbose_name="Dodavatel")
     datum_nakupu = models.DateField(null=True, blank=True, verbose_name="Datum nákupu")
     cislo_objednavky = models.CharField(max_length=20, null=True, blank=True, verbose_name="Číslo objednávky")

@@ -27,14 +27,14 @@ class SkladCreateForm(forms.ModelForm):
         queryset=Zarizeni.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
-        label="Zařízení"
+        label="Pro zařízení:"
     )
     
     class Meta:
         model = Sklad
         fields = [
-            "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", "dodavatel",
-            "poznamka", "ucetnictvi", "kriticky_dil", "zarizeni"
+            "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky",
+            "umisteni", "dodavatel", "poznamka", "zarizeni"
         ]
             
     def __init__(self, *args, **kwargs):
@@ -55,11 +55,11 @@ class SkladCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields[:8]],
+                    *[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields[:10]],
                     css_class='form-column col mr-3 small'
                 ),
                 Div(
-                    *[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields[8:]],
+                    *[Field(field, css_class='form-control form-control-sm', label_class='form-label-sm') for field in self.Meta.fields[10:]],
                     css_class='form-column col-auto mr-3 small'
                 ),
                 css_class='form-row'
@@ -80,14 +80,15 @@ class SkladUpdateForm(forms.ModelForm):
         queryset=Zarizeni.objects.all(), 
         widget = forms.CheckboxSelectMultiple(),
         required = False,
-        label = 'Zařízení'
+        label = 'Pro zařízení:'
     )
 
     class Meta:
         model = Sklad
         fields = [
-            "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", 
-            "poznamka", "ucetnictvi", "kriticky_dil", "zarizeni" ]
+            "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu",
+            "jednotky", "umisteni", "poznamka", "zarizeni"
+        ]
 
     def __init__(self, *args, **kwargs):
         super(SkladUpdateForm, self).__init__(*args, **kwargs)
@@ -98,11 +99,11 @@ class SkladUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[:7]],
+                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[:9]],
                     css_class='form-column col mr-3 small'
                 ),
                 Div(
-                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[7:]],
+                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[9:]],
                     css_class='form-column col-auto mr-3 small'
                 ),
                 css_class='form-row'
@@ -172,6 +173,7 @@ class SkladReceiptForm(forms.ModelForm):
                 ),
             )
 
+        self.fields['umisteni'].required = True
         self.fields['dodavatel'].required = True
         self.fields['cislo_objednavky'].required = True
         self.fields['datum_nakupu'].required = True
