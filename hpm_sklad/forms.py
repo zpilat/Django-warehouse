@@ -74,17 +74,20 @@ class SkladCreateForm(forms.ModelForm):
 class SkladUpdateForm(forms.ModelForm):
     """
     Formulář pro aktualizaci existujícího záznamu ve skladu.
-    Umožňuje úpravu položek jako je interní číslo, množství, název dílu, jednotky a další.
+    Umožňuje úpravu položek jako je interní číslo, množství, název dílu, jednotky, přiřazená zařízení ...
     """
+    zarizeni = forms.ModelMultipleChoiceField(
+        queryset=Zarizeni.objects.all(), 
+        widget = forms.CheckboxSelectMultiple(),
+        required = False,
+        label = 'Zařízení'
+    )
+
     class Meta:
         model = Sklad
         fields = [
             "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu", "jednotky", "umisteni", 
             "poznamka", "ucetnictvi", "kriticky_dil", "zarizeni" ]
-            # "hsh", "tq8", "tqf_xl1", "tqf_xl2",
-            # "dc_xl", "dac_xl1_2", "dl_xl", "dac", "lac_1", "lac_2", "ipsen_ene", "hsh_ene",
-            # "xl_ene1", "xl_ene2", "ipsen_w", "hsh_w", "kw", "kw1", "kw2", "kw3", "mikrof"
-            # ]
 
     def __init__(self, *args, **kwargs):
         super(SkladUpdateForm, self).__init__(*args, **kwargs)
