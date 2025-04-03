@@ -6,7 +6,9 @@
             </button>
             <div class="dropdown-menu" aria-labeledby="dropdownMenuButton1">
                     <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'detail_dodavatele' object.pk %}')">Detail dodavatele</a>
+                {% if perms.hpm_sklad.add_dodavatele or perms.hpm_sklad.change_dodavatele %}                    
                     <div class="dropdown-divider"></div>
+                {% endif %}
                 {% if perms.hpm_sklad.add_dodavatele %}
                     <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_dodavatele' %}?pk={{ object.pk }}')">Nový dodavatel</a>
                 {% endif  %}

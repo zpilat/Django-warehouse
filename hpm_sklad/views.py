@@ -406,6 +406,7 @@ class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
     model = Sklad
     form_class = SkladUpdateObjednanoForm    
     template_name = 'hpm_sklad/update_objednano_sklad.html'
+    permission_required = 'hpm_sklad.change_objednano_in_sklad'
     success_url = reverse_lazy('sklad')
 
 

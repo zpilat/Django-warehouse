@@ -75,6 +75,9 @@ class Sklad(models.Model):
     class Meta:
         ordering = ["-evidencni_cislo"]
         verbose_name_plural = "Skladové položky"
+        permissions = [
+            ('change_objednano_in_sklad', 'Umožní aktualizovat stav položky "Objednáno?" ve skladu.')
+        ]
 
     evidencni_cislo = models.AutoField(primary_key=True, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")  
