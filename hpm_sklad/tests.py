@@ -99,7 +99,7 @@ class ZarizeniModelTest(TestCase):
 
     def test_zarizeni_creation(self):
         self.assertTrue(isinstance(self.zarizeni, Zarizeni))
-        self.assertEqual(str(self.zarizeni), 'Pračka Ipsen W')
+        self.assertEqual(str(self.zarizeni), 'Ipsen W')
 
 
 class AuditLogModelTest(TestCase):
@@ -347,7 +347,7 @@ class ZarizeniModelValidationTest(TestCase):
 
     def test_valid_zarizeni(self):
         zarizeni = Zarizeni(
-            zarizeni='Z001',
+            kod_zarizeni='Z001',
             nazev_zarizeni='Test Zařízení',
             umisteni='Sklad B',
             typ_zarizeni='Typ 1'
@@ -360,7 +360,7 @@ class ZarizeniModelValidationTest(TestCase):
 
     def test_missing_nazev_zarizeni(self):
         zarizeni = Zarizeni(
-            zarizeni='Z001',
+            kod_zarizeni='Z001',
             umisteni='Sklad B',
             typ_zarizeni='Typ 1'
         )
@@ -820,7 +820,9 @@ class ReceiptFormViewTest(TestCase):
             mnozstvi=10,
             jednotkova_cena_eur=100.0,
             celkova_cena_eur=1000.0,
-            dodavatel=self.dodavatel.dodavatel
+            dodavatel=self.dodavatel.dodavatel,
+            umisteni = 'Sklad A',
+            jednotky = 'ks',
         )
 
         self.url = reverse('receipt_audit_log', kwargs={'pk': self.sklad.pk})
@@ -1090,7 +1092,7 @@ class DispatchFormViewTest(TestCase):
         'zmena_mnozstvi': 5,  # Výdej 5 kusů
         'datum_vydeje': '2024-10-01',
         'typ_udrzby': 'Preventivní',
-        'pouzite_zarizeni': "HSH",
+        'pouzite_zarizeni': "hsh",
         }
         response = self.client.post(self.url, data=post_data)
 
@@ -1369,7 +1371,7 @@ class SkladCreateViewTest(TestCase):
         
         # Data pro vytvoření nové položky
         post_data = {
-            'interne_cislo': 123,  # Přidejte povinné pole
+            'interne_cislo': 123,  
             'nazev_dilu': 'Nový díl',
             'min_mnozstvi_ks': 5,
             'mnozstvi': 10,
@@ -1446,27 +1448,6 @@ class SkladUpdateViewTest(TestCase):
             'poznamka': 'Změněná poznámka',
             'ucetnictvi': True,
             'kriticky_dil': False,
-            'hsh': True,
-            'tq8': False,
-            'tqf_xl1': True,
-            'tqf_xl2': True,
-            'dc_xl': False,
-            'dac_xl1_2': True,
-            'dl_xl': False,
-            'dac': True,
-            'lac_1': True,
-            'lac_2': False,
-            'ipsen_ene': False,
-            'hsh_ene': True,
-            'xl_ene1': True,
-            'xl_ene2': False,
-            'ipsen_w': True,
-            'hsh_w': False,
-            'kw': True,
-            'kw1': True,
-            'kw2': False,
-            'kw3': False,
-            'mikrof': True,
         }
 
         # Odeslání POST požadavku s aktualizovanými daty
@@ -1483,9 +1464,6 @@ class SkladUpdateViewTest(TestCase):
         self.assertEqual(self.sklad.poznamka, 'Změněná poznámka')
         self.assertTrue(self.sklad.ucetnictvi)
         self.assertFalse(self.sklad.kriticky_dil)
-        self.assertTrue(self.sklad.hsh)
-        self.assertFalse(self.sklad.kw3)
-        self.assertTrue(self.sklad.mikrof)
 
 
 class SkladUpdateObjednanoViewTest(TestCase):
@@ -1598,6 +1576,14 @@ class SkladDetailViewTest(TestCase):
         # Vytvoření uživatele
         self.user = User.objects.create_user(username='testuser', password='testpassword')
 
+        # Vytvoření zařízení
+        self.zarizeni = Zarizeni.objects.create(
+            kod_zarizeni='hsh',	
+            nazev_zarizeni='HSH TQ7',
+            umisteni='Hala 1',
+            typ_zarizeni='Víceúčelová kalicí pec'
+        )
+
         # Vytvoření skladové položky
         self.sklad = Sklad.objects.create(
             interne_cislo=123,
@@ -1610,10 +1596,10 @@ class SkladDetailViewTest(TestCase):
             celkova_cena_eur=500.0,
             ucetnictvi=True,
             kriticky_dil=False,
-            hsh=True, 
-            tq8=False, 
-            tqf_xl1=True
         )
+
+        # Přiřazení zařízení k položce skladu
+        self.sklad.zarizeni.add(self.zarizeni)
 
         # URL pro detail položky
         self.url = reverse('detail_sklad', kwargs={'pk': self.sklad.pk})
@@ -1655,15 +1641,14 @@ class SkladDetailViewTest(TestCase):
         self.assertEqual(sklad_item.mnozstvi, 10)
 
         # Ověření kontextových polí
-        self.assertIn('equipment_fields_true', response.context)
+        self.assertIn('equipment_fields', response.context)
         self.assertIn('info_fields', response.context)
         self.assertIn('detail_item_fields', response.context)
         self.assertIn('varianty', response.context)
 
         # Ověření přítomnosti polí zařízení, které jsou True
-        equipment_fields_true = response.context['equipment_fields_true']
-        self.assertIn(Sklad._meta.get_field('hsh'), equipment_fields_true)
-        self.assertIn(Sklad._meta.get_field('tqf_xl1'), equipment_fields_true)
+        equipment_fields = response.context['equipment_fields']
+        self.assertIn(self.zarizeni.kod_zarizeni, equipment_fields)
 
         # Ověření, že pole pro informace jsou správně nastavená
         info_fields = response.context['info_fields']

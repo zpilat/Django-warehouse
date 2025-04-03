@@ -31,10 +31,10 @@ class Zarizeni(models.Model):
     class Meta:
         verbose_name_plural = "Zařízení"
 
-    kod_zarizeni = models.CharField(max_length=10, null=True, verbose_name="Kód zařízení")
-    nazev_zarizeni = models.CharField(max_length=100, null=True, verbose_name="Název zařízení")
-    umisteni = models.CharField(max_length=20, null=True, verbose_name="Umístění")
-    typ_zarizeni = models.CharField(max_length=100, null=True, verbose_name="Typ zařízení")
+    kod_zarizeni = models.CharField(max_length=10, verbose_name="Kód zařízení")
+    nazev_zarizeni = models.CharField(max_length=100, verbose_name="Název zařízení")
+    umisteni = models.CharField(max_length=20, verbose_name="Umístění")
+    typ_zarizeni = models.CharField(max_length=100, verbose_name="Typ zařízení")
 
     def __str__(self):
         return f"{self.nazev_zarizeni}"
