@@ -9,7 +9,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_user_agents.utils import get_user_agent
 
-from .models import Poptavky, Dodavatele, Sklad, Zarizeni, AuditLog, Varianty, PoptavkaVarianty
+from datetime import date
+
+from .models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditLog, Varianty, PoptavkaVarianty
 
 from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
 
@@ -725,6 +727,67 @@ class PoptavkyManyToManyTest(TestCase):
         self.assertEqual(self.poptavka_varianta.varianta, self.varianta)
         self.assertEqual(self.poptavka_varianta.mnozstvi, 50)
         self.assertEqual(self.poptavka_varianta.jednotky, 'ks')
+
+
+class ZarizeniManyToManyTest(TestCase):
+    """
+    Testuje vztah mezi modely Sklad a Zarizeni přes prostřední model SkladZarizeni (ManyToMany).
+
+    Testy:
+    - test_skladovapolozka_zarizeni_relationship: Ověřuje, že dané zařízení je správně propojeno se skladovou položkou přes prostřední model a že skladová položka existuje.
+    - test_varianta_poptavka_relationship: Ověřuje, že daná skladová položka má přiřazenou pouze jedno zařízení přes prostřední model a že toto zařízení existuje.
+    - test_through_model: Ověřuje, že prostřední model SkladZarizeni správně propojuje skladovou položku a zařízení.
+    """
+
+    def setUp(self):
+        # Vytvoření skladové položky
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            min_mnozstvi_ks=5,
+            mnozstvi=10,
+            jednotky='ks',
+            umisteni='Sklad A',
+            jednotkova_cena_eur=50.0,
+            celkova_cena_eur=500.0,
+            ucetnictvi=True,
+            kriticky_dil=False,
+        )      
+
+        # Vytvoření zařízení
+        self.zarizeni = Zarizeni.objects.create(
+            kod_zarizeni='hsh',	
+            nazev_zarizeni='HSH TQ7',
+            umisteni='Hala 1',
+            typ_zarizeni='Víceúčelová kalicí pec'
+        )
+   
+        # Propojení Sklad a Zařízení přes prostřední model SkladZarizeni
+        self.sklad_zarizeni = SkladZarizeni.objects.create(
+            sklad=self.sklad,
+            zarizeni=self.zarizeni,
+        )
+
+    def test_skladovapolozka_zarizeni_relationship(self):
+        # Získání všech skladových položek, které obsahují dané zařízení
+        skladovepolozky_for_zarizeni = Sklad.objects.filter(zarizeni=self.zarizeni)
+
+        # Ověření, že existuje pouze jedna skladová položka s daným zařízením
+        self.assertEqual(skladovepolozky_for_zarizeni.count(), 1)
+        self.assertEqual(skladovepolozky_for_zarizeni.first(), self.sklad)
+
+    def test_zarizeni_skladovapolozka_relationship(self):
+        # Získání všech zařízení pro danou skladovou položku
+        zarizeni_for_skladovapolozka = Zarizeni.objects.filter(sklad=self.sklad)
+
+        # Ověření, že existuje pouze jedno zarizeni pro danou skladovou položku
+        self.assertEqual(zarizeni_for_skladovapolozka.count(), 1)
+        self.assertEqual(zarizeni_for_skladovapolozka.first(), self.zarizeni)
+
+    def test_through_model(self):
+        # Ověření, že prostřední model je správně propojen
+        self.assertEqual(self.sklad_zarizeni.sklad, self.sklad)
+        self.assertEqual(self.sklad_zarizeni.zarizeni, self.zarizeni)
 
 
 ######################## Testy View ###########################
@@ -1732,3 +1795,74 @@ class PoptavkaDetailViewTest(TestCase):
             ('Uzavřeno', 'Uzavřeno')
         ])
         self.assertEqual(self.poptavka.stav, 'Tvorba')
+
+
+######################## Testy Formulářů ###########################
+
+class SkladDispatchFormTest(TestCase):
+    """
+    Testy pro formulář `SkladDispatchForm`, který slouží k zaznamenání umístění a poznámky při výdeji.
+
+    Testuje:
+    - validaci správného vstupu
+    - volitelnost poznámky a umístění
+    """
+
+    def test_valid_form(self):
+        """Ověřuje, že formulář je validní při zadání všech správných hodnot."""
+        form = SkladDispatchForm(data={
+            'umisteni': 'Regál A3',
+            'poznamka': 'Vydáno na opravu'
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_empty_poznamka_ok(self):
+        """Ověřuje, že prázdné umístění nebo žádná poznámka nevadí (jsou volitelné)."""
+        form = SkladDispatchForm(data={
+            'umisteni': '',
+            'poznamka': ''
+        })
+        self.assertTrue(form.is_valid())
+
+
+class AuditLogDispatchFormTest(TestCase):
+    def setUp(self):
+        self.zarizeni = Zarizeni.objects.create(kod_zarizeni='HSH', nazev_zarizeni='HSH TQ7', umisteni='Hala 2', typ_zarizeni='Víceúčelová pec')
+
+    def test_valid_form(self):
+        form = AuditLogDispatchForm(
+            data={
+                'datum_vydeje': date.today().isoformat(),
+                'pouzite_zarizeni': 'HSH',
+                'zmena_mnozstvi': '2',
+                'typ_udrzby': 'Preventivní'
+            },
+            max_mnozstvi=5
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_mnozstvi_above_max(self):
+        form = AuditLogDispatchForm(
+            data={
+                'datum_vydeje': date.today().isoformat(),
+                'pouzite_zarizeni': 'HSH',
+                'zmena_mnozstvi': '10',
+                'typ_udrzby': 'Preventivní'
+            },
+            max_mnozstvi=5
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('zmena_mnozstvi', form.errors)
+
+    def test_missing_zarizeni(self):
+        form = AuditLogDispatchForm(
+            data={
+                'datum_vydeje': date.today().isoformat(),
+                'pouzite_zarizeni': '',
+                'zmena_mnozstvi': '1',
+                'typ_udrzby': 'Preventivní'
+            },
+            max_mnozstvi=5
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('pouzite_zarizeni', form.errors)
