@@ -1050,6 +1050,14 @@ class DispatchFormViewTest(TestCase):
             dodavatel=self.dodavatel.dodavatel
         )
 
+        self.zarizeni = Zarizeni.objects.create(
+            kod_zarizeni='hsh',	
+            nazev_zarizeni='HSH TQ7',
+            umisteni='Hala 1',
+            typ_zarizeni='Víceúčelová kalicí pec'
+        )
+
+
         self.url = reverse('dispatch_audit_log', kwargs={'pk': self.sklad.pk})
 
     def test_login_required(self):
@@ -1092,7 +1100,7 @@ class DispatchFormViewTest(TestCase):
         'zmena_mnozstvi': 5,  # Výdej 5 kusů
         'datum_vydeje': '2024-10-01',
         'typ_udrzby': 'Preventivní',
-        'pouzite_zarizeni': "hsh",
+        'pouzite_zarizeni': "HSH",
         }
         response = self.client.post(self.url, data=post_data)
 
