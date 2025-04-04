@@ -1,7 +1,9 @@
 from django.test import TestCase
 from unittest.mock import patch
 from django.urls import reverse
+
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 from django.contrib.auth.models import User, Permission
 
@@ -737,6 +739,7 @@ class ZarizeniManyToManyTest(TestCase):
     - test_skladovapolozka_zarizeni_relationship: Ověřuje, že dané zařízení je správně propojeno se skladovou položkou přes prostřední model a že skladová položka existuje.
     - test_varianta_poptavka_relationship: Ověřuje, že daná skladová položka má přiřazenou pouze jedno zařízení přes prostřední model a že toto zařízení existuje.
     - test_through_model: Ověřuje, že prostřední model SkladZarizeni správně propojuje skladovou položku a zařízení.
+    - test_unique_together: Ověřuje, že nelze vložit duplicitní záznam (kombinace sklad–zařízení) do mezitabulky SkladZarizeni.
     """
 
     def setUp(self):
@@ -788,6 +791,16 @@ class ZarizeniManyToManyTest(TestCase):
         # Ověření, že prostřední model je správně propojen
         self.assertEqual(self.sklad_zarizeni.sklad, self.sklad)
         self.assertEqual(self.sklad_zarizeni.zarizeni, self.zarizeni)
+
+    def test_unique_together(self):
+        """
+        Ověřuje, že nelze vložit duplicitní záznam (kombinace sklad–zařízení) do mezitabulky SkladZarizeni.
+        """
+        with self.assertRaises(IntegrityError):
+            SkladZarizeni.objects.create(
+                sklad=self.sklad,
+                zarizeni=self.zarizeni,
+            )    
 
 
 ######################## Testy View ###########################
@@ -1540,8 +1553,10 @@ class SkladUpdateViewTest(TestCase):
 class SkladUpdateObjednanoViewTest(TestCase):
     """
     Testy pro SkladUpdateObjednanoView:
-    
-    - Ověřuje, že přihlášený uživatel může aktualizovat stav 'objednáno' u položky ve skladu.
+
+    - Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.    
+    - Ověřuje, že uživatel bez oprávnění 'change_objednano_in_sklad' dostane chybu 403.
+    - Ověřuje, že přihlášený uživatel s oprávnění může aktualizovat stav 'objednáno' u skladové položky.
     """
     def setUp(self):
         """
@@ -1549,6 +1564,7 @@ class SkladUpdateObjednanoViewTest(TestCase):
         - Vytvoření uživatele a položky ve skladu.
         """
         self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.user.user_permissions.add(Permission.objects.get(codename='change_objednano_in_sklad'))        
         self.client.login(username='testuser', password='testpassword')
         self.sklad = Sklad.objects.create(
             interne_cislo=123,
@@ -1563,9 +1579,25 @@ class SkladUpdateObjednanoViewTest(TestCase):
         )
         self.url = reverse('update_objednano_sklad', kwargs={'pk': self.sklad.pk})
 
+    def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
+        """
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f'/account/login/?next={self.url}')     
+
+    def test_permission_required(self):
+        """
+        Ověřuje, že uživatel bez oprávnění 'change_objednano_in_sklad' dostane chybu 403.
+        """
+        self.user.user_permissions.clear()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)           
+
     def test_update_objednano(self):
         """
-        Ověřuje, že přihlášený uživatel může aktualizovat stav 'objednáno' u položky ve skladu.
+        Ověřuje, že přihlášený uživatel s oprávněním může aktualizovat stav 'objednáno' u skladové položky.
         """
         post_data = {
             'objednano': 'Už je objednáno'
