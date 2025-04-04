@@ -393,7 +393,7 @@ class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     success_url = reverse_lazy('sklad')
 
     
-class SkladUpdateObjednanoView(LoginRequiredMixin, UpdateView):
+class SkladUpdateObjednanoView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Aktualizuje stav položky 'objednáno' ve skladu.
 
