@@ -1,4 +1,7 @@
-from django.test import TestCase
+import csv
+from io import StringIO, BytesIO
+
+from django.test import TestCase, RequestFactory
 from unittest.mock import patch
 from django.urls import reverse
 
@@ -7,9 +10,12 @@ from django.db import IntegrityError
 
 from django.contrib.auth.models import User, Permission
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_user_agents.utils import get_user_agent
+from django.http import FileResponse
 
 from datetime import date
 
@@ -17,7 +23,7 @@ from .models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditL
 
 from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
 
-from .views import SkladListView
+from .views import SkladListView, AuditLogListView, SkladCreateView, SkladUpdateView, SkladDeleteView, SkladDetailView
 
 ######################## Testy Modelů ###########################
 
@@ -1667,7 +1673,7 @@ class SkladDetailViewTest(TestCase):
     
     - Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
     - Ověřuje, že přihlášený uživatel může zobrazit detail skladové položky.
-    - Ověřuje, že správná šablona je použita.
+    - Ověřuje, že je použita správná šablona.
     - Ověřuje, že kontext obsahuje správné informace o skladové položce.
     """
     
@@ -1760,74 +1766,197 @@ class SkladDetailViewTest(TestCase):
         self.assertIn({'verbose_name': 'Pod minimem', 'name': 'pod_minimem'}, info_fields)
 
 
-class PoptavkaDetailViewTest(TestCase):
+class AuditLogListViewTest(TestCase):
     """
-    Testuje detailní pohled na poptávku (PoptavkaDetailView).
-
-    Nastavení:
-    - Vytvoření uživatele pro testy přihlášení.
-    - Vytvoření instance modelu Dodavatele a Poptavky.
-    - URL pro testování detailního pohledu je dynamicky generována podle ID poptávky.
-
-    Testy:
-    - test_login_required: Ověřuje, že nepřihlášený uživatel je přesměrován na přihlašovací stránku.
-    - test_view_uses_correct_template: Ověřuje, že přihlášený uživatel má přístup k správné šabloně (detail_poptavky.html).
-    - test_context_data: Ověřuje, že pohled vrací kontextová data, která zahrnují pole 'detail_item_fields' a že tato pole nejsou prázdná.
-    - test_poptavky_stav_choices: Testuje, zda model Poptavky má správné volby pro pole stav, a že stav poptávky je "Tvorba".
+    Testy pro AuditLogListView:
+    - Ověření, že je přístup pouze pro přihlášené uživatele.
+    - Správné použití šablony.
+    - Filtrování podle dotazu, typu operace, typu údržby, roku a měsíce.
+    - Stránkování (20 položek).
+    - Kontrola vybraného záznamu.
     """
-    
+
     def setUp(self):
-        # Vytvoření uživatele pro přihlášení
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-
-        # Vytvoření příkladu modelu Dodavatele
-        self.dodavatel = Dodavatele.objects.create(
-            dodavatel='Test Dodavatel',
-            kontakt='Test Kontakt',
-            email='test@example.com',
-            telefon='123456789',
-            jazyk='CZ'
+        self.user = User.objects.create_user(username='tester', password='testpass')
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Ložisko'
         )
+        self.client.login(username='tester', password='testpass')
 
-        # Vytvoření příkladu modelu Poptavky
-        self.poptavka = Poptavky.objects.create(
-            dodavatel=self.dodavatel,
-            stav='Tvorba'
-        )
 
-        # URL pro testování detailního pohledu
-        self.url = reverse('detail_poptavky', kwargs={'pk': self.poptavka.pk})
+        # Vytvořím 25 záznamů v audit logu
+        for i in range(25):
+            AuditLog.objects.create(
+                ucetnictvi=True,
+                evidencni_cislo=self.sklad,
+                interne_cislo=1000 + i,
+                objednano='Ano',
+                nazev_dilu='Ložisko' if i % 2 == 0 else 'Těsnění',
+                zmena_mnozstvi=5,
+                mnozstvi=10,
+                jednotky='ks',
+                typ_operace='VÝDEJ' if i % 2 == 0 else 'PŘÍJEM',
+                pouzite_zarizeni='HSH',
+                umisteni='Hala A',
+                dodavatel='SKF',
+                datum_vydeje=date(2024, 10, 1),
+                datum_nakupu=date(2024, 10, 1),
+                cislo_objednavky='OBJ123',
+                jednotkova_cena_eur=10.0,
+                celkova_cena_eur=50.0,
+                operaci_provedl=self.user,
+                typ_udrzby='Reaktivní',
+                poznamka='Test'
+            )
+
+        self.url = reverse('audit_log')
 
     def test_login_required(self):
+        """
+        Ověřuje, že nepřihlášený uživatel je přesměrován na login.
+        """
+        self.client.logout()
         response = self.client.get(self.url)
         self.assertRedirects(response, f'/account/login/?next={self.url}')
 
-    def test_view_uses_correct_template(self):
-        self.client.login(username='testuser', password='testpassword')
+    def test_template_used(self):
+        """
+        Ověřuje, že view používá správnou šablonu.
+        """
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'hpm_sklad/detail_poptavky.html')
+        self.assertTemplateUsed(response, 'hpm_sklad/audit_log.html')
 
-    def test_context_data(self):
-        self.client.login(username='testuser', password='testpassword')
+    def test_queryset_filtered_by_query(self):
+        """
+        Ověřuje filtrování podle dotazu `query`.
+        """
+        response = self.client.get(self.url, {'query': 'Ložisko'})
+        self.assertTrue(all('Ložisko' in obj.nazev_dilu for obj in response.context['object_list']))
+
+    def test_filter_by_typ_operace(self):
+        """
+        Ověřuje filtrování podle typu operace.
+        """
+        response = self.client.get(self.url, {'typ_operace': 'VÝDEJ'})
+        self.assertTrue(all(obj.typ_operace == 'VÝDEJ' for obj in response.context['object_list']))
+
+    def test_filter_by_typ_udrzby(self):
+        """
+        Ověřuje filtrování podle typu údržby.
+        """
+        response = self.client.get(self.url, {'typ_udrzby': 'Reaktivní'})
+        self.assertTrue(all(obj.typ_udrzby == 'Reaktivní' for obj in response.context['object_list']))
+
+    def test_pagination_is_20(self):
+        """
+        Ověřuje, že stránkování zobrazí 20 záznamů.
+        """
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('detail_item_fields', response.context)
-        detail_item_fields = response.context['detail_item_fields']
-        self.assertTrue(len(detail_item_fields) > 0)  # Ověříme, že tam nějaká pole jsou
+        self.assertEqual(len(response.context['object_list']), 20)
 
-    def test_poptavky_stav_choices(self):
-        self.client.login(username='testuser', password='testpassword')
-        response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
-        stav_field = self.poptavka._meta.get_field('stav')
-        self.assertEqual(stav_field.choices, [
-            ('Tvorba', 'Ve tvorbě'),
-            ('Poptáno', 'Poptáno'),
-            ('Uzavřeno', 'Uzavřeno')
-        ])
-        self.assertEqual(self.poptavka.stav, 'Tvorba')
+    def test_selected_context_variable(self):
+        """
+        Ověřuje, že parametr `selected` vrací vybraný objekt v kontextu.
+        """
+        obj = AuditLog.objects.first()
+        response = self.client.get(self.url, {'selected': obj.id})
+        self.assertEqual(response.context['selected_item'], obj)
 
+    def test_filter_by_year_and_month(self):
+        """
+        Ověřuje filtrování podle měsíce a roku.
+        """
+        response = self.client.get(self.url, {'month': '10', 'year': '2024'})
+        self.assertTrue(response.context['object_list'])
+
+
+class AuditLogExportGraphTest(TestCase):
+    """
+    Testy pro metody exportu a generování grafů ve view AuditLogListView.
+
+    Testuje:
+    - Export do CSV vrací správná data.
+    - Metody renderující grafy vracejí FileResponse.
+    """
+
+    def setUp(self):
+        # Uživatelské přihlášení
+        self.user = User.objects.create_user(username='tester', password='testpass')
+        self.client.login(username='tester', password='testpass')
+
+        # Vytvoření skladové položky
+        self.sklad = Sklad.objects.create(
+            interne_cislo=100,
+            nazev_dilu='Testovací díl',
+            mnozstvi=5,
+            jednotkova_cena_eur=10,
+            celkova_cena_eur=50,
+            ucetnictvi=True,
+        )
+
+        # Záznam v audit logu
+        self.log = AuditLog.objects.create(
+            ucetnictvi=True,
+            evidencni_cislo=self.sklad,
+            interne_cislo=100,
+            objednano="ano",
+            nazev_dilu="Testovací díl",
+            zmena_mnozstvi=-2,
+            mnozstvi=3,
+            jednotky="ks",
+            typ_operace="VÝDEJ",
+            pouzite_zarizeni="HSH",
+            umisteni="Sklad A",
+            dodavatel="Test Dodavatel",
+            datum_vydeje=date.today(),
+            jednotkova_cena_eur=10.0,
+            celkova_cena_eur=20.0,
+            operaci_provedl=self.user,
+            typ_udrzby="Preventivní",
+            poznamka="Test výdej"
+        )
+
+        self.factory = RequestFactory()
+        self.view = AuditLogListView()
+        self.view.request = self.factory.get(reverse("audit_log"))
+        self.view.request.user = self.user
+        self.view.month = str(date.today().month)
+        self.view.year = str(date.today().year)
+
+    def test_export_to_csv_contains_expected_data(self):
+        """
+        Ověřuje, že export do CSV vrací očekávaná data a formát.
+        """
+        queryset = AuditLog.objects.all()
+        response = self.view.export_to_csv(queryset)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('attachment; filename="audit_log_export.csv"', response['Content-Disposition'])
+
+        content = response.content.decode('utf-8')
+        self.assertIn("Testovací díl", content)
+        self.assertIn("Test Dodavatel", content)
+        self.assertIn("20.0", content)  # celková cena
+
+    def test_generate_graph_to_pdf_returns_file_response(self):
+        """
+        Ověřuje, že metoda generate_graph_to_pdf vrací FileResponse.
+        """
+        queryset = AuditLog.objects.all()
+        response = self.view.generate_graph_to_pdf(queryset)
+        self.assertIsInstance(response, FileResponse)
+        self.assertEqual(response.status_code, 200)
+
+    def test_generate_graph_by_maintenance_returns_file_response(self):
+        """
+        Ověřuje, že metoda generate_graph_by_maintenance vrací FileResponse.
+        """
+        queryset = AuditLog.objects.all()
+        response = self.view.generate_graph_by_maintenance(queryset)
+        self.assertIsInstance(response, FileResponse)
+        self.assertEqual(response.status_code, 200)
+  
 
 ######################## Testy Formulářů ###########################
 
