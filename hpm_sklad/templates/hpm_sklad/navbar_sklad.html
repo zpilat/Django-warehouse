@@ -10,7 +10,7 @@
                 {% if perms.hpm_sklad.add_sklad %}
                     <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'create_sklad' %}?pk={{ object.pk }}')">Nová položka</a>
                 {% endif %}          
-                {% if not perms.hpm_sklad.change_sklad %}
+                {% if perms.hpm_sklad.change_objednano_in_sklad %}
                     <a class="dropdown-item small" href="javascript:void(0);" onclick="loadForm('{% url 'update_objednano_sklad' object.pk %}')">Objednáno?</a>    
                 {% endif %}
                 {% if perms.hpm_sklad.change_sklad %}            
