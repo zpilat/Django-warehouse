@@ -12,7 +12,7 @@ from django_user_agents.utils import get_user_agent
 
 from datetime import date
 
-from .models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditLog, Varianty, PoptavkaVarianty
+from hpm_sklad.models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditLog, Varianty, PoptavkaVarianty
 
 ######################## Testy Modelů ###########################
 

@@ -19,11 +19,9 @@ from django.http import FileResponse
 
 from datetime import date
 
-from .models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditLog, Varianty, PoptavkaVarianty
-
-from .forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
-
-from .views import SkladListView, AuditLogListView, SkladCreateView, SkladUpdateView, SkladDeleteView, SkladDetailView
+from hpm_sklad.models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditLog, Varianty, PoptavkaVarianty
+from hpm_sklad.forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
+from hpm_sklad.views import SkladListView, AuditLogListView, SkladCreateView, SkladUpdateView, SkladDeleteView, SkladDetailView
 
 
 ######################## Testy View ###########################
