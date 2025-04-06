@@ -23,7 +23,7 @@
             <tr>
                 <th class="width-nowrap">{{ field.verbose_name }}</th>
                 {% if field.name == 'pod_minimem' %}
-                    <td class="container-fluid">
+                    <td class="container-fluid {% if object.pod_minimem_display == 'ANO'%}pod-minimem-row{% endif %}">
                         {{ object.pod_minimem_display }}
                     </td>
                 {% else %}

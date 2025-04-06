@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, F, Case, When, BooleanField, Value
 from django.db import models
 from django.forms import inlineformset_factory
 from django_user_agents.utils import get_user_agent
@@ -263,15 +263,24 @@ class SkladListView(LoginRequiredMixin, ListView):
         - queryset: Filtrovaný a seřazený seznam skladových položek.
         """
         queryset = Sklad.objects.prefetch_related('zarizeni')
+        # přidání sloupce pod_minimem_sql pro filtrování položek pod minimem přímo v querysetu
+        queryset = queryset.annotate(
+            pod_minimem_sql=Case(
+                When(mnozstvi__lt=F('min_mnozstvi_ks'), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
+
         query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'evidencni_cislo')
         order = self.request.GET.get('order', 'down')
         filters = {
             'kriticky_dil': self.request.GET.get('kriticky_dil'),
             'ucetnictvi': self.request.GET.get('ucetnictvi'),
+            'pod_minimem_sql': self.request.GET.get('pod_minimem')
         }
         zarizeni_filter = self.request.GET.get('zarizeni_filter','VŠE')
-        pod_minimem = self.request.GET.get('pod_minimem')
 
         if query:
             queryset = queryset.filter(
@@ -288,9 +297,6 @@ class SkladListView(LoginRequiredMixin, ListView):
         if order == 'down':
             sort = f"-{sort}"
         queryset = queryset.order_by(sort)
-
-        if pod_minimem == 'on':
-            queryset = [obj for obj in queryset if obj.pod_minimem]
 
         return queryset
 
