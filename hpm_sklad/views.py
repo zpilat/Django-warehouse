@@ -183,7 +183,7 @@ def dispatch_form_view(request, pk):
         auditlog_dispatch_form = AuditLogDispatchForm(request.POST, max_mnozstvi=sklad_instance.mnozstvi)
         
         if sklad_movement_form.is_valid() and auditlog_dispatch_form.is_valid():
-            logger.info('Formuláře jsou platné, pokačuje se v ukládání dat')
+            logger.info('Formuláře jsou platné, pokračuje se v ukládání dat')
             
             try:
                 updated_sklad = sklad_movement_form.save(commit=False)
@@ -448,6 +448,32 @@ class SkladUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     permission_required = 'hpm_sklad.change_sklad'
     success_url = reverse_lazy('sklad')
 
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro úpravu skladové položky #{kwargs.get('pk')}")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST pro úpravu skladové položky #{kwargs.get('pk')}")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při zpracování POST požadavku: {e}")
+            raise    
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} ke stránce pro úpravu skladové položky')
+        return super().handle_no_permission()
+    
+    def form_valid(self, form):
+        sklad = form.save(commit=False)
+        logger.info(f"{self.request.user} odeslal platný formulář a uložil změny pro skladovou položku: {sklad}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro úpravu skladové položky #{self.get_object().pk}")
+        logger.debug(f"Form errors: {form.errors}")
+        return super().form_invalid(form)
+    
     
 class SkladUpdateObjednanoView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
@@ -464,6 +490,32 @@ class SkladUpdateObjednanoView(LoginRequiredMixin, PermissionRequiredMixin, Upda
     template_name = 'hpm_sklad/update_objednano_sklad.html'
     permission_required = 'hpm_sklad.change_objednano_in_sklad'
     success_url = reverse_lazy('sklad')
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro úpravu sloupce Objednáno? skladové položky #{kwargs.get('pk')}")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST pro úpravu sloupce Objednáno? skladové položky #{kwargs.get('pk')}")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při zpracování POST požadavku: {e}")
+            raise    
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} ke stránce pro úpravu sloupce Objednáno? skladové položky')
+        return super().handle_no_permission()    
+    
+    def form_valid(self, form):
+        sklad = form.save(commit=False)
+        logger.info(f"{self.request.user} odeslal platný formulář a uložil změny sloupce Objednáno? pro skladovou položku: {sklad}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro úpravu sloupce Objednáno? skladové položky #{self.get_object().pk}")
+        logger.debug(f"Form errors: {form.errors}")
+        return super().form_invalid(form)
 
 
 class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
