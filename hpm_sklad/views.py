@@ -47,7 +47,7 @@ def home_view(request):
     - render: HTML stránku `home.html` s aktuálním přihlášeným uživatelem v kontextu.
     """
     context = {'current_user': request.user}
-    logger.info('Byla zobrazena domovská stránka')
+    logger.debug(f'Zahájena view home_view s uživatelem: {context["current_user"]}')
     return render(request, "hpm_sklad/home.html", context)
 
 
@@ -72,50 +72,75 @@ def receipt_form_view(request, pk):
     Vrací:
     - render: HTML stránku `receipt_audit_log.html` s formuláři a daty.
     """    
+    logger.debug(f'Zahájena view receipt_form_view pro příjem na skladovou položku pk={pk}')
+
     sklad_instance = get_object_or_404(Sklad, pk=pk)
+    logger.debug(f'Nalezena instance skladové položky: {sklad_instance}')
+
     if request.method == 'POST':
+        logger.debug(f'Request typu {request.method} s vyplněným formulářem pro příjem zboží')
         sklad_movement_form = SkladReceiptForm(request.POST, instance=sklad_instance)
         auditlog_receipt_form = AuditLogReceiptForm(request.POST)
         if sklad_movement_form.is_valid() and auditlog_receipt_form.is_valid():
-            
-            updated_sklad = sklad_movement_form.save(commit=False)
-            created_auditlog = auditlog_receipt_form.save(commit=False)
+            logger.info(f'Formuláře skladu i auditlogu jsou platné, pokračuje se s uložením dat')
+
+            try:
+                updated_sklad = sklad_movement_form.save(commit=False)
+                created_auditlog = auditlog_receipt_form.save(commit=False)
+
+                logger.debug(f"Původní množství: {sklad_instance.mnozstvi}, příjem: {created_auditlog.zmena_mnozstvi}")
+                    
+                created_auditlog.jednotkova_cena_eur = round(updated_sklad.jednotkova_cena_eur, 2)
+                created_auditlog.celkova_cena_eur = round(created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi, 2)
+                updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
+                updated_sklad.celkova_cena_eur = round(sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur, 2)
+                updated_sklad.jednotkova_cena_eur = round(updated_sklad.celkova_cena_eur / updated_sklad.mnozstvi, 2)
+
+                logger.debug(f'Výpočty aktualizace skladu při příjmu dokončeny, množství po příjmu: {updated_sklad.mnozstvi}')
+
+                created_auditlog.typ_operace = "PŘÍJEM"
+                created_auditlog.operaci_provedl = request.user
+                created_auditlog.evidencni_cislo = updated_sklad
+
+                fields_to_copy = [
+                    'ucetnictvi', 'interne_cislo', 'objednano', 'nazev_dilu', 'mnozstvi',
+                    'jednotky', 'umisteni', 'dodavatel', 'datum_nakupu',
+                    'cislo_objednavky', 'poznamka'                
+                ]
+
+                for field in fields_to_copy:
+                    setattr(created_auditlog, field, getattr(updated_sklad, field))
+
                 
-            created_auditlog.jednotkova_cena_eur = round(updated_sklad.jednotkova_cena_eur, 2)
-            created_auditlog.celkova_cena_eur = round(created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi, 2)
-            updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
-            updated_sklad.celkova_cena_eur = round(sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur, 2)
-            updated_sklad.jednotkova_cena_eur = round(updated_sklad.celkova_cena_eur / updated_sklad.mnozstvi, 2)
-            created_auditlog.typ_operace = "PŘÍJEM"
-            created_auditlog.operaci_provedl = request.user
-            created_auditlog.evidencni_cislo = updated_sklad
+                updated_sklad.save()            
+                created_auditlog.save()
+                logger.info(f'Uložení úspěšné: sklad {updated_sklad.pk}, auditlog {created_auditlog.pk}')
 
-            fields_to_copy = [
-                'ucetnictvi', 'interne_cislo', 'objednano', 'nazev_dilu', 'mnozstvi',
-                'jednotky', 'umisteni', 'dodavatel', 'datum_nakupu',
-                'cislo_objednavky', 'poznamka'                
-            ]
+                # Získání dodavatele z formuláře
+                dodavatel_object = Dodavatele.objects.get(dodavatel=updated_sklad.dodavatel)
 
-            for field in fields_to_copy:
-                setattr(created_auditlog, field, getattr(updated_sklad, field))
-
+                # Kontrola, zda varianta existuje
+                varianty = Varianty.objects.filter(sklad=sklad_instance)
+                varianta_dodavatele = [var.dodavatel for var in varianty]
             
-            updated_sklad.save()            
-            created_auditlog.save()
+                if not varianty or dodavatel_object not in varianta_dodavatele:
+                    logger.info(f'Přesměrování na vytvoření nové varianty pro dodavatele {dodavatel_object}')
+                    return redirect('create_varianty_with_dodavatel', pk=pk, dodavatel=dodavatel_object.id)
 
-            # Získání dodavatele z formuláře
-            dodavatel_object = Dodavatele.objects.get(dodavatel=updated_sklad.dodavatel)
-
-            # Kontrola, zda varianta existuje
-            varianty = Varianty.objects.filter(sklad=sklad_instance)
-            varianta_dodavatele = [var.dodavatel for var in varianty]
-           
-            if not varianty or dodavatel_object not in varianta_dodavatele:
-                return redirect('create_varianty_with_dodavatel', pk=pk, dodavatel=dodavatel_object.id)
-                                           
-            return redirect('audit_log')
+                logger.debug(f'Varianta položky s dodavatelem: {dodavatel_object} už existuje')                            
+                return redirect('audit_log')
+            
+            except Exception as e:
+                logger.exception(f'Chyba při ukládání příjmu do skladu nebo auditlogu: {e}')
+                raise
+        
+        else:
+            logger.warning("Formuláře jsou neplatné")
+            logger.debug(f"Errors (sklad): {sklad_movement_form.errors}")
+            logger.debug(f"Errors (audit): {auditlog_receipt_form.errors}")
         
     else: # GET 
+        logger.debug('Zobrazuji formuláře pro příjem skladové položky pro GET požadavek')
         sklad_movement_form = SkladReceiptForm(instance=sklad_instance)
         auditlog_receipt_form = AuditLogReceiptForm()
 
