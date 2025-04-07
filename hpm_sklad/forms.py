@@ -19,7 +19,7 @@ class SkladCreateForm(forms.ModelForm):
     názvu dílu, jednotek, umístění, dodavatele a přiřazených zařízení.
     """
     dodavatel = forms.ModelChoiceField(
-        queryset=Dodavatele.objects.all(),
+        queryset=Dodavatele.objects.order_by('dodavatel'),
         required=False,
         empty_label="Vyberte dodavatele"
     )
@@ -150,7 +150,7 @@ class SkladReceiptForm(forms.ModelForm):
         required=True,
         label='Datum nákupu'
     )
-    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.all(), required=True, empty_label="Vyberte dodavatele")
+    dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.order_by('dodavatel'), required=True, empty_label="Vyberte dodavatele")
         
     class Meta:
         model = Sklad
