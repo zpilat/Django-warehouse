@@ -72,13 +72,13 @@ def receipt_form_view(request, pk):
     Vrací:
     - render: HTML stránku `receipt_audit_log.html` s formuláři a daty.
     """    
-    logger.debug(f'Zahájena view receipt_form_view pro příjem na skladovou položku pk={pk}')
+    logger.debug(f'Zahájena view receipt_form_view pro příjem na skladovou položku pk={pk}, metoda={request.method}')
 
     sklad_instance = get_object_or_404(Sklad, pk=pk)
     logger.debug(f'Nalezena instance skladové položky: {sklad_instance}')
 
     if request.method == 'POST':
-        logger.debug(f'Request typu {request.method} s vyplněným formulářem pro příjem zboží')
+        logger.debug('Request typu POST s vyplněným formulářem pro příjem zboží')
         sklad_movement_form = SkladReceiptForm(request.POST, instance=sklad_instance)
         auditlog_receipt_form = AuditLogReceiptForm(request.POST)
         if sklad_movement_form.is_valid() and auditlog_receipt_form.is_valid():
@@ -137,7 +137,7 @@ def receipt_form_view(request, pk):
         else:
             logger.warning("Formuláře jsou neplatné")
             logger.debug(f"Errors (sklad): {sklad_movement_form.errors}")
-            logger.debug(f"Errors (audit): {auditlog_receipt_form.errors}")
+            logger.debug(f"Errors (auditlog): {auditlog_receipt_form.errors}")
         
     else: # GET 
         logger.debug('Zobrazuji formuláře pro příjem skladové položky pro GET požadavek')
@@ -172,37 +172,62 @@ def dispatch_form_view(request, pk):
     Vrací:
     - render: HTML stránku `dispatch_audit_log.html` s formuláři a daty.
     """
+    logger.debug(f'Zahájena view dispatch_form_view pro výdej skladové položky pk={pk}, metoda={request.method}')
+
     sklad_instance = get_object_or_404(Sklad, pk=pk)
+    logger.debug(f'Nalezena instance skladové položky: {sklad_instance}')
+
     if request.method == 'POST':
+        logger.debug('Request typu POST s vyplněným formulářem pro výdej zboží')        
         sklad_movement_form = SkladDispatchForm(request.POST, instance=sklad_instance)
         auditlog_dispatch_form = AuditLogDispatchForm(request.POST, max_mnozstvi=sklad_instance.mnozstvi)
         
         if sklad_movement_form.is_valid() and auditlog_dispatch_form.is_valid():
-            updated_sklad = sklad_movement_form.save(commit=False)
-            created_auditlog = auditlog_dispatch_form.save(commit=False)
-           
-            created_auditlog.jednotkova_cena_eur = sklad_instance.jednotkova_cena_eur
-            created_auditlog.zmena_mnozstvi = -created_auditlog.zmena_mnozstvi
-            created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
-            updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
-            updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
-            created_auditlog.typ_operace = "VÝDEJ"
-            created_auditlog.evidencni_cislo = updated_sklad
-            created_auditlog.operaci_provedl = request.user
+            logger.info('Formuláře jsou platné, pokačuje se v ukládání dat')
+            
+            try:
+                updated_sklad = sklad_movement_form.save(commit=False)
+                created_auditlog = auditlog_dispatch_form.save(commit=False)
 
-            fields_to_copy = [
-                'ucetnictvi', 'interne_cislo', 'objednano', 'nazev_dilu', 'mnozstvi',
-                'jednotky', 'umisteni', 'dodavatel', 'cislo_objednavky', 'poznamka'                
-            ]
+                logger.debug(f'Původní množství: {sklad_instance.mnozstvi}, výdej: {created_auditlog.zmena_mnozstvi}')
+            
+                created_auditlog.jednotkova_cena_eur = sklad_instance.jednotkova_cena_eur
+                created_auditlog.zmena_mnozstvi = -created_auditlog.zmena_mnozstvi
+                created_auditlog.celkova_cena_eur = created_auditlog.jednotkova_cena_eur * created_auditlog.zmena_mnozstvi          
+                updated_sklad.mnozstvi = sklad_instance.mnozstvi + created_auditlog.zmena_mnozstvi
+                updated_sklad.celkova_cena_eur = sklad_instance.celkova_cena_eur + created_auditlog.celkova_cena_eur
 
-            for field in fields_to_copy:
-                setattr(created_auditlog, field, getattr(updated_sklad, field))            
+                logger.debug(f'Výpočty akualizace skladu při výdeji dokončeny, množství po výdeji: {updated_sklad.mnozstvi}')
 
-            updated_sklad.save()            
-            created_auditlog.save()
-            return redirect('audit_log')
+                created_auditlog.typ_operace = "VÝDEJ"
+                created_auditlog.evidencni_cislo = updated_sklad
+                created_auditlog.operaci_provedl = request.user
+
+                fields_to_copy = [
+                    'ucetnictvi', 'interne_cislo', 'objednano', 'nazev_dilu', 'mnozstvi',
+                    'jednotky', 'umisteni', 'dodavatel', 'cislo_objednavky', 'poznamka'                
+                ]
+
+                for field in fields_to_copy:
+                    setattr(created_auditlog, field, getattr(updated_sklad, field))            
+
+                updated_sklad.save()            
+                created_auditlog.save()
+                logger.info(f'Uložení úspěšné: sklad {updated_sklad.pk}, auditlog {created_auditlog.pk}')
+
+                return redirect('audit_log')
+            
+            except Exception as e:
+                logger.exception(f'Chyba při ukládání výdeje do skladu nebo auditlogu: {e}')
+                raise
+            
+        else:
+            logger.warning("Formuláře jsou neplatné")
+            logger.debug(f"Errors (sklad): {sklad_movement_form.errors}")
+            logger.debug(f"Errors (auditlog): {auditlog_dispatch_form.errors}")           
                    
     else: # GET 
+        logger.debug('Zobrazuji formuláře pro GET požadavek pro výdej položky')
         sklad_movement_form = SkladDispatchForm(instance=sklad_instance)
         auditlog_dispatch_form = AuditLogDispatchForm(max_mnozstvi=sklad_instance.mnozstvi)
 
