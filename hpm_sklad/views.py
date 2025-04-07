@@ -433,8 +433,8 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
             raise
 
     def form_valid(self, form):
-        sklad = form.save(commit=False)
-        logger.info(f"{self.request.user} vytvořil novou skladovou položku: {sklad}")
+        self.object = form.save()
+        logger.info(f"{self.request.user} vytvořil novou skladovou položku: {self.object}")
         return super().form_valid(form)
 
     def form_invalid(self, form):
