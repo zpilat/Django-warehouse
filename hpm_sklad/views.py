@@ -419,6 +419,32 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     template_name = 'hpm_sklad/create_sklad.html'
     success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.add_sklad'
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro vytvoření nové skladové položky")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST požadavek pro vytvoření nové skladové položky")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při vytváření nové položky: {e}")
+            raise
+
+    def form_valid(self, form):
+        sklad = form.save(commit=False)
+        logger.info(f"{self.request.user} vytvořil novou skladovou položku: {sklad}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro vytvoření skladové položky.")
+        logger.debug(f"Formulářové chyby: {form.errors}")
+        return super().form_invalid(form)
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} k vytvoření nové položky')
+        return super().handle_no_permission()    
       
     def get_context_data(self, **kwargs):
         """
@@ -426,7 +452,9 @@ class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         """
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('pk', None)
-        context['skladova_polozka'] = get_object_or_404(Sklad, evidencni_cislo=selected_id)
+        if selected_id:
+            context['skladova_polozka'] = get_object_or_404(Sklad, evidencni_cislo=selected_id)
+            logger.debug(f"Přidána skladová položka do kontextu: ID {selected_id}")            
         return context       
 
 
