@@ -562,6 +562,15 @@ class SkladDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     template_name = 'hpm_sklad/delete_sklad.html'
     success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.delete_sklad'
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        logger.warning(f"{request.user} SMAZAL skladovou položku: Evid. č. {obj.evidencni_cislo}, {obj.nazev_dilu}")
+        return super().delete(request, *args, **kwargs)
+
+    def handle_no_permission(self):
+        logger.warning(f'Uživatel {self.request.user} se pokusil smazat položku bez oprávnění.')
+        return super().handle_no_permission()    
     
 
 class SkladDetailView(LoginRequiredMixin, DetailView):
