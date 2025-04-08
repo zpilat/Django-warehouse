@@ -1453,41 +1453,39 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
 
 
 @login_required
-##@permission_required('hpm_sklad.add_poptavky')
+@permission_required('hpm_sklad.add_poptavky')
 def create_poptavka(request, dodavatel_id):
     """
     Vytváří novou poptávku pro daného dodavatele.
 
-    Parameters:
-    - request: HTTP request objekt.
-    - dodavatel_id: Primární klíč dodavatele, pro kterého je poptávka vytvářena.
+    Permision:
+    - Povoleno pouze uživatelům s oprávněním 'add_poptavky'.
 
-    POST:
-    - Zpracuje inline formulář pro výběr variant dodavatele.
-    - Pokud jsou vybrány varianty, uloží poptávku.
-
-    GET:
-    - Zobrazí prázdný formulář pro výběr variant.
-
-    Vrací:
-    - render: HTML stránku `create_poptavka.html` s formuláři a daty.
     """
     dodavatel = get_object_or_404(Dodavatele, id=dodavatel_id)
     varianty_dodavatele = Varianty.objects.filter(dodavatel_id=dodavatel_id)
-    
+
+    logger.info(f"{request.user} otevřel formulář pro vytvoření poptávky pro dodavatele ID {dodavatel_id}")
+
     PoptavkaVariantyFormSet = inlineformset_factory(
-        Poptavky, PoptavkaVarianty, form=PoptavkaVariantyForm, extra=varianty_dodavatele.count(), can_delete=False
-        )    
+        Poptavky, PoptavkaVarianty,
+        form=PoptavkaVariantyForm,
+        extra=varianty_dodavatele.count(),
+        can_delete=False
+    )
 
     if request.method == 'POST':
-        formset = PoptavkaVariantyFormSet(request.POST, form_kwargs={'varianty_dodavatele': varianty_dodavatele})
+        formset = PoptavkaVariantyFormSet(
+            request.POST,
+            form_kwargs={'varianty_dodavatele': varianty_dodavatele}
+        )
+        logger.info(f"{request.user} odeslal POST požadavek pro vytvoření poptávky")
+
         if formset.is_valid():
-            any_should_save = False
-            for form in formset:
-                if form.cleaned_data.get('should_save'):
-                    any_should_save = True
-                    break
-                
+            any_should_save = any(
+                form.cleaned_data.get('should_save') for form in formset.forms
+            )
+
             if any_should_save:
                 poptavka = Poptavky.objects.create(
                     dodavatel=dodavatel,
@@ -1498,25 +1496,40 @@ def create_poptavka(request, dodavatel_id):
                         poptavka_varianty = form.save(commit=False)
                         poptavka_varianty.poptavka = poptavka
                         poptavka_varianty.save()
+                
+                logger.info(f"{request.user} vytvořil poptávku #{poptavka.pk} pro dodavatele {dodavatel}")
                 return redirect('poptavky')
             else:
+                logger.warning(f"{request.user} nevybral žádné položky pro vytvoření poptávky – formulář byl prázdný")
                 for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
                     form.fields['varianta'].initial = varianta_dodavatele
-                    form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky             
+                    form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky
                 formset.non_form_errors().append('Musíte vybrat alespoň jednu položku k uložení do poptávky.')
+        else:
+            logger.warning(f"{request.user} odeslal neplatný formulář poptávky")
+            logger.debug(f"Formset errors: {formset.errors}")
     else:
-        formset = PoptavkaVariantyFormSet(queryset=PoptavkaVarianty.objects.none(), form_kwargs={'varianty_dodavatele': varianty_dodavatele})
+        formset = PoptavkaVariantyFormSet(
+            queryset=PoptavkaVarianty.objects.none(),
+            form_kwargs={'varianty_dodavatele': varianty_dodavatele}
+        )
         for form, varianta_dodavatele in zip(formset.forms, varianty_dodavatele):
             form.fields['varianta'].initial = varianta_dodavatele
-            difference = (varianta_dodavatele.sklad.min_mnozstvi_ks -
-                          varianta_dodavatele.sklad.mnozstvi)
+            difference = (
+                varianta_dodavatele.sklad.min_mnozstvi_ks -
+                varianta_dodavatele.sklad.mnozstvi
+            )
             form.fields['mnozstvi'].initial = max(difference, 0)
             form.fields['jednotky'].initial = varianta_dodavatele.sklad.jednotky
             if difference > 0:
                 form.fields['should_save'].initial = True
-        
-    context = {'current_user': request.user, 'formset': formset, 'dodavatel': dodavatel,
-               'varianty_dodavatele': varianty_dodavatele}
+
+    context = {
+        'current_user': request.user,
+        'formset': formset,
+        'dodavatel': dodavatel,
+        'varianty_dodavatele': varianty_dodavatele
+    }
     return render(request, 'hpm_sklad/create_poptavka.html', context)
 
 
@@ -1707,6 +1720,19 @@ class CustomPasswordChangeView(PasswordChangeView):
     """
     success_url = reverse_lazy("home")  
     template_name = "registration/password_change.html"
+
+    def form_valid(self, form):
+        logger.info(f"Uživatel {self.request.user} úspěšně změnil své heslo.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"Uživatel {self.request.user} odeslal neplatný formulář pro změnu hesla.")
+        logger.debug(f"Chyby formuláře při změně hesla: {form.errors}")
+        return super().form_invalid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel stránku pro změnu hesla.")
+        return super().dispatch(request, *args, **kwargs)
   
   
 def logout_request(request):
