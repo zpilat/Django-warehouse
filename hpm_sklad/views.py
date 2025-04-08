@@ -1299,11 +1299,39 @@ class DodavateleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
     template_name = 'hpm_sklad/create_dodavatele.html'
     success_url = reverse_lazy('dodavatele')
     permission_required = 'hpm_sklad.add_dodavatele'
-       
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro vytvoření nového dodavatele")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST požadavek pro vytvoření nového dodavatele")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při vytváření nového dodavatele: {e}")
+            raise
+
+    def form_valid(self, form):
+        self.object = form.save()
+        logger.info(f"{self.request.user} vytvořil nového dodavatele: {self.object}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro vytvoření dodavatele.")
+        logger.debug(f"Formulářové chyby: {form.errors}")
+        return super().form_invalid(form)
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} k vytvoření dodavatele')
+        return super().handle_no_permission()  
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         selected_id = self.request.GET.get('pk', None)
-        context['dodavatel'] = get_object_or_404(Dodavatele, id=selected_id)
+        if selected_id:
+            context['dodavatel'] = get_object_or_404(Dodavatele, id=selected_id)
+            logger.debug(f"Přidán dodavatel do kontextu: ID {selected_id}")
         return context       
 
 
@@ -1531,6 +1559,7 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
         Vrací:
         - HttpResponse s CSV souborem.
         """
+        logger.info(f"{self.request.user} spustil export poptávek do CSV.")
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="poptavky_export.csv"'
 
@@ -1548,6 +1577,7 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
                 item.varianty, 
             ])
 
+        logger.info(f"Export poptávek do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
     def render_to_response(self, context, **response_kwargs):
