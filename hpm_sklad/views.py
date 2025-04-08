@@ -1146,7 +1146,34 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
         context = super().get_context_data(**kwargs)
         varianta = self.get_object()
         context['skladova_polozka'] = varianta.sklad
+        logger.debug(f"Přidána skladová položka do kontextu: ID {varianta.sklad.pk}")
         return context
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro úpravu varianty #{kwargs.get('pk')}")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST pro úpravu varianty #{kwargs.get('pk')}")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při zpracování POST požadavku: {e}")
+            raise    
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} ke stránce pro úpravu varianty #{self.kwargs.get("pk")}')
+        return super().handle_no_permission()
+    
+    def form_valid(self, form):
+        varianta = form.save(commit=False)
+        logger.info(f"{self.request.user} odeslal platný formulář a uložil změny pro variantu: {varianta}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro úpravu varianty #{self.get_object().pk}")
+        logger.debug(f"Form errors: {form.errors}")
+        return super().form_invalid(form)    
 
 
 class DodavateleListView(LoginRequiredMixin, ListView):
@@ -1220,6 +1247,7 @@ class DodavateleListView(LoginRequiredMixin, ListView):
         Vrací:
         - HttpResponse s CSV souborem.
         """
+        logger.info(f"{self.request.user} spustil export dodavatelů do CSV.")
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="dodavatele_export.csv"'
 
@@ -1236,8 +1264,9 @@ class DodavateleListView(LoginRequiredMixin, ListView):
                 item.email, 
                 item.telefon, 
                 item.jazyk, 
-            ])
+            ])         
 
+        logger.info(f"Export dodavatelů do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
     def render_to_response(self, context, **response_kwargs):
