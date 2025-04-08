@@ -198,7 +198,7 @@ else:
         'loggers': {
             'hpm_sklad': {
                 'handlers': ['file'],
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'propagate': True,
             },
         },
