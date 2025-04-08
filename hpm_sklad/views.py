@@ -384,7 +384,7 @@ class SkladListView(LoginRequiredMixin, ListView):
                 ', '.join([z.kod_zarizeni.upper() for z in item.zarizeni.all()])
             ])
 
-        logger.info(f"Export do CSV dokončen. Počet položek: {queryset.count()}")
+        logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
     def render_to_response(self, context, **response_kwargs):

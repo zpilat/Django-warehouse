@@ -18,8 +18,8 @@
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Export
                 </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                    {% if object_list %}
+                {% if object_list %}
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
                         {% if db_table == 'audit_log' %}
                         <a class="dropdown-item small" href="{% url 'audit_log_export_csv' %}?{{ request.GET.urlencode }}">
                         {% elif db_table == 'sklad' %}
@@ -29,16 +29,18 @@
                         {% endif %}
                             Export do CSV
                         </a>     
-                    {% endif %}
-                    {% if db_table == 'audit_log' %}              
-                        <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
-                            Graf nákladů
-                        </a>
-                        <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
-                            Graf nákladů dle typu údržby
-                        </a>
-                    {% endif %}
-                </div>
+                        {% if db_table == 'audit_log' and typ_operace == 'VÝDEJ' %}              
+                            <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
+                                Graf nákladů
+                            </a>
+                            {% if typ_udrzby and typ_udrzby != 'VŠE' %}
+                                <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
+                                    Graf nákladů dle typu údržby
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
         {% endif %}          
     </div>
