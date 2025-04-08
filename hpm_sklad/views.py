@@ -723,6 +723,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - HttpResponse s CSV souborem.
         """
+        logger.info(f"{self.request.user} spustil export audit logu do CSV.")
+
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="audit_log_export.csv"'
 
@@ -759,6 +761,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 item.poznamka
             ])
 
+        logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
     def generate_graph_to_pdf(self, queryset):
@@ -970,12 +973,25 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     success_url = reverse_lazy('sklad')
     permission_required = 'hpm_sklad.add_varianty'
 
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro vytvoření nové varianty")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST požadavek pro vytvoření nové varianty")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při vytváření nové varianty: {e}")
+            raise
+
     def get_context_data(self, **kwargs):
         """
         Přidává skladovou položku do kontextu šablony.
         """
         context = super().get_context_data(**kwargs)
         context['skladova_polozka'] = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        logger.debug(f"Přidána skladová položka do kontextu: ID {self.kwargs['pk']}")
         return context
 
     def get_form(self, form_class=None):
@@ -992,11 +1008,32 @@ class VariantyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView
         return form    
 
     def form_valid(self, form):
-        """
-        Validuje a uloží novou variantu skladové položky.
-        """
-        form.instance.sklad = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
+        form.instance.sklad = skladova_polozka
+
+        if Varianty.objects.filter(sklad=skladova_polozka, dodavatel=form.instance.dodavatel).exists():
+            logger.warning(
+                f"{self.request.user} se pokusil vytvořit duplicitní variantu "
+                f"pro sklad {skladova_polozka.pk} a dodavatele {form.instance.dodavatel}"
+            )
+            form.add_error('dodavatel', 'Varianta se stejným dodavatelem již existuje.')
+            return self.form_invalid(form)
+
+        logger.info(
+            f"{self.request.user} vytvořil novou variantu pro skladovou položku {skladova_polozka.pk} "
+            f"a dodavatele {form.instance.dodavatel}"
+        )
         return super().form_valid(form)
+
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro vytvoření nové varianty.")
+        logger.debug(f"Formulářové chyby: {form.errors}")
+        return super().form_invalid(form)
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} k vytvoření nové varianty')
+        return super().handle_no_permission()  
 
 
 class VariantyWithDodavatelCreateView(CreateView):
@@ -1017,6 +1054,18 @@ class VariantyWithDodavatelCreateView(CreateView):
     template_name = 'hpm_sklad/create_varianty_with_dodavatel.html'
     success_url = reverse_lazy('sklad')
 
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro vytvoření nové varianty")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST požadavek pro vytvoření nové varianty")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při vytváření nové varianty: {e}")
+            raise
+
     def get_initial(self):
         """
         Inicializuje hodnoty pro pole formuláře, včetně dodavatele.
@@ -1035,25 +1084,41 @@ class VariantyWithDodavatelCreateView(CreateView):
         dodavatel_id = self.kwargs.get('dodavatel')
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs.get('pk'))
         context['skladova_polozka'] = skladova_polozka
+        logger.debug(f"Přidána skladová položka do kontextu: ID {self.kwargs['pk']}")        
         if dodavatel_id:
             dodavatel_object = Dodavatele.objects.get(id=dodavatel_id)
             context['dodavatel'] = dodavatel_object
             context['dodavatel_id'] = dodavatel_id  # Dodání ID do kontextu
+            logger.debug(f"Přidán dodavatel do kontextu: ID {dodavatel_id}")
         return context
 
     def form_valid(self, form):
-        """
-        Přiřazuje skladovou položku k vytvořené variantě a validuje formulář.
-        """
         skladova_polozka = get_object_or_404(Sklad, pk=self.kwargs['pk'])
         form.instance.sklad = skladova_polozka
 
-        # Kontrola, zda varianta se stejným dodavatelem již existuje
         if Varianty.objects.filter(sklad=skladova_polozka, dodavatel=form.instance.dodavatel).exists():
+            logger.warning(
+                f"{self.request.user} se pokusil vytvořit duplicitní variantu "
+                f"pro sklad {skladova_polozka.pk} a dodavatele {form.instance.dodavatel}"
+            )
             form.add_error('dodavatel', 'Varianta se stejným dodavatelem již existuje.')
-            return self.form_invalid(form) 
-          
+            return self.form_invalid(form)
+
+        logger.info(
+            f"{self.request.user} vytvořil novou variantu pro skladovou položku {skladova_polozka.pk} "
+            f"a dodavatele {form.instance.dodavatel}"
+        )
         return super().form_valid(form)
+
+    
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro vytvoření nové varianty.")
+        logger.debug(f"Formulářové chyby: {form.errors}")
+        return super().form_invalid(form)
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} k vytvoření nové varianty')
+        return super().handle_no_permission()      
 
 
 class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
