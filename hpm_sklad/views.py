@@ -1353,6 +1353,31 @@ class DodavateleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateVi
     permission_required = 'hpm_sklad.change_dodavatele'
     success_url = reverse_lazy('dodavatele')
 
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro úpravu dodavatele #{kwargs.get('pk')}")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST pro úpravu dodavatele #{kwargs.get('pk')}")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při zpracování POST požadavku: {e}")
+            raise    
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} ke stránce pro úpravu dodavatele')
+        return super().handle_no_permission()
+    
+    def form_valid(self, form):
+        dodavatel = form.save(commit=False)
+        logger.info(f"{self.request.user} odeslal platný formulář a uložil změny pro dodavatele: {dodavatel}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro úpravu dodavatele #{self.get_object().pk}")
+        logger.debug(f"Form errors: {form.errors}")
+        return super().form_invalid(form)
     
 class DodavateleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
@@ -1371,6 +1396,14 @@ class DodavateleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
     success_url = reverse_lazy('dodavatele')
     permission_required = 'hpm_sklad.delete_dodavatele'        
 
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        logger.warning(f"{request.user} SMAZAL dodavatele: ID #{obj.pk}, {obj.dodavatel}")
+        return super().delete(request, *args, **kwargs)
+
+    def handle_no_permission(self):
+        logger.warning(f'Uživatel {self.request.user} se pokusil smazat dodavatele bez oprávnění.')
+        return super().handle_no_permission()   
 
 
 class DodavateleDetailView(LoginRequiredMixin, DetailView):
