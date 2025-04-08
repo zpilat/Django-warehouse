@@ -351,43 +351,40 @@ class SkladListView(LoginRequiredMixin, ListView):
         return queryset
 
     def export_to_csv(self, queryset):
-        """
-        Exportuje seznam skladových položek do CSV.
+        logger.info(f"{self.request.user} spustil export skladových položek do CSV.")
 
-        Vrací:
-        - HttpResponse s CSV souborem.
-        """
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="sklad_export.csv"'
 
         writer = csv.writer(response)
         writer.writerow([
-            'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Minimum', 'Množství', 'Jednotky', 
-            'Umístění', 'Dodavatel', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR', 
+            'Evidenční číslo', 'Číslo karty', 'Objednáno?', 'Název dílu', 'Minimum', 'Množství', 'Jednotky',
+            'Umístění', 'Dodavatel', 'Datum nákupu', 'Číslo objednávky', 'EUR/jednotka', 'Celkem EUR',
             'Poznámka', 'Účetnictví', 'Kritický díl', 'Zařízení'
         ])
 
         for item in queryset:
             writer.writerow([
-                item.evidencni_cislo, 
-                item.interne_cislo, 
-                item.objednano, 
-                item.nazev_dilu, 
-                item.min_mnozstvi_ks, 
-                item.mnozstvi, 
-                item.jednotky, 
-                item.umisteni, 
-                item.dodavatel, 
-                item.datum_nakupu, 
-                item.cislo_objednavky, 
-                item.jednotkova_cena_eur, 
-                item.celkova_cena_eur, 
-                item.poznamka, 
-                item.ucetnictvi, 
-                item.kriticky_dil, 
+                item.evidencni_cislo,
+                item.interne_cislo,
+                item.objednano,
+                item.nazev_dilu,
+                item.min_mnozstvi_ks,
+                item.mnozstvi,
+                item.jednotky,
+                item.umisteni,
+                item.dodavatel,
+                item.datum_nakupu,
+                item.cislo_objednavky,
+                item.jednotkova_cena_eur,
+                item.celkova_cena_eur,
+                item.poznamka,
+                item.ucetnictvi,
+                item.kriticky_dil,
                 ', '.join([z.kod_zarizeni.upper() for z in item.zarizeni.all()])
             ])
 
+        logger.info(f"Export do CSV dokončen. Počet položek: {queryset.count()}")
         return response
 
     def render_to_response(self, context, **response_kwargs):
@@ -398,8 +395,14 @@ class SkladListView(LoginRequiredMixin, ListView):
         - HttpResponse s HTML nebo CSV obsahem.
         """
         if getattr(self, 'export_csv', False):
-            return self.export_to_csv(self.get_queryset())
-        return super().render_to_response(context, **response_kwargs)    
+            queryset = self.get_queryset()
+            if not queryset.exists():
+                logger.warning(f"{self.request.user} spustil export CSV, ale po filtraci nebyly vybrány žádné položky k uložení.")
+                return HttpResponse("Export selhal, nebyly nalezeny zadne polozky k exportu.", content_type="text/plain")
+            return self.export_to_csv(queryset)
+
+        return super().render_to_response(context, **response_kwargs)
+ 
 
 
 class SkladCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

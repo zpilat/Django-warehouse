@@ -19,15 +19,17 @@
                     Export
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                    {% if db_table == 'audit_log' %}
-                    <a class="dropdown-item small" href="{% url 'audit_log_export_csv' %}?{{ request.GET.urlencode }}">
-                    {% elif db_table == 'sklad' %}
-                    <a class="dropdown-item small" href="{% url 'sklad_export_csv' %}?{{ request.GET.urlencode }}">
-                    {% elif db_table == 'dodavatele' %}
-                    <a class="dropdown-item small" href="{% url 'dodavatele_export_csv' %}?{{ request.GET.urlencode }}">
+                    {% if object_list %}
+                        {% if db_table == 'audit_log' %}
+                        <a class="dropdown-item small" href="{% url 'audit_log_export_csv' %}?{{ request.GET.urlencode }}">
+                        {% elif db_table == 'sklad' %}
+                        <a class="dropdown-item small" href="{% url 'sklad_export_csv' %}?{{ request.GET.urlencode }}">
+                        {% elif db_table == 'dodavatele' %}
+                        <a class="dropdown-item small" href="{% url 'dodavatele_export_csv' %}?{{ request.GET.urlencode }}">
+                        {% endif %}
+                            Export do CSV
+                        </a>     
                     {% endif %}
-                        Export do CSV
-                    </a>     
                     {% if db_table == 'audit_log' %}              
                         <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
                             Graf nákladů
