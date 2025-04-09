@@ -21,7 +21,7 @@ class SkladDispatchFormTest(TestCase):
     - validaci správného vstupu
     - volitelnost poznámky a umístění
     """
-
+    
     def test_valid_form(self):
         """Ověřuje, že formulář je validní při zadání všech správných hodnot."""
         form = SkladDispatchForm(data={
@@ -40,10 +40,31 @@ class SkladDispatchFormTest(TestCase):
 
 
 class AuditLogDispatchFormTest(TestCase):
+    """
+    Testovací třída pro formulář `AuditLogDispatchForm`.
+
+    Testuje následující scénáře:
+    - Validita formuláře při správně zadaných datech.
+    - Nevalidita formuláře při překročení maximálního množství.
+    - Nevalidita formuláře při chybějícím výběru zařízení.
+    """
+
     def setUp(self):
-        self.zarizeni = Zarizeni.objects.create(kod_zarizeni='HSH', nazev_zarizeni='HSH TQ7', umisteni='Hala 2', typ_zarizeni='Víceúčelová pec')
+        """
+        Vytvoří testovací zařízení pro použití ve formuláři.
+        """
+        self.zarizeni = Zarizeni.objects.create(
+            kod_zarizeni='HSH',
+            nazev_zarizeni='HSH TQ7',
+            umisteni='Hala 2',
+            typ_zarizeni='Víceúčelová pec'
+        )
 
     def test_valid_form(self):
+        """
+        Ověřuje, že formulář je validní, pokud jsou všechna data správně zadána
+        a množství nepřesahuje povolené maximum.
+        """
         form = AuditLogDispatchForm(
             data={
                 'datum_vydeje': date.today().isoformat(),
@@ -56,6 +77,9 @@ class AuditLogDispatchFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_invalid_mnozstvi_above_max(self):
+        """
+        Ověřuje, že formulář je nevalidní, pokud je zadané množství vyšší než maximální povolené.
+        """
         form = AuditLogDispatchForm(
             data={
                 'datum_vydeje': date.today().isoformat(),
@@ -69,6 +93,9 @@ class AuditLogDispatchFormTest(TestCase):
         self.assertIn('zmena_mnozstvi', form.errors)
 
     def test_missing_zarizeni(self):
+        """
+        Ověřuje, že formulář je nevalidní, pokud není vybráno žádné zařízení.
+        """
         form = AuditLogDispatchForm(
             data={
                 'datum_vydeje': date.today().isoformat(),
