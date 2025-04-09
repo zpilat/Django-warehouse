@@ -771,49 +771,47 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - FileResponse obsahující graf ve formátu PDF.
         """
-        # Připraví data pro graf
-        data = {}
-        for item in queryset:
-            if item.typ_operace == 'VÝDEJ':
-                if item.pouzite_zarizeni not in data:
-                    data[item.pouzite_zarizeni] = 0
-                data[item.pouzite_zarizeni] += abs(item.celkova_cena_eur)
-        
-        zarizeni = sorted(data.keys())
-        naklady = [data[key] for key in zarizeni]
+        logger.info(f"{self.request.user} zahájil generování PDF grafu nákladů dle zařízení za měsíc {self.month}, rok {self.year}")
+        try:
+            data = {}
+            for item in queryset:
+                if item.typ_operace == 'VÝDEJ':
+                    if item.pouzite_zarizeni not in data:
+                        data[item.pouzite_zarizeni] = 0
+                    data[item.pouzite_zarizeni] += abs(item.celkova_cena_eur)
 
-        # Vytvoří graf pomocí matplotlib
-        plt.figure(figsize=(14, 8))  # Zvýšení velikosti obrázku
-        plt.bar(zarizeni, naklady, color='skyblue')
-        plt.xlabel('Zařízení')
-        plt.ylabel('EUR')
-        plt.title(f"Náklady za období: měsíc:{self.month}, rok:{self.year}")
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
+            zarizeni = sorted(data.keys())
+            naklady = [data[key] for key in zarizeni]
 
-        # Uloží graf do bufferu
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
+            plt.figure(figsize=(14, 8))
+            plt.bar(zarizeni, naklady, color='skyblue')
+            plt.xlabel('Zařízení')
+            plt.ylabel('EUR')
+            plt.title(f"Náklady za období: měsíc:{self.month}, rok:{self.year}")
+            plt.xticks(rotation=45, ha='right')
+            plt.tight_layout()
 
-        # Načte obrázek z bufferu pomocí Pillow
-        image = Image.open(buf)
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            image = Image.open(buf)
 
-        # Připraví PDF pomocí reportlab
-        pdf_buffer = io.BytesIO()
-        p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
-        p.drawString(100, 560, "Náklady na náhradní díly")  # Úprava pozice textu
+            pdf_buffer = io.BytesIO()
+            p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+            p.drawString(100, 560, "Náklady na náhradní díly")
+            img_reader = ImageReader(image)
+            p.drawImage(img_reader, 50, 150, width=700, height=400)
+            p.showPage()
+            p.save()
+            pdf_buffer.seek(0)
 
-        # Použije ImageReader pro přidání obrázku do PDF
-        img_reader = ImageReader(image)
-        p.drawImage(img_reader, 50, 150, width=700, height=400)  # Úprava velikosti a pozice obrázku
+            logger.info(f"{self.request.user} úspěšně vygeneroval PDF graf nákladů dle zařízení")
+            return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_na_zarizeni.pdf')
+        except Exception as e:
+            logger.exception(f"Chyba při generování PDF grafu dle zařízení: {e}")
+            raise
 
-        p.showPage()
-        p.save()
-        pdf_buffer.seek(0)
 
-        return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_na_zarizeni.pdf')
-    
     def generate_graph_by_maintenance(self, queryset):
         """
         Generuje graf nákladů podle typu údržby za zvolený měsíc a rok a ukládá ho do PDF souboru.
@@ -821,48 +819,44 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - FileResponse obsahující graf ve formátu PDF.
         """
-        # Připraví data pro graf
-        data = {}
-        for item in queryset:
-            if item.typ_udrzby not in data:
-                data[item.typ_udrzby] = 0
-            data[item.typ_udrzby] += abs(item.celkova_cena_eur)
+        logger.info(f"{self.request.user} zahájil generování PDF grafu nákladů dle typu údržby za měsíc {self.month}, rok {self.year}")
+        try:
+            data = {}
+            for item in queryset:
+                if item.typ_udrzby not in data:
+                    data[item.typ_udrzby] = 0
+                data[item.typ_udrzby] += abs(item.celkova_cena_eur)
 
-        typy_udrzby = sorted(data.keys())
-        naklady = [data[key] for key in typy_udrzby]
+            typy_udrzby = sorted(data.keys())
+            naklady = [data[key] for key in typy_udrzby]
 
-        # Vytvoří graf pomocí matplotlib
-        plt.figure(figsize=(14, 8))  # Zvýšení velikosti obrázku
-        plt.bar(typy_udrzby, naklady, color='lightgreen')
-        plt.xlabel('Typ údržby')
-        plt.ylabel('EUR')
-        plt.title(f"Náklady podle typu údržby: měsíc {self.month}, rok {self.year}")
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
+            plt.figure(figsize=(14, 8))
+            plt.bar(typy_udrzby, naklady, color='lightgreen')
+            plt.xlabel('Typ údržby')
+            plt.ylabel('EUR')
+            plt.title(f"Náklady podle typu údržby: měsíc {self.month}, rok {self.year}")
+            plt.xticks(rotation=45, ha='right')
+            plt.tight_layout()
 
-        # Uloží graf do bufferu
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            image = Image.open(buf)
 
-        # Načte obrázek z bufferu pomocí Pillow
-        image = Image.open(buf)
+            pdf_buffer = io.BytesIO()
+            p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+            p.drawString(100, 560, "Náklady podle typu údržby")
+            img_reader = ImageReader(image)
+            p.drawImage(img_reader, 50, 150, width=700, height=400)
+            p.showPage()
+            p.save()
+            pdf_buffer.seek(0)
 
-        # Připraví PDF pomocí reportlab
-        pdf_buffer = io.BytesIO()
-        p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
-        p.drawString(100, 560, "Náklady podle typu údržby")  # Úprava pozice textu
-
-        # Použije ImageReader pro přidání obrázku do PDF
-        img_reader = ImageReader(image)
-        p.drawImage(img_reader, 50, 150, width=700, height=400)  # Úprava velikosti a pozice obrázku
-
-        p.showPage()
-        p.save()
-        pdf_buffer.seek(0)
-
-        return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_podle_typu_udrzby.pdf')
-
+            logger.info(f"{self.request.user} úspěšně vygeneroval PDF graf nákladů dle typu údržby")
+            return FileResponse(pdf_buffer, as_attachment=True, filename='graf_naklady_podle_typu_udrzby.pdf')
+        except Exception as e:
+            logger.exception(f"Chyba při generování PDF grafu dle typu údržby: {e}")
+            raise
 
     def render_to_response(self, context, **response_kwargs):
         """
