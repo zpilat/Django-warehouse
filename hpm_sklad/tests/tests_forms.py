@@ -107,3 +107,110 @@ class AuditLogDispatchFormTest(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn('pouzite_zarizeni', form.errors)
+
+
+class SkladReceiptFormTest(TestCase):
+    """
+    Testovací třída pro formulář `SkladReceiptForm`.
+
+    Testuje následující scénáře:
+    - Validita formuláře při správně zadaných datech.
+    - Nevalidita formuláře při chybějících povinných polích.
+    - Validita formuláře při chybějících nepovinných polích.
+    """
+    def setUp(self):
+        """
+        Vytvoří testovacího dodavatele pro použití ve formuláři
+        """
+        self.dodavatel = Dodavatele.objects.create(
+            dodavatel="Testovací dodavatel",
+            kontakt="Kontaktní osoba",
+            email="zkouska@email.cz",
+            telefon="0124587952",
+            jazyk="CZ"
+        )
+
+    def test_valid_form(self):
+        """
+        Ověřuje, že formulář je validní při zadání všech povinných dat.
+        """
+        form = SkladReceiptForm(data=
+            {
+                "objednano": "další není",
+                "umisteni": "garáž L6",
+                "dodavatel": self.dodavatel,
+                "datum_nakupu": date.today().isoformat(),
+                "cislo_objednavky": "237",
+                "jednotkova_cena_eur": "2.5",
+                "poznamka": "vyzkoušet",
+            }
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_form(self):
+        """
+        Ověřuje, že formulář je nevalidní, pokud není zadáno číslo objednávky.
+        """
+        form = SkladReceiptForm(data=
+            {
+                "objednano": "další není",
+                "umisteni": "garáž L6",
+                "dodavatel": self.dodavatel,
+                "datum_nakupu": date.today().isoformat(),
+                "cislo_objednavky": "",
+                "jednotkova_cena_eur": "2.5",
+                "poznamka": "vyzkoušet",
+            }
+        )
+        self.assertFalse(form.is_valid())        
+
+    def test_empty_poznamka_ok(self):
+        """
+        Ověřuje, že prázdné pole objednano nebo žádná poznámka nevadí (jsou volitelné).
+        """
+        form = SkladReceiptForm(data=
+            {
+                "objednano": "",
+                "umisteni": "garáž L6",
+                "dodavatel": self.dodavatel,
+                "datum_nakupu": date.today().isoformat(),
+                "cislo_objednavky": "237",
+                "jednotkova_cena_eur": "2.5",
+                "poznamka": "",
+            }
+        )
+        self.assertTrue(form.is_valid())
+
+
+class AuditLogReceiptFormTest(TestCase):
+    """
+    Testovací třída pro formulář `AuditLogReceiptForm`
+
+    Testuje následující scénáře:
+    - Validita formuláře při správně zadaných datech.
+    - Nevalidita formuláře při chybějící změně množství.
+    """
+
+    def test_valid_form(self):
+        """
+        Ověřuje, že formulář je validní, pokud jsou všechna data správně zadána.
+        """
+        form = AuditLogReceiptForm(
+            data={
+                'zmena_mnozstvi': '2',
+            },
+        )
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_form(self):
+        """
+        Ověřuje, že formulář je nevalidní, pokud je zadané množství rovné nule.
+        """
+        form = AuditLogReceiptForm(
+            data={
+                'zmena_mnozstvi': '0',
+            },
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('zmena_mnozstvi', form.errors)
+        
