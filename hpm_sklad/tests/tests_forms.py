@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_user_agents.utils import get_user_agent
 
-from datetime import date
+from datetime import date, timedelta
 
 from hpm_sklad.models import Poptavky, Dodavatele, Sklad, Zarizeni, SkladZarizeni, AuditLog, Varianty, PoptavkaVarianty
 from hpm_sklad.forms import SkladReceiptForm, AuditLogReceiptForm, SkladDispatchForm, AuditLogDispatchForm
@@ -47,6 +47,7 @@ class AuditLogDispatchFormTest(TestCase):
     - Validita formuláře při správně zadaných datech.
     - Nevalidita formuláře při překročení maximálního množství.
     - Nevalidita formuláře při chybějícím výběru zařízení.
+    - Nevalidita formuláře při nesprávném datu výdeje - zítřejší datum.
     """
 
     def setUp(self):
@@ -108,6 +109,21 @@ class AuditLogDispatchFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('pouzite_zarizeni', form.errors)
 
+    def test_invalid_date(self):
+        """
+        Ověřuje, že formulář není validní, pokud je datum větší než aktuální.
+        """
+        form = AuditLogDispatchForm(
+            data={
+                'datum_vydeje': (date.today() + timedelta(days=1)).isoformat(),
+                'pouzite_zarizeni': 'HSH',
+                'zmena_mnozstvi': '2',
+                'typ_udrzby': 'Preventivní'
+            },
+            max_mnozstvi=5
+        )
+        self.assertFalse(form.is_valid())  
+
 
 class SkladReceiptFormTest(TestCase):
     """
@@ -117,6 +133,7 @@ class SkladReceiptFormTest(TestCase):
     - Validita formuláře při správně zadaných datech.
     - Nevalidita formuláře při chybějících povinných polích.
     - Validita formuláře při chybějících nepovinných polích.
+    - Nevalidita formuláře při zítřejším datu příjmu
     """
     def setUp(self):
         """
@@ -180,6 +197,23 @@ class SkladReceiptFormTest(TestCase):
             }
         )
         self.assertTrue(form.is_valid())
+
+    def test_invalid_date(self):
+        """
+        Ověřuje, že formulář není validní při zadání zítřejšího data.
+        """
+        form = SkladReceiptForm(data=
+            {
+                "objednano": "další není",
+                "umisteni": "garáž L6",
+                "dodavatel": self.dodavatel,
+                "datum_nakupu": (date.today() + timedelta(days=1)).isoformat(),
+                "cislo_objednavky": "237",
+                "jednotkova_cena_eur": "2.5",
+                "poznamka": "vyzkoušet",
+            }
+        )
+        self.assertFalse(form.is_valid())        
 
 
 class AuditLogReceiptFormTest(TestCase):

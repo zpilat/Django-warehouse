@@ -147,7 +147,8 @@ class SkladReceiptForm(forms.ModelForm):
     """
     datum_nakupu = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
-        required=True,
+        validators=[MaxValueValidator(limit_value=date.today)],
+         required=True,
         label='Datum nákupu'
     )
     dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.order_by('dodavatel'), required=True, empty_label="Vyberte dodavatele")
@@ -239,6 +240,7 @@ class AuditLogDispatchForm(forms.ModelForm):
     """
     datum_vydeje = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
+        validators=[MaxValueValidator(limit_value=date.today)],
         required=True,
         label='Datum výdeje'
         )
