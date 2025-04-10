@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
-from datetime import date
+from datetime import date, timedelta
 
 
 class SkladCreateForm(forms.ModelForm):
@@ -146,9 +146,8 @@ class SkladReceiptForm(forms.ModelForm):
     Obsahuje pole pro datum nákupu, dodavatele, číslo objednávky, jednotkovou cenu a další informace spojené s příjmem na sklad.
     """
     datum_nakupu = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
-        validators=[MaxValueValidator(limit_value=date.today)],
-         required=True,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True,
         label='Datum nákupu'
     )
     dodavatel = forms.ModelChoiceField(queryset=Dodavatele.objects.order_by('dodavatel'), required=True, empty_label="Vyberte dodavatele")
@@ -163,7 +162,7 @@ class SkladReceiptForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SkladReceiptForm, self).__init__(*args, **kwargs)
-        
+      
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
         self.helper.form_method = 'post'
@@ -174,6 +173,9 @@ class SkladReceiptForm(forms.ModelForm):
                 ),
             )
 
+        today = date.today()
+        self.fields['datum_nakupu'].widget.attrs['max'] = today.isoformat()
+        self.fields['datum_nakupu'].validators.append(MaxValueValidator(today))
         self.fields['umisteni'].required = True
         self.fields['dodavatel'].required = True
         self.fields['cislo_objednavky'].required = True
@@ -239,8 +241,7 @@ class AuditLogDispatchForm(forms.ModelForm):
     Obsahuje pole pro zadání data výdeje, použitého zařízení a změny množství.
     """
     datum_vydeje = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'max': date.today().isoformat()}),
-        validators=[MaxValueValidator(limit_value=date.today)],
+        widget=forms.DateInput(attrs={'type': 'date'}),
         required=True,
         label='Datum výdeje'
         )
@@ -269,6 +270,9 @@ class AuditLogDispatchForm(forms.ModelForm):
             Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small', label_class='form-label-sm'),
             )
         
+        today = date.today()
+        self.fields['datum_vydeje'].widget.attrs['max'] = today.isoformat()
+        self.fields['datum_vydeje'].validators.append(MaxValueValidator(today))      
         self.fields['datum_vydeje'].required = True
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
 
