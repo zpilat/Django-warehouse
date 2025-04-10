@@ -1,0 +1,18 @@
+{% load static %}
+{% load custom_filters %}
+    
+{% comment %} {% include "hpm_sklad/navbar_dodavatele.html" %} {% endcomment %}
+    
+<div class="bg-dark text-white mt-3">
+    <p class="h6 py-2 px-2">Detail zařízení:</p>
+</div>
+<table class="table table-sm table-striped table-bordered">   
+    <tbody>
+        {% for field in detail_item_fields %}
+            <tr>
+                <th scope="col" class="width-nowrap">{{ field.verbose_name }}</th>
+                <td scope="col" class="container-fluid">{{ object|get_attribute:field.name }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

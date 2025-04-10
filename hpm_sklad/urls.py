@@ -30,6 +30,8 @@ urlpatterns = [
     path('sklad/dodavatele/<int:pk>/update/', views.DodavateleUpdateView.as_view(), name='update_dodavatele'),
     path('sklad/dodavatele/<int:pk>/delete/', views.DodavateleDeleteView.as_view(), name='delete_dodavatele'),
     path('sklad/dodavatele/export/csv/', views.DodavateleListView.as_view(export_csv=True), name='dodavatele_export_csv'),
+    path('sklad/zarizeni/', views.ZarizeniListView.as_view(), name='zarizeni'),   
+    path('sklad/zarizeni/<int:pk>/detail/', views.ZarizeniDetailView.as_view(template_name='hpm_sklad/detail_zarizeni.html'), name='detail_zarizeni'),
     path('sklad/poptavky/', views.PoptavkaListView.as_view(), name='poptavky'),
     path('sklad/poptavky/<int:dodavatel_id>/create/', views.create_poptavka, name='create_poptavka'),
     path('sklad/poptavky/<int:pk>/update/', views.SkladUpdateView.as_view(), name='update_sklad'),

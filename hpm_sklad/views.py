@@ -1527,6 +1527,95 @@ def create_poptavka(request, dodavatel_id):
     return render(request, 'hpm_sklad/create_poptavka.html', context)
 
 
+class ZarizeniListView(LoginRequiredMixin, ListView):
+    """
+    Zobrazuje seznam zařízení.
+
+    Template:
+    - `zarizeni.html`
+
+    Kontext:
+    - Seznam zařízení a možnosti filtrování.
+    """
+    model = Zarizeni
+    template_name = 'hpm_sklad/zarizeni.html'
+    paginate_by = 20
+
+    def get_context_data(self, **kwargs):
+        """
+        Přidává další data do kontextu pro zobrazení v šabloně.
+
+        Vrací:
+        - Kontext obsahující filtry, řazení a aktuálně vybraného zařízení.
+        """
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('selected', None)
+
+        if selected_id:
+            context['selected_item'] = get_object_or_404(Zarizeni, id=selected_id)
+        else:
+            context['selected_item'] = None
+
+        context.update({
+            'db_table': 'zarizeni',
+            'sort': self.request.GET.get('sort', 'id'),
+            'order': self.request.GET.get('order', 'down'),
+            'query': self.request.GET.get('query', ''),
+            'current_user': self.request.user,
+        })
+
+        return context
+
+    def get_queryset(self):
+        """
+        Získává seznam zařízení na základě vyhledávání a filtrování.
+
+        Vrací:
+        - queryset: Filtrovaný a seřazený seznam zařízení.
+        """
+        queryset = Zarizeni.objects.all()
+        query = self.request.GET.get('query', '')
+        sort = self.request.GET.get('sort', 'id')
+        order = self.request.GET.get('order', 'down')
+
+        if query:
+            queryset = queryset.filter(
+                Q(kod_zarizeni__icontains=query) | Q(typ_zarizeni__icontains=query)
+            )
+
+        if order == 'down':
+            sort = f"-{sort}"
+            
+        queryset = queryset.order_by(sort)
+
+        return queryset
+
+
+class ZarizeniDetailView(LoginRequiredMixin, DetailView):
+    """
+    Zobrazuje detailní informace o zařízení.
+
+    Template:
+    - `detail_zarizeni.html`
+
+    Kontext:
+    - Zahrnuje detailní informace o zařízení.
+    """
+    model = Zarizeni
+    template_name = 'hpm_sklad/detail_zarizeni.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Přidává do kontextu detailní položky zařízení.
+
+        Vrací:
+        - Kontext obsahující pole modelu zařízení.
+        """
+        context = super().get_context_data(**kwargs)
+        context['detail_item_fields'] = self.model._meta.get_fields()
+        return context
+
+
 class PoptavkaListView(LoginRequiredMixin, ListView):
     """
     Zobrazuje seznam poptávek.
