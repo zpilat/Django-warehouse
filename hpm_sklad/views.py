@@ -1405,25 +1405,14 @@ class DodavateleDetailView(LoginRequiredMixin, DetailView):
     Zobrazuje detailní informace o dodavateli.
 
     Template:
-    - Určeno buď atributem `template_name`, nebo vyvolá chybu pokud není nastaveno.
+    - `hpm_sklad/detail_dodavatele.html`.
 
     Kontext:
     - Zahrnuje detaily dodavatele, varianty a poptávky spojené s dodavatelem.
     """
     model = Dodavatele
-
-    def get_template_names(self):
-        """
-        Určuje šablonu pro zobrazení detailu dodavatele.
-        Pokud není nastavena, vyvolá chybu.
-
-        Vrací:
-        - Název šablony (str).
-        """
-        if self.template_name:
-            return [self.template_name]
-        else:
-            raise ValueError("Šablona není zadána")
+    template_name = 'hpm_sklad/detail_dodavatele.html'    
+    
 
     def get_context_data(self, **kwargs):
         """
@@ -1599,7 +1588,7 @@ class ZarizeniDetailView(LoginRequiredMixin, DetailView):
     - `detail_zarizeni.html`
 
     Kontext:
-    - Zahrnuje detailní informace o zařízení.
+    - Zahrnuje detailní informace o zařízení, kromě vztahů many to many -sklad a many to one - skladzarizeni.
     """
     model = Zarizeni
     template_name = 'hpm_sklad/detail_zarizeni.html'
@@ -1612,7 +1601,8 @@ class ZarizeniDetailView(LoginRequiredMixin, DetailView):
         - Kontext obsahující pole modelu zařízení.
         """
         context = super().get_context_data(**kwargs)
-        context['detail_item_fields'] = self.model._meta.get_fields()
+        context['detail_item_fields'] = self.model._meta.get_fields()[2:]
+
         return context
 
 
