@@ -392,6 +392,65 @@ class DodavateleUpdateForm(forms.ModelForm):
         )
 
 
+class ZarizeniCreateForm(forms.ModelForm):
+    """
+    Formulář pro vytvoření nového zařízení.
+    Obsahuje pole pro zadání kódu zařízení, názvu zařízení, umístění, typu zařízení.
+    """
+    class Meta:
+        model = Zarizeni
+        fields = [
+            kod_zarizeni, nazev_zarizeni, umisteni, typ_zarizeni,
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(ZarizeniCreateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'form-grid'
+
+        # Add form-label-sm class to all labels
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': 'form-control form-control-sm'})
+            field.label_suffix = ""
+        
+        self.helper.layout = Layout(
+            Div(
+                Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
+                    css_class='d-flex justify-content-center mt-3'
+                    )
+                )
+            )  
+
+
+class ZarizeniUpdateForm(forms.ModelForm):
+    """
+    Formulář pro aktualizaci existujícího zarizeni.
+    Obsahuje pole pro úpravu kódu zařízení, názvu zařízení, umístění, typu zařízení.
+    """
+    class Meta:
+        model = Zarizeni
+        fields = [
+            kod_zarizeni, nazev_zarizeni, umisteni, typ_zarizeni,
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(ZarizeniUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-grid'  
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Div(
+                Div(*[Field(field) for field in self.Meta.fields], css_class='form-column small'),
+                Div(Submit('submit', 'Uložit', css_class="btn btn-sm btn-dark rounded-pill"),
+                    css_class='d-flex justify-content-center mt-3'
+                )
+            )
+        )
+
+
 class PoptavkaVariantyForm(forms.ModelForm):
     """
     Formulář pro přidání varianty do poptávky.
