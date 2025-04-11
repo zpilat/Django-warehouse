@@ -31,7 +31,7 @@ from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVar
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
                     VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm, DodavateleCreateForm,
-                    DodavateleUpdateForm)
+                    DodavateleUpdateForm, ZarizeniCreateForm, ZarizeniUpdateForm)
 
 logger = logging.getLogger(__name__)
 

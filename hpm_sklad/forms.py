@@ -400,7 +400,7 @@ class ZarizeniCreateForm(forms.ModelForm):
     class Meta:
         model = Zarizeni
         fields = [
-            kod_zarizeni, nazev_zarizeni, umisteni, typ_zarizeni,
+            'kod_zarizeni', 'nazev_zarizeni', 'umisteni', 'typ_zarizeni',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -432,7 +432,7 @@ class ZarizeniUpdateForm(forms.ModelForm):
     class Meta:
         model = Zarizeni
         fields = [
-            kod_zarizeni, nazev_zarizeni, umisteni, typ_zarizeni,
+            'kod_zarizeni', 'nazev_zarizeni', 'umisteni', 'typ_zarizeni',
         ]
 
     def __init__(self, *args, **kwargs):
