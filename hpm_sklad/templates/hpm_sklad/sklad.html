@@ -143,14 +143,6 @@
                                 {% endif %}
                             </a>
                         </th>
-                        <th scope="col">
-                            <a href="?sort=poznamka&order={% if request.GET.sort == 'poznamka' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Poznámka
-                                {% if request.GET.sort == 'poznamka' %}
-                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
-                                {% endif %}
-                            </a>
-                        </th>
                     {% endwith %}
                 </tr>
             </thead>
@@ -160,7 +152,7 @@
                     {% if item.pk == selected_sklad.pk %} class="table-info"{% endif %} {% if item.pod_minimem %} class="pod-minimem-row"{% endif %}>
                         <td scope="row">{{ item.pk }}</td>
                         <td scope="row">{{ item.interne_cislo }}</td>
-                        <td scope="row">{{ item.nazev_dilu|truncatechars:60 }}</td>
+                        <td scope="row">{{ item.nazev_dilu|truncatechars:70 }}</td>
                         <td scope="row">{{ item.min_mnozstvi_ks }}</td>
                         <td scope="row">{{ item.mnozstvi }}</td>
                         <td scope="row">{{ item.jednotky }}</td>
@@ -170,7 +162,6 @@
                         <td scope="row">{{ item.cislo_objednavky }}</td>
                         <td scope="row">{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td scope="row">{{ item.celkova_cena_eur|floatformat:2 }}</td>
-                        <td scope="row">{{ item.poznamka|truncatechars:25 }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

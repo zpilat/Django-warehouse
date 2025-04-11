@@ -260,7 +260,7 @@ class SkladListView(LoginRequiredMixin, ListView):
         Na PC bude stránkování po 20 záznamech, na mobilu se zobrazí vše.
         """
         if get_user_agent(self.request).is_pc:
-            return 20
+            return 24
         return None
 
     def get_template_names(self):
@@ -631,7 +631,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     """
     model = AuditLog
     template_name = 'hpm_sklad/audit_log.html' 
-    paginate_by = 20
+    paginate_by = 24
     export_csv = False
     graph = False
     graph_type_of_maintenance = False
@@ -1181,7 +1181,7 @@ class DodavateleListView(LoginRequiredMixin, ListView):
     """
     model = Dodavatele
     template_name = 'hpm_sklad/dodavatele.html'
-    paginate_by = 20
+    paginate_by = 24
     export_csv = False
 
     def get_context_data(self, **kwargs):
@@ -1527,7 +1527,7 @@ class ZarizeniListView(LoginRequiredMixin, ListView):
     """
     model = Zarizeni
     template_name = 'hpm_sklad/zarizeni.html'
-    paginate_by = 20
+    paginate_by = 24
 
     def get_context_data(self, **kwargs):
         """
@@ -1722,7 +1722,7 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
     """
     model = Poptavky
     template_name = 'hpm_sklad/poptavky.html'
-    paginate_by = 20
+    paginate_by = 24
     export_csv = False
 
     def get_context_data(self, **kwargs):
