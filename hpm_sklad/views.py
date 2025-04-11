@@ -179,8 +179,8 @@ def dispatch_form_view(request, pk):
     if request.method == 'POST':
         logger.debug('Request typu POST s vyplněným formulářem pro výdej zboží')        
         sklad_movement_form = SkladDispatchForm(request.POST, instance=sklad_instance)
-        auditlog_dispatch_form = AuditLogDispatchForm(request.POST, max_mnozstvi=sklad_instance.mnozstvi)
-        
+        auditlog_dispatch_form = AuditLogDispatchForm(request.POST, max_mnozstvi=sklad_instance.mnozstvi, zarizeni=sklad_instance.zarizeni.all())
+
         if sklad_movement_form.is_valid() and auditlog_dispatch_form.is_valid():
             logger.info('Formuláře jsou platné, pokračuje se v ukládání dat')
             
@@ -226,9 +226,9 @@ def dispatch_form_view(request, pk):
             logger.debug(f"Errors (auditlog): {auditlog_dispatch_form.errors}")           
                    
     else: # GET 
-        logger.debug('Zobrazuji formuláře pro GET požadavek pro výdej položky')
+        logger.debug('Zobrazuji formuláře pro GET požadavek pro výdej položky')          
         sklad_movement_form = SkladDispatchForm(instance=sklad_instance)
-        auditlog_dispatch_form = AuditLogDispatchForm(max_mnozstvi=sklad_instance.mnozstvi)
+        auditlog_dispatch_form = AuditLogDispatchForm(max_mnozstvi=sklad_instance.mnozstvi, zarizeni=sklad_instance.zarizeni.all())
 
     context = {
         'sklad_movement_form': sklad_movement_form,

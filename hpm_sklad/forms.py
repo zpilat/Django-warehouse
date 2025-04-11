@@ -262,6 +262,8 @@ class AuditLogDispatchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         max_mnozstvi = kwargs.pop('max_mnozstvi', 1)
+        zarizeni_qs = kwargs.pop('zarizeni', None)
+        print(f'Zařízení skladové položky: {zarizeni_qs}')
         super(AuditLogDispatchForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'
@@ -276,8 +278,7 @@ class AuditLogDispatchForm(forms.ModelForm):
         self.fields['datum_vydeje'].required = True
         self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
 
-        zarizeni_qs = Zarizeni.objects.all()
-        zarizeni_choices = [('', 'Vyberte zařízení')] + [(z.kod_zarizeni.upper(), z.nazev_zarizeni) for z in zarizeni_qs]        
+        zarizeni_choices = [('', 'Vyberte zařízení')] + [(z.kod_zarizeni.upper(), z.nazev_zarizeni) for z in zarizeni_qs] + [('VIZ POZN.', 'Ostatní zařízení - do poznámky')]
         self.fields['pouzite_zarizeni'].choices = zarizeni_choices
 
 
