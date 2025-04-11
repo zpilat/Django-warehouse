@@ -3,7 +3,7 @@ from django.http import HttpResponse, FileResponse
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.core.exceptions import ValidationError
 from django.contrib.auth.views import LogoutView, PasswordChangeView
 from django.views.generic import ListView
@@ -12,7 +12,6 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q, F, Case, When, BooleanField, Value
-from django.db import models
 from django.forms import inlineformset_factory
 from django_user_agents.utils import get_user_agent
 
@@ -1578,6 +1577,104 @@ class ZarizeniListView(LoginRequiredMixin, ListView):
         queryset = queryset.order_by(sort)
 
         return queryset
+    
+
+class ZarizeniCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Vytváří nové zařízení.
+
+    - Povoleno pouze uživatelům s oprávněním 'add_zarizeni'.
+
+    Template:
+    - `create_zarizeni.html`
+
+    Po úspěšném vytvoření:
+    - Přesměruje uživatele zpět na seznam zařízení.
+    """
+    model = Zarizeni
+    form_class = ZarizeniCreateForm
+    template_name = 'hpm_sklad/create_zarizeni.html'
+    success_url = reverse_lazy('zarizeni')
+    permission_required = 'hpm_sklad.add_zarizeni'
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro vytvoření nového zařízení")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST požadavek pro vytvoření nového zařízení")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při vytváření nového zařízení: {e}")
+            raise
+
+    def form_valid(self, form):
+        self.object = form.save()
+        logger.info(f"{self.request.user} vytvořil nové zařízení: {self.object}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro vytvoření zařízení.")
+        logger.debug(f"Formulářové chyby: {form.errors}")
+        return super().form_invalid(form)
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} k vytvoření zařízení')
+        return super().handle_no_permission()  
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.request.GET.get('pk', None)
+        if selected_id:
+            context['zarizeni'] = get_object_or_404(Zarizeni, id=selected_id)
+            logger.debug(f"Přidáno zařízení do kontextu: ID {selected_id}")
+        return context       
+
+
+class ZarizeniUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Aktualizuje existujícího zařízení.
+
+    - Povoleno pouze uživatelům s oprávněním 'change_zarizeni'.
+
+    Template:
+    - `update_zarizeni.html`
+
+    Po úspěšné aktualizaci:
+    - Přesměruje uživatele zpět na seznam zařízení.
+    """
+    model = Zarizeni
+    form_class = ZarizeniUpdateForm    
+    template_name = 'hpm_sklad/update_zarizeni.html'
+    permission_required = 'hpm_sklad.change_zarizeni'
+    success_url = reverse_lazy('zarizeni')
+
+    def get(self, request, *args, **kwargs):
+        logger.info(f"{request.user} otevřel formulář pro úpravu zařízení #{kwargs.get('pk')}")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logger.info(f"{request.user} odeslal POST pro úpravu zařízení #{kwargs.get('pk')}")
+        try:
+            return super().post(request, *args, **kwargs)
+        except Exception as e:
+            logger.exception(f"Chyba při zpracování POST požadavku: {e}")
+            raise    
+
+    def handle_no_permission(self):
+        logger.warning(f'Neoprávněný přístup uživatele {self.request.user} ke stránce pro úpravu zařízení')
+        return super().handle_no_permission()
+    
+    def form_valid(self, form):
+        zarizeni = form.save(commit=False)
+        logger.info(f"{self.request.user} odeslal platný formulář a uložil změny pro zařízení: {zarizeni}")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.warning(f"{self.request.user} odeslal neplatný formulář pro úpravu zařízení #{self.get_object().pk}")
+        logger.debug(f"Form errors: {form.errors}")
+        return super().form_invalid(form)
 
 
 class ZarizeniDetailView(LoginRequiredMixin, DetailView):
@@ -1601,7 +1698,11 @@ class ZarizeniDetailView(LoginRequiredMixin, DetailView):
         - Kontext obsahující pole modelu zařízení.
         """
         context = super().get_context_data(**kwargs)
-        context['detail_item_fields'] = self.model._meta.get_fields()[2:]
+        detail_item_fields = [
+            field for field in self.model._meta.get_fields()
+            if not (field.many_to_many or field.one_to_many or field.one_to_one)
+            ]
+        context['detail_item_fields'] = detail_item_fields
 
         return context
 
