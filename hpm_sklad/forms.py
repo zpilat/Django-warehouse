@@ -262,8 +262,7 @@ class AuditLogDispatchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         max_mnozstvi = kwargs.pop('max_mnozstvi', 1)
-        zarizeni_qs = kwargs.pop('zarizeni', None)
-        print(f'Zařízení skladové položky: {zarizeni_qs}')
+        zarizeni_qs = kwargs.pop('zarizeni', Zarizeni.objects.none())
         super(AuditLogDispatchForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-grid'

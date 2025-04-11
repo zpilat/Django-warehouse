@@ -328,8 +328,10 @@ class DispatchFormViewTest(TestCase):
         """
         Nastavení testovacího prostředí:
         - Vytvoření uživatele s oprávněními `change_sklad` a `add_auditlog`.
-        - Vytvoření skladové položky.
         - Vytvoření dodavatele.
+        - Vytvoření skladové položky.
+        - Vytvoření zařízení.
+        - Přiřazení zařízení k skladové položce.
         - Vytvoření URL pro testování.
         """
         self.user = User.objects.create_user(username='testuser', password='testpassword')
@@ -354,6 +356,7 @@ class DispatchFormViewTest(TestCase):
             typ_zarizeni='Víceúčelová kalicí pec'
         )
 
+        self.sklad.zarizeni.add(self.zarizeni)
 
         self.url = reverse('dispatch_audit_log', kwargs={'pk': self.sklad.pk})
 
@@ -560,8 +563,8 @@ class SkladListViewTest(TestCase):
         """
         Ověřuje správné stránkování.
         """
-        # Vytvoření více než 20 položek
-        for i in range(25):
+        # Vytvoření více než 24 položek
+        for i in range(29):
             Sklad.objects.create(interne_cislo=i, nazev_dilu=f"Test{i}", mnozstvi=10)
 
         self.client.login(username='testuser', password='testpassword')
@@ -570,10 +573,10 @@ class SkladListViewTest(TestCase):
                          'AppleWebKit/537.36 (KHTML, like Gecko) '
                          'Chrome/92.0.4515.131 Safari/537.36')        
 
-        # Zkontrolujeme, že je zobrazeno pouze 20 položek na první stránce
+        # Zkontrolujeme, že je zobrazeno pouze 24 položek na první stránce
         response = self.client.get(url, HTTP_USER_AGENT=pc_user_agent)
         sklad_items = response.context['object_list']
-        self.assertEqual(len(sklad_items), 20)
+        self.assertEqual(len(sklad_items), 24)
 
         # Ověříme, že na druhé stránce je zbývajících 5 položek
         response = self.client.get(url, {'page': 2}, HTTP_USER_AGENT=pc_user_agent)
@@ -987,7 +990,7 @@ class AuditLogListViewTest(TestCase):
     - Ověření, že je přístup pouze pro přihlášené uživatele.
     - Správné použití šablony.
     - Filtrování podle dotazu, typu operace, typu údržby, roku a měsíce.
-    - Stránkování (20 položek).
+    - Stránkování (24 položek).
     - Kontrola vybraného záznamu.
     """
 
@@ -1000,8 +1003,8 @@ class AuditLogListViewTest(TestCase):
         self.client.login(username='tester', password='testpass')
 
 
-        # Vytvořím 25 záznamů v audit logu
-        for i in range(25):
+        # Vytvořím 29 záznamů v audit logu
+        for i in range(29):
             AuditLog.objects.create(
                 ucetnictvi=True,
                 evidencni_cislo=self.sklad,
@@ -1063,12 +1066,12 @@ class AuditLogListViewTest(TestCase):
         response = self.client.get(self.url, {'typ_udrzby': 'Reaktivní'})
         self.assertTrue(all(obj.typ_udrzby == 'Reaktivní' for obj in response.context['object_list']))
 
-    def test_pagination_is_20(self):
+    def test_pagination_is_24(self):
         """
-        Ověřuje, že stránkování zobrazí 20 záznamů.
+        Ověřuje, že stránkování zobrazí 24 záznamů.
         """
         response = self.client.get(self.url)
-        self.assertEqual(len(response.context['object_list']), 20)
+        self.assertEqual(len(response.context['object_list']), 24)
 
     def test_selected_context_variable(self):
         """

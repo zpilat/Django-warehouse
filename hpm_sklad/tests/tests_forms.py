@@ -52,14 +52,30 @@ class AuditLogDispatchFormTest(TestCase):
 
     def setUp(self):
         """
-        Vytvoří testovací zařízení pro použití ve formuláři.
+        Vytvoří testovací zařízení, dodavatele, skladovou položku a vztah mezi nimi pro použití ve formuláři.
         """
-        self.zarizeni = Zarizeni.objects.create(
-            kod_zarizeni='HSH',
-            nazev_zarizeni='HSH TQ7',
-            umisteni='Hala 2',
-            typ_zarizeni='Víceúčelová pec'
+        self.dodavatel = Dodavatele.objects.create(
+            dodavatel="Test dodavatel"
         )
+
+        self.sklad = Sklad.objects.create(
+            interne_cislo=123,
+            nazev_dilu='Testovací díl',
+            mnozstvi=10,
+            jednotkova_cena_eur=100.0,
+            celkova_cena_eur=1000.0,
+            dodavatel=self.dodavatel.dodavatel
+        )
+
+        self.zarizeni = Zarizeni.objects.create(
+            kod_zarizeni='hsh',	
+            nazev_zarizeni='HSH TQ7',
+            umisteni='Hala 1',
+            typ_zarizeni='Víceúčelová kalicí pec'
+        )
+
+        self.sklad.zarizeni.add(self.zarizeni)
+        
 
     def test_valid_form(self):
         """
@@ -73,7 +89,8 @@ class AuditLogDispatchFormTest(TestCase):
                 'zmena_mnozstvi': '2',
                 'typ_udrzby': 'Preventivní'
             },
-            max_mnozstvi=5
+            max_mnozstvi=5,
+            zarizeni=self.sklad.zarizeni.all()
         )
         self.assertTrue(form.is_valid())
 
@@ -88,7 +105,8 @@ class AuditLogDispatchFormTest(TestCase):
                 'zmena_mnozstvi': '10',
                 'typ_udrzby': 'Preventivní'
             },
-            max_mnozstvi=5
+            max_mnozstvi=5,
+            zarizeni=self.sklad.zarizeni.all()            
         )
         self.assertFalse(form.is_valid())
         self.assertIn('zmena_mnozstvi', form.errors)
@@ -104,7 +122,8 @@ class AuditLogDispatchFormTest(TestCase):
                 'zmena_mnozstvi': '1',
                 'typ_udrzby': 'Preventivní'
             },
-            max_mnozstvi=5
+            max_mnozstvi=5,
+            zarizeni=self.sklad.zarizeni.all()            
         )
         self.assertFalse(form.is_valid())
         self.assertIn('pouzite_zarizeni', form.errors)
@@ -120,7 +139,8 @@ class AuditLogDispatchFormTest(TestCase):
                 'zmena_mnozstvi': '2',
                 'typ_udrzby': 'Preventivní'
             },
-            max_mnozstvi=5
+            max_mnozstvi=5,
+            zarizeni=self.sklad.zarizeni.all()            
         )
         self.assertFalse(form.is_valid())  
 
