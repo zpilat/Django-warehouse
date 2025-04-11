@@ -782,19 +782,29 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             zarizeni = sorted(data.keys())
             naklady = [data[key] for key in zarizeni]
 
-            plt.figure(figsize=(14, 8))
-            plt.bar(zarizeni, naklady, color='skyblue')
-            plt.xlabel('Zařízení')
-            plt.ylabel('EUR')
-            plt.title(f"Náklady za období: měsíc:{self.month}, rok:{self.year}")
-            plt.xticks(rotation=45, ha='right')
-            plt.tight_layout()
+            # Vytvoření figure a axes objektů
+            fig, ax = plt.subplots(figsize=(14, 8))
 
+            # Vytvoření sloupcového grafu
+            bars = ax.bar(zarizeni, naklady, color='skyblue')
+
+            ax.set_xlabel('Zařízení')
+            ax.set_ylabel('EUR')
+            ax.set_title(f"Náklady za období: měsíc:{self.month}, rok:{self.year}")
+            ax.set_xticks(zarizeni)
+            ax.set_xticklabels(zarizeni, rotation=45, ha='right')
+
+            # Přidání hodnot nad sloupce
+            ax.bar_label(bars, fmt='%.0f', padding=3)
+
+            # Uložení grafu do obrázku
             buf = io.BytesIO()
-            plt.savefig(buf, format='png')
+            fig.tight_layout()
+            fig.savefig(buf, format='png')
             buf.seek(0)
             image = Image.open(buf)
 
+            # Vytvoření PDF s vloženým grafem
             pdf_buffer = io.BytesIO()
             p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
             p.drawString(100, 560, "Náklady na náhradní díly")
@@ -829,19 +839,29 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             typy_udrzby = sorted(data.keys())
             naklady = [data[key] for key in typy_udrzby]
 
-            plt.figure(figsize=(14, 8))
-            plt.bar(typy_udrzby, naklady, color='lightgreen')
-            plt.xlabel('Typ údržby')
-            plt.ylabel('EUR')
-            plt.title(f"Náklady podle typu údržby: měsíc {self.month}, rok {self.year}")
-            plt.xticks(rotation=45, ha='right')
-            plt.tight_layout()
+            # Vytvoření figure a axes objektů
+            fig, ax = plt.subplots(figsize=(14, 8))
 
+            # Vytvoření sloupcového grafu
+            bars = ax.bar(typy_udrzby, naklady, color='skyblue')
+
+            ax.set_xlabel('Typ údržby')
+            ax.set_ylabel('EUR')
+            ax.set_title(f"Náklady podle typu údržby: měsíc {self.month}, rok {self.year}")
+            ax.set_xticks(typy_udrzby)
+            ax.set_xticklabels(typy_udrzby, rotation=45, ha='right')
+
+            # Přidání hodnot nad sloupce
+            ax.bar_label(bars, fmt='%.0f', padding=3)
+
+            # Uložení grafu do obrázku
             buf = io.BytesIO()
-            plt.savefig(buf, format='png')
+            fig.tight_layout()
+            fig.savefig(buf, format='png')
             buf.seek(0)
             image = Image.open(buf)
 
+            # Vytvoření PDF s vloženým grafem
             pdf_buffer = io.BytesIO()
             p = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
             p.drawString(100, 560, "Náklady podle typu údržby")
