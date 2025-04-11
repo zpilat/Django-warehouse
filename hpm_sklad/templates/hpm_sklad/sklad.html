@@ -72,14 +72,6 @@
                             </a>
                         </th>
                         <th scope="col">
-                            <a href="?sort=min_mnozstvi_ks&order={% if request.GET.sort == 'min_mnozstvi_ks' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
-                                Min.
-                                {% if request.GET.sort == 'min_mnozstvi_ks' %}
-                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
-                                {% endif %}
-                            </a>
-                        </th>
-                        <th scope="col">
                             <a href="?sort=mnozstvi&order={% if request.GET.sort == 'mnozstvi' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
                                 Množství
                                 {% if request.GET.sort == 'mnozstvi' %}
@@ -143,6 +135,14 @@
                                 {% endif %}
                             </a>
                         </th>
+                        <th scope="col">
+                            <a href="?sort=poznamka&order={% if request.GET.sort == 'poznamka' and request.GET.order == 'up' %}down{% else %}up{% endif %}&{{ querystring|url_remove_param:'sort,order' }}">
+                                Poznámka
+                                {% if request.GET.sort == 'poznamka' %}
+                                    <i class="fas fa-sort-{{ request.GET.order }}"></i>
+                                {% endif %}
+                            </a>
+                        </th>                        
                     {% endwith %}
                 </tr>
             </thead>
@@ -153,7 +153,6 @@
                         <td scope="row">{{ item.pk }}</td>
                         <td scope="row">{{ item.interne_cislo }}</td>
                         <td scope="row">{{ item.nazev_dilu|truncatechars:70 }}</td>
-                        <td scope="row">{{ item.min_mnozstvi_ks }}</td>
                         <td scope="row">{{ item.mnozstvi }}</td>
                         <td scope="row">{{ item.jednotky }}</td>
                         <td scope="row">{{ item.umisteni }}</td>
@@ -162,6 +161,7 @@
                         <td scope="row">{{ item.cislo_objednavky }}</td>
                         <td scope="row">{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td scope="row">{{ item.celkova_cena_eur|floatformat:2 }}</td>
+                        <td scope="row">{{ item.poznamka|truncatechars:25 }}</td>                        
                     </tr>
                 {% endfor %}
             </tbody>
