@@ -1,0 +1,14 @@
+{% load static %} 
+{% load crispy_forms_tags %}
+
+{% include "hpm_sklad/navbar_zarizeni.html" %}
+<div class="bg-dark text-white mt-3">
+    <p class="h6 py-2 px-2">Úprava zařízení: {{ object|truncatechars:50 }}</p>
+</div>
+
+<form class="mt-2" method="post"
+    action="{% url 'update_zarizeni' object.pk %}"
+    onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+    {% csrf_token %}
+    {% crispy form %}
+</form>
