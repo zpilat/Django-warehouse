@@ -678,18 +678,18 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         - queryset: Filtrovaný a seřazený seznam záznamů.
         """
         queryset = AuditLog.objects.all()
-        query = self.request.GET.get('query', '')
+        self.query = self.request.GET.get('query', '')
         sort = self.request.GET.get('sort', 'id')
         order = self.request.GET.get('order', 'down')
         typ_operace = self.request.GET.get('typ_operace', 'VŠE')
-        typ_udrzby = self.request.GET.get('typ_udrzby', 'VŠE')
+        self.typ_udrzby = self.request.GET.get('typ_udrzby', 'VŠE')
         self.month = self.request.GET.get('month', 'VŠE')
         self.year = self.request.GET.get('year', 'VŠE')
         self.ucetnictvi = self.request.GET.get('ucetnictvi', '')
 
-        if query:
+        if self.query:
             queryset = queryset.filter(
-                Q(nazev_dilu__icontains=query) | Q(dodavatel__icontains=query)
+                Q(nazev_dilu__icontains=self.query) | Q(dodavatel__icontains=self.query)
             )
 
         if  self.ucetnictvi == 'on':
@@ -698,8 +698,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         if typ_operace != 'VŠE':
             queryset = queryset.filter(typ_operace=typ_operace)
 
-        if typ_udrzby != 'VŠE':
-            queryset = queryset.filter(typ_udrzby=typ_udrzby)
+        if self.typ_udrzby != 'VŠE':
+            queryset = queryset.filter(typ_udrzby=self.typ_udrzby)
 
         if self.month != 'VŠE':
             queryset = queryset.filter(
@@ -772,14 +772,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - HttpResponse s CSV souborem.
         """
-        queryset = AuditLog.objects.all()
-        if self.month != 'VŠE':
-            queryset = queryset.filter(datum_vydeje__month=self.month)
-        if self.year != 'VŠE':
-            queryset = queryset.filter(datum_vydeje__year=self.year)
-        if self.ucetnictvi == 'on':
-            queryset = queryset.filter(ucetnictvi=True)
-
+        queryset = self.get_queryset()
         queryset = queryset.values('evidencni_cislo').annotate(celkovy_vydej=Sum('zmena_mnozstvi'), celkem_eur=Sum('celkova_cena_eur')).order_by('celkem_eur')
 
         logger.info(f"{self.request.user} spustil export spotřeby do CSV.")
@@ -789,7 +782,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         sklad = Sklad.objects.all()
         writer = csv.writer(response)
-        writer.writerow(['Filtry:', f'měsíc: {self.month}, rok: {self.year}, pouze položky v účetnictví: {"ano" if self.ucetnictvi=="on" else "ne"}'])
+        writer.writerow(['Filtry:', f'měsíc: {self.month}, rok: {self.year}, pouze v účetnictví: {"ano" if self.ucetnictvi=="on" else "ne"}, typ údržby: {self.typ_udrzby}, vyhledávání: {self.query}'])
         writer.writerow(['Evidenční číslo', 'Název dílu', 'Vydáno', 'Jednotky', 'Celkem EUR'])
 
         for item in queryset:
@@ -799,7 +792,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 skladova_polozka.nazev_dilu, 
                 item['celkovy_vydej'], 
                 skladova_polozka.jednotky,
-                -int(round(item['celkem_eur'], 0)), 
+                -int(item['celkem_eur']), 
             ])
 
         logger.info(f"Export spotřeby do CSV připraven. Počet položek: {queryset.count()}")
