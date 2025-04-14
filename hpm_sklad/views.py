@@ -685,13 +685,14 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         typ_udrzby = self.request.GET.get('typ_udrzby', 'VŠE')
         self.month = self.request.GET.get('month', 'VŠE')
         self.year = self.request.GET.get('year', 'VŠE')
+        self.ucetnictvi = self.request.GET.get('ucetnictvi', '')
 
         if query:
             queryset = queryset.filter(
                 Q(nazev_dilu__icontains=query) | Q(dodavatel__icontains=query)
             )
 
-        if self.request.GET.get('ucetnictvi', '') == 'on':
+        if  self.ucetnictvi == 'on':
             queryset = queryset.filter(ucetnictvi=True)
         
         if typ_operace != 'VŠE':
@@ -776,19 +777,20 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(datum_vydeje__month=self.month)
         if self.year != 'VŠE':
             queryset = queryset.filter(datum_vydeje__year=self.year)
+        if self.ucetnictvi == 'on':
+            queryset = queryset.filter(ucetnictvi=True)
 
         queryset = queryset.values('evidencni_cislo').annotate(celkovy_vydej=Sum('zmena_mnozstvi'), celkem_eur=Sum('celkova_cena_eur')).order_by('celkem_eur')
 
-        logger.info(f"{self.request.user} spustil export audit logu do CSV.")
+        logger.info(f"{self.request.user} spustil export spotřeby do CSV.")
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="spotreba_export.csv"'
 
         sklad = Sklad.objects.all()
         writer = csv.writer(response)
-        writer.writerow(['Za období:', f'měsíc: {self.month}, rok: {self.year}!'])
-        writer.writerow(['Evidenční číslo', 'Název dílu', 'Celkový výdej', 
-            'Jednotky', 'Celkem EUR'])
+        writer.writerow(['Filtry:', f'měsíc: {self.month}, rok: {self.year}, pouze položky v účetnictví: {"ano" if self.ucetnictvi=="on" else "ne"}'])
+        writer.writerow(['Evidenční číslo', 'Název dílu', 'Vydáno', 'Jednotky', 'Celkem EUR'])
 
         for item in queryset:
             skladova_polozka = sklad.get(pk=item['evidencni_cislo'])
@@ -797,10 +799,10 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 skladova_polozka.nazev_dilu, 
                 item['celkovy_vydej'], 
                 skladova_polozka.jednotky,
-                round(item['celkem_eur'], 2), 
+                -int(round(item['celkem_eur'], 0)), 
             ])
 
-        logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
+        logger.info(f"Export spotřeby do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
     def generate_graph_to_pdf(self, queryset):
