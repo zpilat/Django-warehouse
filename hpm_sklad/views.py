@@ -764,38 +764,40 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
-    def generate_export_consumption_to_csv(self, queryset):
+    def generate_export_consumption_to_csv(self):
         """
         Exportuje spotřebu jednotlivých dílů za vyfiltrované období do CSV.
 
         Vrací:
         - HttpResponse s CSV souborem.
         """
-        queryset = queryset.values(
-            'evidencni_cislo',
-            'evidencni_cislo__nazev_dilu',
-            'evidencni_cislo__jednotky'
-        ).annotate(
-            celkovy_vydej=Sum('zmena_mnozstvi'),
-            celkem_eur=Sum('celkova_cena_eur')     
-        )
+        queryset = AuditLog.objects.all()
+        if self.month != 'VŠE':
+            queryset = queryset.filter(datum_vydeje__month=self.month)
+        if self.year != 'VŠE':
+            queryset = queryset.filter(datum_vydeje__year=self.year)
+
+        queryset = queryset.values('evidencni_cislo').annotate(celkovy_vydej=Sum('zmena_mnozstvi'), celkem_eur=Sum('celkova_cena_eur')).order_by('celkem_eur')
 
         logger.info(f"{self.request.user} spustil export audit logu do CSV.")
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="spotreba_export.csv"'
 
+        sklad = Sklad.objects.all()
         writer = csv.writer(response)
+        writer.writerow(['Za období:', f'měsíc: {self.month}, rok: {self.year}!'])
         writer.writerow(['Evidenční číslo', 'Název dílu', 'Celkový výdej', 
             'Jednotky', 'Celkem EUR'])
 
         for item in queryset:
+            skladova_polozka = sklad.get(pk=item['evidencni_cislo'])
             writer.writerow([
                 item['evidencni_cislo'],  
-                item['evidencni_cislo__nazev_dilu'], 
+                skladova_polozka.nazev_dilu, 
                 item['celkovy_vydej'], 
-                item['evidencni_cislo__jednotky'], 
-                item['celkem_eur'], 
+                skladova_polozka.jednotky,
+                round(item['celkem_eur'], 2), 
             ])
 
         logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
@@ -932,7 +934,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             return self.generate_graph_to_pdf(self.get_queryset())
         elif getattr(self, 'export_consumption_to_csv', False):
             # export spotřeby jednotlivých skladových položek
-            return self.generate_export_consumption_to_csv(self.get_queryset())
+            return self.generate_export_consumption_to_csv()
         else:
             return super().render_to_response(context, **response_kwargs)
 
