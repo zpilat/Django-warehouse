@@ -13,6 +13,7 @@ urlpatterns = [
     path('sklad/<int:pk>/delete/', views.SkladDeleteView.as_view(), name='delete_sklad'),
     path('sklad/audit_logs/', views.AuditLogListView.as_view(), name='audit_log'),
     path('sklad/audit_logs/export/csv/', views.AuditLogListView.as_view(export_csv=True), name='audit_log_export_csv'),
+    path('sklad/audit_logs/export_consumption/csv/', views.AuditLogListView.as_view(export_consumption_to_csv=True), name='audit_log_export_consumption_to_csv'),    
     path('sklad/audit_logs/graph/', views.AuditLogListView.as_view(graph=True), name='audit_log_graph'),
     path('sklad/audit_logs/graph_by_maintenance/', views.AuditLogListView.as_view(graph_type_of_maintenance=True), name='audit_log_graph_type_of_maintenance'),    
     path('sklad/audit_logs/<int:pk>/detail/', views.AuditLogDetailView.as_view(), name='detail_audit_log'),

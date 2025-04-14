@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Q, F, Case, When, BooleanField, Value
+from django.db.models import Q, F, Case, When, BooleanField, Value, Sum
 from django.forms import inlineformset_factory
 from django_user_agents.utils import get_user_agent
 
@@ -635,6 +635,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     export_csv = False
     graph = False
     graph_type_of_maintenance = False
+    export_consumption_to_csv = False
 
     def get_context_data(self, **kwargs):
         """
@@ -715,7 +716,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         return queryset
 
-    def export_to_csv(self, queryset):
+    def generate_export_to_csv(self, queryset):
         """
         Exportuje seznam záznamů audit logu do CSV.
 
@@ -758,6 +759,43 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 item.operaci_provedl.username, 
                 item.typ_udrzby,
                 item.poznamka
+            ])
+
+        logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
+        return response
+
+    def generate_export_consumption_to_csv(self, queryset):
+        """
+        Exportuje spotřebu jednotlivých dílů za vyfiltrované období do CSV.
+
+        Vrací:
+        - HttpResponse s CSV souborem.
+        """
+        queryset = queryset.values(
+            'evidencni_cislo',
+            'evidencni_cislo__nazev_dilu',
+            'evidencni_cislo__jednotky'
+        ).annotate(
+            celkovy_vydej=Sum('zmena_mnozstvi'),
+            celkem_eur=Sum('celkova_cena_eur')     
+        )
+
+        logger.info(f"{self.request.user} spustil export audit logu do CSV.")
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="spotreba_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Evidenční číslo', 'Název dílu', 'Celkový výdej', 
+            'Jednotky', 'Celkem EUR'])
+
+        for item in queryset:
+            writer.writerow([
+                item['evidencni_cislo'],  
+                item['evidencni_cislo__nazev_dilu'], 
+                item['celkovy_vydej'], 
+                item['evidencni_cislo__jednotky'], 
+                item['celkem_eur'], 
             ])
 
         logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
@@ -885,16 +923,18 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         - HttpResponse s HTML, CSV nebo PDF obsahem.
         """
         if getattr(self, 'export_csv', False):
-            return self.export_to_csv(self.get_queryset())
+            return self.generate_export_to_csv(self.get_queryset())
         elif getattr(self, 'graph_type_of_maintenance', False):
             # Vykreslí graf nákladů dle typu údržby
             return self.generate_graph_by_maintenance(self.get_queryset())
         elif getattr(self, 'graph', False):
             # Vykreslí výchozí graf
             return self.generate_graph_to_pdf(self.get_queryset())
+        elif getattr(self, 'export_consumption_to_csv', False):
+            # export spotřeby jednotlivých skladových položek
+            return self.generate_export_consumption_to_csv(self.get_queryset())
         else:
             return super().render_to_response(context, **response_kwargs)
-        
 
 
 class AuditLogDetailView(LoginRequiredMixin, DetailView):

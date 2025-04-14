@@ -37,11 +37,14 @@
                             Export do CSV
                         </a>     
                         {% if db_table == 'audit_log' and typ_operace == 'VÝDEJ' %}              
-                            <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?graph=true&{{ request.GET.urlencode }}">
-                                Graf nákladů
+                            <a class="dropdown-item small" href="{% url 'audit_log_export_consumption_to_csv' %}?{{ request.GET.urlencode }}">
+                                Export spotřeby do CSV
                             </a>
+                            <a class="dropdown-item small" href="{% url 'audit_log_graph' %}?{{ request.GET.urlencode }}">
+                                Graf nákladů
+                            </a>                            
                             {% if typ_udrzby and typ_udrzby != 'VŠE' %}
-                                <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?graph_type_of_maintenance=true&{{ request.GET.urlencode }}">
+                                <a class="dropdown-item small" href="{% url 'audit_log_graph_type_of_maintenance' %}?{{ request.GET.urlencode }}">
                                     Graf nákladů dle typu údržby
                                 </a>
                             {% endif %}
