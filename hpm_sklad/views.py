@@ -27,7 +27,7 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 
-from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni, UDRZBA_CHOICES
 from .forms import (SkladCreateForm, SkladUpdateForm, SkladUpdateObjednanoForm, SkladReceiptForm,
                     SkladDispatchForm, AuditLogReceiptForm, AuditLogDispatchForm, CustomUserCreationForm,
                     VariantyCreateForm, VariantyUpdateForm, PoptavkaVariantyForm, DodavateleCreateForm,
@@ -865,12 +865,13 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         logger.info(f"{self.request.user} zahájil generování PDF grafu nákladů dle typu údržby za měsíc {self.month}, rok {self.year}")
         try:
             data = {}
+            for choice in UDRZBA_CHOICES:
+                data[choice[0]] = 0
+            queryset = queryset.exclude(Q(typ_udrzby__isnull=True) | Q(typ_udrzby=''))
             for item in queryset:
-                if item.typ_udrzby not in data:
-                    data[item.typ_udrzby] = 0
                 data[item.typ_udrzby] += abs(item.celkova_cena_eur)
 
-            typy_udrzby = sorted(data.keys())
+            typy_udrzby = sorted(data.keys(), reverse=True)
             naklady = [data[key] for key in typy_udrzby]
 
             # Vytvoření figure a axes objektů

@@ -6,13 +6,38 @@ from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
 
 JEDNOTKY_CHOICES = [
-        ('ks', 'kus'),
-        ('kg', 'kilogram'),
-        ('pár', 'pár'),
-        ('l', 'litr'),
-        ('m', 'metr'),
-        ('balení', 'balení'),
-    ]
+    ('ks', 'kus'),
+    ('kg', 'kilogram'),
+    ('pár', 'pár'),
+    ('l', 'litr'),
+    ('m', 'metr'),
+    ('balení', 'balení'),
+]
+
+LANGUAGE_CHOICES = [
+    ('CZ', 'Český'),
+    ('SK', 'Slovenský'),
+    ('DE', 'Německý'),
+    ('EN', 'Anglický')
+]
+
+MOVEMENT_CHOICES = [
+    ('PŘÍJEM', 'Příjem'),
+    ('VÝDEJ', 'Výdej')
+]
+
+UDRZBA_CHOICES = [
+    ('Reaktivní', 'Reaktivní'),
+    ('Preventivní', 'Preventivní'),
+    ('Prediktivní', 'Prediktivní'),
+    ('Inventura', 'Inventurní rozdíl'),
+]
+
+STAVY_CHOICES = [
+    ('Tvorba', 'Ve tvorbě'),
+    ('Poptáno', 'Poptáno'),
+    ('Uzavřeno', 'Uzavřeno'),
+]
 
 
 class Zarizeni(models.Model):
@@ -152,12 +177,6 @@ class Dodavatele(models.Model):
     class Meta:
         verbose_name_plural = "Dodavatelé"
     
-    LANGUAGE_CHOICES = [
-        ('CZ', 'Český'),
-        ('SK', 'Slovenský'),
-        ('DE', 'Německý'),
-        ('EN', 'Anglický')
-    ]
     dodavatel = models.CharField(max_length=100, verbose_name="Dodavatel")
     kontakt = models.CharField(null=True, max_length=100, verbose_name="Kontaktní osoba")
     email = models.EmailField(null=True, max_length=100, verbose_name="E-mail")
@@ -203,18 +222,6 @@ class AuditLog(models.Model):
         verbose_name_plural = "Auditovací logy"
         ordering = ["-id"]
     
-    MOVEMENT_CHOICES = [
-        ('PŘÍJEM', 'Příjem'),
-        ('VÝDEJ', 'Výdej')
-    ]
-
-    UDRZBA_CHOICES = [
-        ('Reaktivní', 'Reaktivní'),
-        ('Preventivní', 'Preventivní'),
-        ('Prediktivní', 'Prediktivní'),
-        ('Inventura', 'Inventurní rozdíl'),
-    ]
-
     ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
     evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")
@@ -289,12 +296,6 @@ class Poptavky(models.Model):
     class Meta:
         verbose_name_plural = 'Poptávky'
         verbose_name = 'Poptávka'
-
-    STAVY_CHOICES = [
-        ('Tvorba', 'Ve tvorbě'),
-        ('Poptáno', 'Poptáno'),
-        ('Uzavřeno', 'Uzavřeno'),
-        ]
 
     dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='poptavky_dodavatele', verbose_name="Dodavatel")
     datum_vytvoreni = models.DateTimeField(auto_now_add=True, verbose_name="Datum vytvoření")

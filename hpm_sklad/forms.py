@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni, JEDNOTKY_CHOICES
+from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni, JEDNOTKY_CHOICES, UDRZBA_CHOICES
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_forms.bootstrap import FormActions
@@ -251,7 +251,7 @@ class AuditLogDispatchForm(forms.ModelForm):
         )
     zmena_mnozstvi = forms.ChoiceField(label='Změna množství')
     typ_udrzby = forms.ChoiceField(
-        choices=[('', 'Zadejte typ údržby')] + AuditLog.UDRZBA_CHOICES,
+        choices=[('', 'Zadejte typ údržby')] + UDRZBA_CHOICES,
         required=True,
         label="Typ údržby"
     )
