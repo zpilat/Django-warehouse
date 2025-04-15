@@ -765,14 +765,13 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         logger.info(f"Export do CSV připraven. Počet položek: {queryset.count()}")
         return response
 
-    def generate_export_consumption_to_csv(self):
+    def generate_export_consumption_to_csv(self, queryset):
         """
         Exportuje spotřebu jednotlivých dílů za vyfiltrované období do CSV.
 
         Vrací:
         - HttpResponse s CSV souborem.
         """
-        queryset = self.get_queryset()
         queryset = queryset.values('evidencni_cislo').annotate(celkovy_vydej=Sum('zmena_mnozstvi'), celkem_eur=Sum('celkova_cena_eur')).order_by('celkem_eur')
 
         logger.info(f"{self.request.user} spustil export spotřeby do CSV.")
@@ -919,17 +918,14 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - HttpResponse s HTML, CSV nebo PDF obsahem.
         """
-        if getattr(self, 'export_csv', False):
+        if self.export_csv:
             return self.generate_export_to_csv(self.get_queryset())
-        elif getattr(self, 'graph_type_of_maintenance', False):
-            # Vykreslí graf nákladů dle typu údržby
+        elif self.graph_type_of_maintenance:
             return self.generate_graph_by_maintenance(self.get_queryset())
-        elif getattr(self, 'graph', False):
-            # Vykreslí výchozí graf
+        elif self.graph:
             return self.generate_graph_to_pdf(self.get_queryset())
-        elif getattr(self, 'export_consumption_to_csv', False):
-            # export spotřeby jednotlivých skladových položek
-            return self.generate_export_consumption_to_csv()
+        elif self.export_consumption_to_csv:
+            return self.generate_export_consumption_to_csv(self.get_queryset())
         else:
             return super().render_to_response(context, **response_kwargs)
 

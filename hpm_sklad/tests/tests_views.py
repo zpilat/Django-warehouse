@@ -1108,6 +1108,7 @@ class AuditLogExportGraphTest(TestCase):
             interne_cislo=100,
             nazev_dilu='Testovací díl',
             mnozstvi=5,
+            jednotky='ks',
             jednotkova_cena_eur=10,
             celkova_cena_eur=50,
             ucetnictvi=True,
@@ -1141,13 +1142,16 @@ class AuditLogExportGraphTest(TestCase):
         self.view.request.user = self.user
         self.view.month = str(date.today().month)
         self.view.year = str(date.today().year)
+        self.view.typ_udrzby = 'VŠE'
+        self.view.ucetnictvi = ''
+        self.view.query = ''
 
     def test_export_to_csv_contains_expected_data(self):
         """
         Ověřuje, že export do CSV vrací očekávaná data a formát.
         """
         queryset = AuditLog.objects.all()
-        response = self.view.export_to_csv(queryset)
+        response = self.view.generate_export_to_csv(queryset)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('attachment; filename="audit_log_export.csv"', response['Content-Disposition'])
@@ -1155,7 +1159,22 @@ class AuditLogExportGraphTest(TestCase):
         content = response.content.decode('utf-8')
         self.assertIn("Testovací díl", content)
         self.assertIn("Test Dodavatel", content)
-        self.assertIn("20.0", content)  # celková cena
+        self.assertIn("20.0", content)
+
+    def test_export_consumption_to_csv_contains_expected_data(self):
+        """
+        Ověřuje, že export spotřeby do CSV vrací očekávaná data a formát.
+        """
+        queryset = AuditLog.objects.all()
+        response = self.view.generate_export_consumption_to_csv(queryset)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('attachment; filename="spotreba_export.csv"', response['Content-Disposition'])
+
+        content = response.content.decode('utf-8')
+        self.assertIn("Testovací díl", content)
+        self.assertIn("ks", content)
+        self.assertIn("-2", content)
 
     def test_generate_graph_to_pdf_returns_file_response(self):
         """
