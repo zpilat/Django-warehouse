@@ -16,6 +16,5 @@ class SkladAdmin(SimpleHistoryAdmin):
     search_fields = ("evidencni_cislo", "nazev_dilu__startswith")
     list_filter = ("kriticky_dil", "ucetnictvi", "datum_nakupu")
 
-    history_list_display = ["evidencni_cislo", "nazev_dilu", "dodavatel", "mnozstvi_ks_m_l", "min_mnozstvi_ks"]
+    history_list_display = ["evidencni_cislo", "nazev_dilu", "dodavatel", "mnozstvi", "min_mnozstvi_ks"]
     history_search_fields = ["nazev_dilu", "dodavatel"]
-
