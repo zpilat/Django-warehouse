@@ -9,13 +9,13 @@
                 <div class="form-group mx-sm-2 mb-2">
                     <label for="zarizeni_filter" class="mr-sm-2">Pro zařízení:</label>
                     <select name="zarizeni_filter" class="form-select form-select-sm mr-sm-2" id="zarizeni_filter">
-                        {% for value, label in zarizeni_filters %}
+                        {% for value, label in zarizeni_choices %}
                         <option value="{{ value }}" {% if request.GET.zarizeni_filter == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div> 
                 <div class="form-group mx-sm-3 mb-2">
-                    <input class="form-control form-control-sm" type="text" name="query" placeholder="Hledat název dílu / ev. číslo" value="{{ request.GET.query }}">
+                    <input class="form-control form-control-sm" type="text" name="query" placeholder="Hledat název / ev.č. / č.karty" value="{{ request.GET.query }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <button class="btn btn-outline-dark btn-sm rounded-pill" type="submit">Filtrovat</button>
