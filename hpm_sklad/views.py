@@ -45,7 +45,7 @@ def home_view(request):
     Vrací:
     - render: HTML stránku `home.html` s aktuálním přihlášeným uživatelem v kontextu.
     """
-    context = {'current_user': request.user}
+    context = {'current_user': request.user, 'db_table': 'home'}
     logger.debug(f'Zahájena view home_view s uživatelem: {context["current_user"]}')
     return render(request, "hpm_sklad/home.html", context)
 
