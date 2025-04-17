@@ -1184,7 +1184,7 @@ class VariantyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
     form_class = VariantyUpdateForm
     template_name = 'hpm_sklad/update_varianty.html'
     success_url = reverse_lazy('sklad')
-    permission_required = 'hpm_sklad.update_varianty'
+    permission_required = 'hpm_sklad.change_varianty'
 
     def get_context_data(self, **kwargs):
         """
