@@ -204,14 +204,14 @@
                         <td>{{ item.nazev_dilu|truncatechars:50 }}</td>                   
                         <td>{{ item.zmena_mnozstvi }}</td>
                         <td>{{ item.jednotky }}</td>
-                        <td>{{ item.pouzite_zarizeni }}
-                        <td>{{ item.datum_vydeje | date:"d.m.Y" }}</td>
-                        <td>{{ item.datum_nakupu | date:"d.m.Y" }}</td>
-                        <td>{{ item.dodavatel|truncatechars:15 }}</td>
+                        <td>{{ item.pouzite_zarizeni|default:"" }}</td>
+                        <td>{{ item.datum_vydeje|date:"d.m.Y" }}</td>
+                        <td>{{ item.datum_nakupu|date:"d.m.Y" }}</td>
+                        <td>{{ item.dodavatel|default:""|truncatechars:15 }}</td>
                         <td>{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td>{{ item.celkova_cena_eur|floatformat:2 }}</td>
                         <td>{{ item.cas_vytvoreni|date:"d.m.Y" }}</td>   
-                        <td>{{ item.typ_udrzby }}</td>                     
+                        <td>{{ item.typ_udrzby|default:"" }}</td>                     
                         <td>{{ item.operaci_provedl.last_name }}</td>
                     </tr>
                 {% endfor %}
