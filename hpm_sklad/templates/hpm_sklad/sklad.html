@@ -155,13 +155,13 @@
                         <td scope="row">{{ item.nazev_dilu|truncatechars:70 }}</td>
                         <td scope="row">{{ item.mnozstvi }}</td>
                         <td scope="row">{{ item.jednotky }}</td>
-                        <td scope="row">{{ item.umisteni }}</td>
-                        <td scope="row">{{ item.dodavatel|truncatechars:20 }}</td>
+                        <td scope="row">{{ item.umisteni|default:"" }}</td>
+                        <td scope="row">{{ item.dodavatel|default:""|truncatechars:20 }}</td>
                         <td scope="row">{{ item.datum_nakupu|date:"d.m.Y" }}</td>
-                        <td scope="row">{{ item.cislo_objednavky }}</td>
+                        <td scope="row">{{ item.cislo_objednavky|default:"" }}</td>
                         <td scope="row">{{ item.jednotkova_cena_eur|floatformat:2 }}</td>
                         <td scope="row">{{ item.celkova_cena_eur|floatformat:2 }}</td>
-                        <td scope="row">{{ item.poznamka|truncatechars:25 }}</td>                        
+                        <td scope="row">{{ item.poznamka|default:""|truncatechars:25 }}</td>                        
                     </tr>
                 {% endfor %}
             </tbody>
