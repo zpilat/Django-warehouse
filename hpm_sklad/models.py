@@ -118,7 +118,7 @@ class Sklad(models.Model):
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
     celkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="Celkem EUR")
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
-    ucetnictvi = models.BooleanField(default=True, verbose_name="Účetnictví")
+    ucetnictvi = models.BooleanField(default=True, verbose_name="V účetnictví")
     kriticky_dil = models.BooleanField(default=False, verbose_name="Kritický díl") 
     zarizeni = models.ManyToManyField(Zarizeni, blank=True, through='SkladZarizeni', verbose_name="Zařízení")
     history = HistoricalRecords()
@@ -177,7 +177,7 @@ class Dodavatele(models.Model):
     class Meta:
         verbose_name_plural = "Dodavatelé"
     
-    dodavatel = models.CharField(max_length=100, verbose_name="Dodavatel")
+    dodavatel = models.CharField(max_length=100, verbose_name="Název dodavatele")
     kontakt = models.CharField(null=True, max_length=100, verbose_name="Kontaktní osoba")
     email = models.EmailField(null=True, max_length=100, verbose_name="E-mail")
     telefon = models.CharField(null=True, max_length=20, verbose_name="Telefon")
@@ -215,14 +215,14 @@ class AuditLog(models.Model):
     - poznamka: Další poznámky k operaci.
 
     Meta:
-    - verbose_name_plural: Množné číslo názvu modelu je "Auditovací logy".
+    - verbose_name_plural: Množné číslo názvu modelu je "Skladové pohyby".
     - ordering: Záznamy jsou řazeny podle ID sestupně (nejnovější nahoře).
     """
     class Meta:
-        verbose_name_plural = "Auditovací logy"
+        verbose_name_plural = "Skladové pohyby"
         ordering = ["-id"]
     
-    ucetnictvi = models.BooleanField(verbose_name="Účetnictví")
+    ucetnictvi = models.BooleanField(verbose_name="V účetnictví")
     evidencni_cislo = models.ForeignKey(Sklad, on_delete=models.CASCADE, verbose_name="Evidenční číslo")
     interne_cislo = models.IntegerField(null=True, verbose_name="Číslo karty")
     objednano = models.CharField(max_length=100, null=True, blank=True, verbose_name="Objednáno?")
@@ -269,7 +269,7 @@ class Varianty(models.Model):
         verbose_name = 'Varianta'
 
     sklad = models.ForeignKey(Sklad, on_delete=models.CASCADE, related_name='varianty_skladu', verbose_name="Skladová položka")
-    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty_dodavatele', verbose_name="Dodavatel")
+    dodavatel = models.ForeignKey(Dodavatele, on_delete=models.CASCADE, related_name='varianty_dodavatele', verbose_name="Název dodavatele")
     nazev_varianty = models.CharField(max_length=255, verbose_name="Název varianty")
     cislo_varianty = models.CharField(max_length=255, null=True, verbose_name="Číslo varianty")
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
@@ -317,8 +317,13 @@ class PoptavkaVarianty(models.Model):
     - jednotky: Jednotky, ve kterých je množství měřeno (např. ks, kg).
 
     Meta:
+    - verbose_name: Název model je "Poptávka variant".
     - verbose_name_plural: Množné číslo názvu modelu je "Poptávky variant".
     """
+    class Meta:
+        verbose_name = "Poptávka variant"
+        verbose_name_plural = "Poptávky variant"
+
     poptavka = models.ForeignKey(Poptavky, on_delete=models.CASCADE, related_name='poptavka', verbose_name="Poptávka")
     varianta = models.ForeignKey(Varianty, on_delete=models.CASCADE, related_name='varianta', verbose_name="Varianta")
     mnozstvi = models.PositiveIntegerField(verbose_name="Množství")
