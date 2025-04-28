@@ -55,6 +55,6 @@ class VariantyAdmin(admin.ModelAdmin):
     def dodavatel_link(self, obj):
         pk_dodavatele = obj.dodavatel.pk
         nazev_dodavatele = obj.dodavatel.dodavatel
-        url= reverse('admin:hpm_sklad_sklad_change', args=[pk_dodavatele])
+        url= reverse('admin:hpm_sklad_dodavatele_change', args=[pk_dodavatele])
         return format_html('<a href={}>{}</a>', url, nazev_dodavatele)
     dodavatel_link.short_description = "dodavatel"
