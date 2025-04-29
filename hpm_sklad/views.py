@@ -45,8 +45,8 @@ def home_view(request):
     Vrací:
     - render: HTML stránku `home.html` s aktuálním přihlášeným uživatelem v kontextu.
     """
-    context = {'current_user': request.user, 'db_table': 'home'}
-    logger.debug(f'Zahájena view home_view s uživatelem: {context["current_user"]}')
+    context = {'db_table': 'home'}
+    logger.debug(f'Zahájena view home_view s uživatelem: {request.user}')
     return render(request, "hpm_sklad/home.html", context)
 
 
@@ -299,7 +299,6 @@ class SkladListView(LoginRequiredMixin, ListView):
             'pod_minimem': self.request.GET.get('pod_minimem', ''),
             'zarizeni_filter': self.request.GET.get('zarizeni_filter', 'VŠE'),
             'zarizeni_choices': zarizeni_choices,
-            'current_user': self.request.user,
         })
 
         return context
@@ -664,8 +663,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             'typ_udrzby': self.request.GET.get('typ_udrzby', 'VŠE'),
             'month': self.request.GET.get('month', 'VŠE'),
             'year': self.request.GET.get('year', 'VŠE'),
-            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),
-            'current_user': self.request.user,            
+            'ucetnictvi': self.request.GET.get('ucetnictvi', ''),         
         })
 
         return context    
@@ -1258,7 +1256,6 @@ class DodavateleListView(LoginRequiredMixin, ListView):
             'sort': self.request.GET.get('sort', 'id'),
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
-            'current_user': self.request.user,
         })
 
         return context
@@ -1561,7 +1558,6 @@ def create_poptavka(request, dodavatel_id):
                 form.fields['should_save'].initial = True
 
     context = {
-        'current_user': request.user,
         'formset': formset,
         'dodavatel': dodavatel,
         'varianty_dodavatele': varianty_dodavatele
@@ -1603,7 +1599,6 @@ class ZarizeniListView(LoginRequiredMixin, ListView):
             'sort': self.request.GET.get('sort', 'id'),
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
-            'current_user': self.request.user,
         })
 
         return context
@@ -1799,7 +1794,6 @@ class PoptavkaListView(LoginRequiredMixin, ListView):
             'sort': self.request.GET.get('sort', 'id'),
             'order': self.request.GET.get('order', 'down'),
             'query': self.request.GET.get('query', ''),
-            'current_user': self.request.user,
         })
 
         return context
