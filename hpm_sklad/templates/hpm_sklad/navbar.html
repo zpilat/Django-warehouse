@@ -69,7 +69,10 @@
             </div>        
         {% endif %}
         <div class="col-auto">   
-            <a class="btn btn-light btn-sm" href="{% url 'logout' %}">Odhlásit se</a>
+            <form id="logout-form" method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-light btn-sm">Odhlásit se</button>
+            </form>
         </div>
     {% else %}
         <div class="col-auto">

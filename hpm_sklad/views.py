@@ -1956,16 +1956,3 @@ class CustomPasswordChangeView(PasswordChangeView):
         logger.info(f"{request.user} otevřel stránku pro změnu hesla.")
         return super().dispatch(request, *args, **kwargs)
   
-  
-def logout_request(request):
-    """
-    Odhlásí uživatele a přesměruje ho na úvodní stránku.
-
-    Parameters:
-    - request: HTTP request objekt.
-
-    Vrací:
-    - redirect: Přesměrování na úvodní stránku.
-    """
-    logout(request)
-    return redirect("home")
