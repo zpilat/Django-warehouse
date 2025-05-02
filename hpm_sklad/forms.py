@@ -275,7 +275,7 @@ class AuditLogDispatchForm(forms.ModelForm):
         self.fields['datum_vydeje'].widget.attrs['max'] = today.isoformat()
         self.fields['datum_vydeje'].validators.append(MaxValueValidator(today))      
         self.fields['datum_vydeje'].required = True
-        self.fields['zmena_mnozstvi'].choices = [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
+        self.fields['zmena_mnozstvi'].choices = [('', 'Vyberte vydávané množství')] + [(i, str(i)) for i in range(1, int(max_mnozstvi) + 1)]
 
         zarizeni_choices = [('', 'Vyberte zařízení')] + [(z.kod_zarizeni.upper(), z.nazev_zarizeni) for z in zarizeni_qs] + [('VIZ POZN.', 'Ostatní zařízení - do poznámky')]
         self.fields['pouzite_zarizeni'].choices = zarizeni_choices
