@@ -770,7 +770,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - HttpResponse s CSV souborem.
         """
-        queryset = queryset.values('evidencni_cislo').annotate(celkovy_vydej=Sum('zmena_mnozstvi'), celkem_eur=Sum('celkova_cena_eur')).order_by('celkem_eur')
+        queryset = queryset.values('interne_cislo', 'evidencni_cislo').annotate(celkovy_vydej=Sum('zmena_mnozstvi'), celkem_eur=Sum('celkova_cena_eur')).order_by('interne_cislo')
 
         logger.info(f"{self.request.user} spustil export spotřeby do CSV.")
 
@@ -779,12 +779,14 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         sklad = Sklad.objects.all()
         writer = csv.writer(response)
-        writer.writerow(['Filtry:', f'měsíc: {self.month}, rok: {self.year}, pouze v účetnictví: {"ano" if self.ucetnictvi=="on" else "ne"}, typ údržby: {self.typ_udrzby}, vyhledávání: {self.query}'])
-        writer.writerow(['Evidenční číslo', 'Název dílu', 'Vydáno', 'Jednotky', 'Celkem EUR'])
+        writer.writerow(['', 'Použité filtry:', f'měsíc: {self.month}, rok: {self.year}, pouze v účetnictví: {"ano" if self.ucetnictvi=="on" else "ne"}, typ údržby: {self.typ_udrzby}, vyhledávání: {self.query}'])
+        writer.writerow([''])
+        writer.writerow(['Číslo karty', 'Evidenční č.', 'Název dílu', 'Vydáno', 'Jednotky', 'Celkem EUR'])
 
         for item in queryset:
             skladova_polozka = sklad.get(pk=item['evidencni_cislo'])
             writer.writerow([
+                item['interne_cislo'],
                 item['evidencni_cislo'],  
                 skladova_polozka.nazev_dilu, 
                 item['celkovy_vydej'], 
