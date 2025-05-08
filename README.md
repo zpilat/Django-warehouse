@@ -44,7 +44,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-cp .env.example .env  # configure secret key and database
+cp env.example .env  # configure secret key, debug and allowed hosts
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
@@ -117,7 +117,7 @@ python manage.py runserver
 
 ## ✍️ Author
 
-Created by [zpilat](https://github.com/zpilat) to support real maintenance operations in a Czech manufacturing company.
+Created by [zpilat](https://github.com/zpilat) to support real maintenance operations in a Slovak manufacturing company.
 
 ---
 
