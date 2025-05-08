@@ -67,7 +67,7 @@ class HomeViewTest(TestCase):
         self.client.login(username='testuser', password='testpassword')
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['current_user'], self.user)
+        self.assertEqual(response.context['user'], self.user)
 
     def test_home_view_context_for_anonymous_user(self):
         """
@@ -75,7 +75,7 @@ class HomeViewTest(TestCase):
         """
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(str(response.context['current_user']), 'AnonymousUser')
+        self.assertEqual(str(response.context['user']), 'AnonymousUser')
 
 
 class ReceiptFormViewTest(TestCase):
