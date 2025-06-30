@@ -19,6 +19,7 @@ class SkladAdmin(SimpleHistoryAdmin):
 
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
+    fields = '__all__'
     list_display = ("id", "evidencni_cislo_link", "nazev_dilu", "zmena_mnozstvi", "jednotky", "datum_nakupu", "datum_vydeje", "typ_operace")
     search_fields = ("evidencni_cislo__pk", "nazev_dilu")
     list_filter = ("ucetnictvi", "datum_nakupu", "datum_vydeje")    
@@ -28,6 +29,13 @@ class AuditLogAdmin(admin.ModelAdmin):
         url= reverse('admin:hpm_sklad_sklad_change', args=[evidencni_cislo])
         return format_html('<a href={}>{}</a>', url, evidencni_cislo)
     evidencni_cislo_link.short_description = "ev. číslo"
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if obj and obj.typ_operace == 'PŘÍJEM':
+            return [f for f in fields if f not in ('typ_udrzby', 'pouzite_zarizeni')]
+        return fields
+
 
 @admin.register(Dodavatele)
 class DodavateleAdmin(admin.ModelAdmin):
