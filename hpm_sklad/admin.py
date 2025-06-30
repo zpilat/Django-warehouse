@@ -19,7 +19,6 @@ class SkladAdmin(SimpleHistoryAdmin):
 
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
-    fields = '__all__'
     list_display = ("id", "evidencni_cislo_link", "nazev_dilu", "zmena_mnozstvi", "jednotky", "datum_nakupu", "datum_vydeje", "typ_operace")
     search_fields = ("evidencni_cislo__pk", "nazev_dilu")
     list_filter = ("ucetnictvi", "datum_nakupu", "datum_vydeje")    
@@ -31,9 +30,14 @@ class AuditLogAdmin(admin.ModelAdmin):
     evidencni_cislo_link.short_description = "ev. číslo"
 
     def get_fields(self, request, obj=None):
-        fields = super().get_fields(request, obj)
+        fields = [
+            'ucetnictvi', 'evidencni_cislo', 'interne_cislo', 'objednano', 'nazev_dilu',
+            'zmena_mnozstvi', 'mnozstvi', 'jednotky', 'typ_operace', 'pouzite_zarizeni',
+            'umisteni', 'dodavatel', 'datum_vydeje', 'datum_nakupu', 'cislo_objednavky',
+            'jednotkova_cena_eur', 'celkova_cena_eur', 'typ_udrzby', 'poznamka',
+        ]
         if obj and obj.typ_operace == 'PŘÍJEM':
-            return [f for f in fields if f not in ('typ_udrzby', 'pouzite_zarizeni')]
+            fields = [f for f in fields if f not in ('typ_udrzby', 'pouzite_zarizeni')]
         return fields
 
 
