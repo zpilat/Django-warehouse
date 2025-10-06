@@ -98,6 +98,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'sklad.wsgi.application'
 
+# Cookies names
+SESSION_COOKIE_NAME = "sessionid_warehouse"
+CSRF_COOKIE_NAME    = "csrftoken_warehouse"
+
 GRAPHENE = {
     "SCHEMA": "hpm_sklad.schema.schema"  # Cesta k GraphQL schématu
 }
