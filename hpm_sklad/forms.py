@@ -99,11 +99,11 @@ class SkladUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[:9]],
+                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[:10]],
                     css_class='form-column col mr-3 small'
                 ),
                 Div(
-                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[9:]],
+                    *[Field(field, css_class='form-control form-control-sm') for field in self.Meta.fields[10:]],
                     css_class='form-column col-auto mr-3 small'
                 ),
                 css_class='form-row'
