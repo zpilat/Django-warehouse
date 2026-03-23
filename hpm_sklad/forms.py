@@ -87,7 +87,7 @@ class SkladUpdateForm(forms.ModelForm):
         model = Sklad
         fields = [
             "ucetnictvi", "kriticky_dil", "interne_cislo", "min_mnozstvi_ks", "objednano", "nazev_dilu",
-            "jednotky", "umisteni", "poznamka", "zarizeni"
+            "jednotky", "cislo_objednavky", "umisteni", "poznamka", "zarizeni"
         ]
 
     def __init__(self, *args, **kwargs):
