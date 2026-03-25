@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Q, F, Case, When, BooleanField, Value, Sum
+from django.db.models import Q, F, Case, When, BooleanField, Value, Sum, CharField
 from django.forms import inlineformset_factory
 from django_user_agents.utils import get_user_agent
 
@@ -810,9 +810,15 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         Vrací:
         - FileResponse s PDF souborem.
         """
-        queryset = queryset.values('interne_cislo', 'evidencni_cislo', 'pouzite_zarizeni').annotate(
-            celkovy_vydej=Sum('zmena_mnozstvi'),
-            celkem_eur=Sum('celkova_cena_eur')
+        source_queryset = queryset
+        queryset = source_queryset.annotate(
+            group_poznamka=Case(
+                When(pouzite_zarizeni='VIZ POZN.', then=F('poznamka')),
+                default=Value(''),
+                output_field=CharField()
+            )
+        ).values('interne_cislo', 'evidencni_cislo', 'pouzite_zarizeni', 'group_poznamka').annotate(
+            celkovy_vydej=Sum('zmena_mnozstvi')
         ).order_by('interne_cislo')
         rows = list(queryset)
 
@@ -863,8 +869,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
         margin_y = 30
         pdf = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
 
-        col_widths = [60, 60, 357, 55, 50, 60, 90]
-        headers = ['Číslo karty', 'Evidenční č.', 'Název dílu', 'Vydáno', 'Jednotky', 'Celkem EUR', 'Použité zařízení']
+        col_widths = [60, 60, 357, 55, 50, 75, 75]
+        headers = ['Číslo karty', 'Evidenční č.', 'Název dílu', 'Vydáno', 'Jednotky', 'Použité zařízení', 'Poznámka']
 
         x_positions = [margin_x]
         for width in col_widths[:-1]:
@@ -971,6 +977,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             skladova_polozka = sklad_map.get(item['evidencni_cislo'])
             nazev_dilu = skladova_polozka.nazev_dilu if skladova_polozka else ''
             jednotky = skladova_polozka.jednotky if skladova_polozka else ''
+            auditlog_poznamka = item['group_poznamka'] or '' if item['pouzite_zarizeni'] == 'VIZ POZN.' else ''
 
             row_data = [
                 str(item['interne_cislo'] or ''),
@@ -978,8 +985,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
                 nazev_dilu,
                 str(item['celkovy_vydej'] or ''),
                 str(jednotky),
-                f"{-float(item['celkem_eur'] or 0):.2f}",
                 item['pouzite_zarizeni'] or '',
+                auditlog_poznamka,
             ]
 
             _, max_lines = get_wrapped_columns(row_data, font_name=font_regular, font_size=8)
