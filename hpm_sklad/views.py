@@ -18,6 +18,7 @@ from django_user_agents.utils import get_user_agent
 import io
 import logging
 import datetime
+import os
 
 import matplotlib
 matplotlib.use('Agg')  # Nastavení backendu na neinteraktivní
@@ -25,6 +26,8 @@ import matplotlib.pyplot as plt
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from PIL import Image
 
 from .models import Sklad, AuditLog, Dodavatele, Varianty, Poptavky, PoptavkaVarianty, Zarizeni, UDRZBA_CHOICES
@@ -635,6 +638,7 @@ class AuditLogListView(LoginRequiredMixin, ListView):
     graph = False
     graph_type_of_maintenance = False
     export_consumption_to_csv = False
+    export_consumption_to_pdf = False
 
     def get_context_data(self, **kwargs):
         """
@@ -774,8 +778,9 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         logger.info(f"{self.request.user} spustil export spotřeby do CSV.")
 
+        today = datetime.date.today().strftime('%Y-%m-%d')
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="spotreba_export.csv"'
+        response['Content-Disposition'] = f'attachment; filename="spotreba_export_{today}.csv"'
 
         sklad = Sklad.objects.all()
         writer = csv.writer(response)
@@ -797,6 +802,212 @@ class AuditLogListView(LoginRequiredMixin, ListView):
 
         logger.info(f"Export spotřeby do CSV připraven. Počet položek: {queryset.count()}")
         return response
+
+    def generate_export_consumption_to_pdf(self, queryset):
+        """
+        Exportuje spotřebu jednotlivých dílů za vyfiltrované období do PDF.
+
+        Vrací:
+        - FileResponse s PDF souborem.
+        """
+        queryset = queryset.values('interne_cislo', 'evidencni_cislo', 'pouzite_zarizeni').annotate(
+            celkovy_vydej=Sum('zmena_mnozstvi'),
+            celkem_eur=Sum('celkova_cena_eur')
+        ).order_by('interne_cislo')
+        rows = list(queryset)
+
+        logger.info(f"{self.request.user} spustil export spotřeby do PDF.")
+        today = datetime.date.today().strftime('%Y-%m-%d')
+        today_for_filename = datetime.date.today().strftime('%d-%m-%Y')
+        filename = f'spotreba_export_{today_for_filename}.pdf'
+
+        sklad_map = {
+            item.evidencni_cislo: item
+            for item in Sklad.objects.filter(evidencni_cislo__in=[row['evidencni_cislo'] for row in rows])
+        }
+
+        pdf_buffer = io.BytesIO()
+        page_width, page_height = landscape(letter)
+        font_regular = 'Helvetica'
+        font_bold = 'Helvetica-Bold'
+
+        # ReportLab built-in fonty nezobrazují spolehlivě českou diakritiku.
+        # Zkusíme zaregistrovat Unicode TTF fonty (Windows/Linux), jinak fallback na Helvetica.
+        try:
+            regular_path_candidates = [
+                r'C:\Windows\Fonts\arial.ttf',
+                '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            ]
+            bold_path_candidates = [
+                r'C:\Windows\Fonts\arialbd.ttf',
+                '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            ]
+
+            regular_path = next((p for p in regular_path_candidates if os.path.exists(p)), None)
+            bold_path = next((p for p in bold_path_candidates if os.path.exists(p)), None)
+
+            if regular_path and 'ExportUnicode' not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont('ExportUnicode', regular_path))
+            if bold_path and 'ExportUnicodeBold' not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont('ExportUnicodeBold', bold_path))
+
+            if 'ExportUnicode' in pdfmetrics.getRegisteredFontNames():
+                font_regular = 'ExportUnicode'
+            if 'ExportUnicodeBold' in pdfmetrics.getRegisteredFontNames():
+                font_bold = 'ExportUnicodeBold'
+            else:
+                font_bold = font_regular
+        except Exception:
+            logger.warning('Nepodařilo se načíst Unicode font pro PDF export spotřeby, používám výchozí font.')
+        margin_x = 30
+        margin_y = 30
+        pdf = canvas.Canvas(pdf_buffer, pagesize=landscape(letter))
+
+        col_widths = [60, 60, 357, 55, 50, 60, 90]
+        headers = ['Číslo karty', 'Evidenční č.', 'Název dílu', 'Vydáno', 'Jednotky', 'Celkem EUR', 'Použité zařízení']
+
+        x_positions = [margin_x]
+        for width in col_widths[:-1]:
+            x_positions.append(x_positions[-1] + width)
+
+        def wrap_text(value, max_width, font_name=font_regular, font_size=8):
+            text = str(value or '')
+            if not text:
+                return ['']
+            words = text.split()
+            if not words:
+                return ['']
+
+            lines = []
+            current_line = words[0]
+            for word in words[1:]:
+                candidate = f"{current_line} {word}"
+                if pdf.stringWidth(candidate, font_name, font_size) <= max_width:
+                    current_line = candidate
+                else:
+                    lines.append(current_line)
+                    current_line = word
+            lines.append(current_line)
+            return lines
+
+        def get_wrapped_columns(values, font_name=font_regular, font_size=8):
+            wrapped_columns = []
+            max_lines = 1
+            for idx, value in enumerate(values):
+                wrapped = wrap_text(value, col_widths[idx] - 6, font_name=font_name, font_size=font_size)
+                wrapped_columns.append(wrapped)
+                max_lines = max(max_lines, len(wrapped))
+            return wrapped_columns, max_lines
+
+        def draw_wrapped_row(y_start, values, font_name=font_regular, font_size=8):
+            wrapped_columns, max_lines = get_wrapped_columns(values, font_name=font_name, font_size=font_size)
+
+            line_height = 10
+            row_height = max_lines * line_height + 4
+            y_text = y_start - 10
+            row_bottom = y_start - row_height
+
+            # Mřížka tabulky: obrys každé buňky v řádku.
+            for col_idx, col_width in enumerate(col_widths):
+                pdf.rect(x_positions[col_idx], row_bottom, col_width, row_height, stroke=1, fill=0)
+
+            pdf.setFont(font_name, font_size)
+            for col_idx, lines_in_col in enumerate(wrapped_columns):
+                current_y = y_text
+                for line in lines_in_col:
+                    if col_idx == 2:
+                        pdf.drawString(x_positions[col_idx] + 3, current_y, line)
+                    else:
+                        line_width = pdf.stringWidth(line, font_name, font_size)
+                        centered_x = x_positions[col_idx] + (col_widths[col_idx] - line_width) / 2
+                        pdf.drawString(centered_x, current_y, line)
+                    current_y -= line_height
+
+            return row_bottom
+
+        def draw_table_header(y_start):
+            header_height = 18
+            header_bottom = y_start - header_height
+            pdf.setFont(font_bold, 8)
+
+            for idx, header in enumerate(headers):
+                pdf.rect(x_positions[idx], header_bottom, col_widths[idx], header_height, stroke=1, fill=0)
+                if idx == 2:
+                    pdf.drawString(x_positions[idx] + 3, y_start - 11, header)
+                else:
+                    header_width = pdf.stringWidth(header, font_bold, 8)
+                    centered_x = x_positions[idx] + (col_widths[idx] - header_width) / 2
+                    pdf.drawString(centered_x, y_start - 11, header)
+
+            return header_bottom
+
+        def draw_page_number_footer():
+            pdf.setFont(font_regular, 8)
+            pdf.drawRightString(page_width - margin_x, margin_y - 10, f"Strana {pdf.getPageNumber()}")
+
+        pdf.setTitle('Export spotreby')
+        pdf.setFont(font_bold, 12)
+        pdf.drawString(margin_x, page_height - 30, f'Export spotřeby náhradních dílů {self.month}/{self.year}')
+        pdf.setFont(font_regular, 8)
+        pdf.drawRightString(page_width - margin_x, page_height - 30, f"Datum tisku: {today}")
+
+        pdf.setFont(font_regular, 9)
+        filter_text = (
+            f"Použité filtry: měsíc: {self.month}, rok: {self.year}, "
+            f"pouze v účetnictví: {'ano' if self.ucetnictvi == 'on' else 'ne'}, "
+            f"typ údržby: {self.typ_udrzby}, vyhledávání: {self.query or '-'}"
+        )
+        filter_lines = wrap_text(filter_text, page_width - (2 * margin_x), font_name=font_regular, font_size=9)
+        filter_start_y = page_height - 46
+        filter_y = filter_start_y
+        for line in filter_lines[:3]:
+            pdf.drawString(margin_x, filter_y, line)
+            filter_y -= 11
+
+        y = filter_y - 6
+        y = draw_table_header(y)
+
+        for item in rows:
+            skladova_polozka = sklad_map.get(item['evidencni_cislo'])
+            nazev_dilu = skladova_polozka.nazev_dilu if skladova_polozka else ''
+            jednotky = skladova_polozka.jednotky if skladova_polozka else ''
+
+            row_data = [
+                str(item['interne_cislo'] or ''),
+                str(item['evidencni_cislo'] or ''),
+                nazev_dilu,
+                str(item['celkovy_vydej'] or ''),
+                str(jednotky),
+                f"{-float(item['celkem_eur'] or 0):.2f}",
+                item['pouzite_zarizeni'] or '',
+            ]
+
+            _, max_lines = get_wrapped_columns(row_data, font_name=font_regular, font_size=8)
+            next_row_height = max_lines * 10 + 4
+            if y - next_row_height < margin_y:
+                draw_page_number_footer()
+                pdf.showPage()
+                pdf.setFont(font_bold, 12)
+                pdf.drawString(margin_x, page_height - 30, f'Export spotřeby náhradních dílů {self.month}/{self.year}')
+                pdf.setFont(font_regular, 8)
+                pdf.drawRightString(page_width - margin_x, page_height - 30, f"Datum tisku: {today}")
+                pdf.setFont(font_regular, 9)
+                filter_y = filter_start_y
+                for line in filter_lines[:3]:
+                    pdf.drawString(margin_x, filter_y, line)
+                    filter_y -= 11
+                y = filter_y - 6
+                y = draw_table_header(y)
+
+            y = draw_wrapped_row(y, row_data)
+
+        draw_page_number_footer()
+
+        pdf.save()
+        pdf_buffer.seek(0)
+
+        logger.info(f"Export spotřeby do PDF připraven. Počet položek: {len(rows)}")
+        return FileResponse(pdf_buffer, as_attachment=True, filename=filename)
 
     def generate_graph_to_pdf(self, queryset):
         """
@@ -928,6 +1139,8 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             return self.generate_graph_to_pdf(self.get_queryset())
         elif self.export_consumption_to_csv:
             return self.generate_export_consumption_to_csv(self.get_queryset())
+        elif self.export_consumption_to_pdf:
+            return self.generate_export_consumption_to_pdf(self.get_queryset())
         else:
             return super().render_to_response(context, **response_kwargs)
 
