@@ -24,6 +24,7 @@
                 <option value="Preventivní" {% if request.GET.typ_udrzby == 'Preventivní' %}selected{% endif %}>Preventivní</option>
                 <option value="Prediktivní" {% if request.GET.typ_udrzby == 'Prediktivní' %}selected{% endif %}>Prediktivní</option>
                 <option value="Inventura" {% if request.GET.typ_udrzby == 'Inventura' %}selected{% endif %}>Inventurní rozdíl</option>
+                <option value="Mimo_inventuru" {% if request.GET.typ_udrzby == 'Mimo_inventuru' %}selected{% endif %}>Vše mimo inventuru</option>
             </select>
         </div>        
         <div class="form-group ml-sm-2 mb-2">

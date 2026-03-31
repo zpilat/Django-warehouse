@@ -701,7 +701,10 @@ class AuditLogListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(typ_operace=typ_operace)
 
         if self.typ_udrzby != 'VŠE':
-            queryset = queryset.filter(typ_udrzby=self.typ_udrzby)
+            if self.typ_udrzby == 'Mimo_inventuru':
+                queryset = queryset.exclude(typ_udrzby='Inventura')
+            else:
+                queryset = queryset.filter(typ_udrzby=self.typ_udrzby)
 
         if self.month != 'VŠE':
             queryset = queryset.filter(
