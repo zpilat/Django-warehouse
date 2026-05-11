@@ -18,10 +18,13 @@ class SkladAdmin(SimpleHistoryAdmin):
     history_search_fields = ["nazev_dilu", "dodavatel"]
 
 @admin.register(AuditLog)
-class AuditLogAdmin(admin.ModelAdmin):
+class AuditLogAdmin(SimpleHistoryAdmin):
     list_display = ("id", "evidencni_cislo_link", "nazev_dilu", "zmena_mnozstvi", "jednotky", "datum_nakupu", "datum_vydeje", "typ_operace")
     search_fields = ("evidencni_cislo__pk", "nazev_dilu")
-    list_filter = ("ucetnictvi", "datum_nakupu", "datum_vydeje")    
+    list_filter = ("ucetnictvi", "datum_nakupu", "datum_vydeje")
+
+    history_list_display = ["evidencni_cislo", "nazev_dilu", "zmena_mnozstvi", "mnozstvi", "typ_operace", "dodavatel"]
+    history_search_fields = ["nazev_dilu", "dodavatel", "evidencni_cislo"]
 
     def evidencni_cislo_link(self, obj):
         evidencni_cislo = obj.evidencni_cislo.pk
@@ -54,9 +57,12 @@ class ZarizeniAdmin(admin.ModelAdmin):
     list_filter = ("umisteni", "typ_zarizeni")    
 
 @admin.register(Varianty)
-class VariantyAdmin(admin.ModelAdmin):
+class VariantyAdmin(SimpleHistoryAdmin):
     list_display = ("id", "sklad_link", "dodavatel_link", "nazev_varianty", "cislo_varianty")
     search_fields = ("nazev_varianty", "dodavatel__dodavatel", "sklad__pk", "sklad__nazev_dilu")
+
+    history_list_display = ["sklad", "dodavatel", "nazev_varianty", "cislo_varianty", "jednotkova_cena_eur"]
+    history_search_fields = ["nazev_varianty", "cislo_varianty", "dodavatel", "sklad"]
 
     def sklad_link(self, obj):
         evidencni_cislo = obj.sklad.pk

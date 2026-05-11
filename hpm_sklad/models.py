@@ -243,6 +243,7 @@ class AuditLog(models.Model):
     operaci_provedl = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Operaci provedl")
     typ_udrzby = models.CharField(max_length=20, choices=UDRZBA_CHOICES, null=True, verbose_name="Typ údržby")
     poznamka = models.CharField(null=True, blank=True, max_length=200, verbose_name="Poznámka")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.typ_operace}: {self.zmena_mnozstvi}x {self.nazev_dilu}"
@@ -275,6 +276,7 @@ class Varianty(models.Model):
     jednotkova_cena_eur = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)], verbose_name="EUR/jednotka")
     dodaci_lhuta = models.PositiveIntegerField(verbose_name="Dodací lhůta")
     min_obj_mnozstvi = models.PositiveIntegerField(verbose_name="Min. obj. množství")
+    history = HistoricalRecords()
  
     def __str__(self):
         return self.nazev_varianty[:60]
