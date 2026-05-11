@@ -1169,7 +1169,10 @@ class AuditLogExportGraphTest(TestCase):
         response = self.view.generate_export_consumption_to_csv(queryset)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('attachment; filename="spotreba_export.csv"', response['Content-Disposition'])
+        self.assertRegex(
+            response['Content-Disposition'],
+            r'^attachment; filename="spotreba_export_\d{4}-\d{2}-\d{2}\.csv"$'
+        )
 
         content = response.content.decode('utf-8')
         self.assertIn("Testovací díl", content)
