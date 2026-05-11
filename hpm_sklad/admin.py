@@ -14,18 +14,8 @@ class SkladAdmin(SimpleHistoryAdmin):
     search_fields = ("evidencni_cislo", "nazev_dilu")
     list_filter = ("kriticky_dil", "ucetnictvi", "datum_nakupu")
 
-    history_list_display = ["evidencni_cislo", "nazev_dilu", "dodavatel", "mnozstvi", "min_mnozstvi_ks", "changes"]
+    history_list_display = ["evidencni_cislo", "nazev_dilu", "dodavatel", "mnozstvi", "min_mnozstvi_ks"]
     history_search_fields = ["nazev_dilu", "dodavatel"]
-
-    def changes(self, obj):
-        previous_record = obj.prev_record
-        if previous_record is None:
-            return "-"
-
-        delta = obj.diff_against(previous_record)
-        return ", ".join(delta.changed_fields) or "-"
-
-    changes.short_description = "changes"
 
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
