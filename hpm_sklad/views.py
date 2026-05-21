@@ -12,6 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q, F, Case, When, BooleanField, Value, Sum, CharField
+from django.db import transaction
 from django.forms import inlineformset_factory
 from django_user_agents.utils import get_user_agent
 
@@ -114,8 +115,10 @@ def receipt_form_view(request, pk):
                     setattr(created_auditlog, field, getattr(updated_sklad, field))
 
                 
-                updated_sklad.save()            
-                created_auditlog.save()
+                # Keep stock and audit log in one transaction so partial writes do not happen.
+                with transaction.atomic():
+                    updated_sklad.save()
+                    created_auditlog.save()
                 logger.info(f'Uložení úspěšné: sklad {updated_sklad.pk}, auditlog {created_auditlog.pk}')
 
                 # Získání dodavatele z formuláře
@@ -213,8 +216,10 @@ def dispatch_form_view(request, pk):
                 for field in fields_to_copy:
                     setattr(created_auditlog, field, getattr(updated_sklad, field))            
 
-                updated_sklad.save()            
-                created_auditlog.save()
+                # Keep stock and audit log in one transaction so partial writes do not happen.
+                with transaction.atomic():
+                    updated_sklad.save()
+                    created_auditlog.save()
                 logger.info(f'Uložení úspěšné: sklad {updated_sklad.pk}, auditlog {created_auditlog.pk}')
 
                 return redirect('audit_log')
